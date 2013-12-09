@@ -25,6 +25,7 @@ class Product(MappedClass):
         'sku': s.String(required=True),
         'price': s.Float(reqired=True),
         'vat': s.Float(required=True),
+        'configuration_details': FieldProperty(s.Anything, if_missing={}),
     }])
 
 

@@ -21,7 +21,7 @@ models = Models()
 class ShopManager(object):
     def create_product(self, type, sku, name, description='',
                        price=1.0, vat=0.0, qty=0, initial_quantity=0,
-                       variety=None, active=True, **details):
+                       variety=None, active=True, configuration_details={}, **details):
         if variety is None:
             variety = name
 
@@ -36,7 +36,8 @@ class ShopManager(object):
                                                   'price': price,
                                                   'vat': vat,
                                                   'qty': qty,
-                                                  'initial_quantity': initial_quantity}])
+                                                  'initial_quantity': initial_quantity,
+                                                  'configuration_details': configuration_details}])
 
     def get_product(self, sku=None, _id=None):
         if _id is not None:
