@@ -37,7 +37,7 @@ class ShopManager(object):
                                                   'vat': vat,
                                                   'qty': qty,
                                                   'initial_quantity': initial_quantity,
-                                                  'configuration_details': configuration_details}])
+                                                  'details': configuration_details}])
 
     def get_product(self, sku=None, _id=None):
         if _id is not None:
