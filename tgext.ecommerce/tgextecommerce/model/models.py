@@ -18,14 +18,16 @@ class Product(MappedClass):
     slug = FieldProperty(s.String, required=True)
     details = FieldProperty(s.Anything, if_missing={})
     active = FieldProperty(s.Bool, if_missing=True)
+    valid_from = FieldProperty(s.DateTime)
+    valid_to = FieldProperty(s.DateTime)
     configurations = FieldProperty([{
         'variety': s.String(required=True),
         'qty': s.Int(required=True),
         'initial_quantity': s.Int(required=True),
         'sku': s.String(required=True),
-        'price': s.Float(reqired=True),
+        'price': s.Float(required=True),
         'vat': s.Float(required=True),
-        'configuration_details': FieldProperty(s.Anything, if_missing={}),
+        'details': s.Anything(if_missing={}),
     }])
 
 
