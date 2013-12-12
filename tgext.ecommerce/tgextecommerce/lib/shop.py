@@ -78,8 +78,9 @@ class ShopManager(object):
 
         return bought
 
-    def create_product_configuration(self, product_id, sku, price=1.0, vat=0.0, qty=0, initial_quantity=0,
-                                     variety=None, **configuration_details):
+    def create_product_configuration(self, product_id, sku, price=1.0, vat=0.0,
+                                     qty=0, initial_quantity=0, variety=None,
+                                     **configuration_details):
 
         product = self.get_product(product_id=product_id)
         product.configurations.append({'sku': sku,
