@@ -50,11 +50,16 @@ class ShopManager(object):
                                                   'initial_quantity': initial_quantity,
                                                   'details': configuration_details}])
 
-    def get_product(self, sku=None, product_id=None):
-        if product_id is not None:
-            return models.Product.query.get(_id=product_id)
-        else:
+
+    def get_product(self, sku=None, _id=None, slug=None):
+        if _id is not None:
+            return models.Product.query.get(_id=_id)
+        elif sku is not None:
             return models.Product.query.find({'configurations.sku': sku}).first()
+        elif slug is not None:
+            return models.Product.query.find({'slug': slug}).first()
+        else:
+            return None
 
     def get_products(self, type, query=None, fields=None):
         if query is None:
