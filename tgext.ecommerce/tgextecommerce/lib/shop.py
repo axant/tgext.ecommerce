@@ -1,7 +1,7 @@
 from tg import flash
 from tgextecommerce.lib.exceptions import AlreadyExistingSlugException
 from tgextecommerce.lib.utils import slugify
-
+from bson import ObjectId
 
 class Models(object):
     def __init__(self):
@@ -53,7 +53,7 @@ class ShopManager(object):
 
     def get_product(self, sku=None, _id=None, slug=None):
         if _id is not None:
-            return models.Product.query.get(_id=_id)
+            return models.Product.query.get(_id=ObjectId(_id))
         elif sku is not None:
             return models.Product.query.find({'configurations.sku': sku}).first()
         elif slug is not None:
