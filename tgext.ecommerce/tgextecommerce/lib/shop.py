@@ -1,6 +1,7 @@
 from tgextecommerce.lib.exceptions import AlreadyExistingSlugException
 from tgextecommerce.lib.utils import slugify
 from bson import ObjectId
+from ming.odm import mapper
 
 class Models(object):
     def __init__(self):
@@ -62,14 +63,20 @@ class ShopManager(object):
             return None
 
     def get_products(self, type, query=None, fields=None):
-        if query is None:
-            query = {}
-        if fields is None:
-            fields = []
-        query['type'] = type
-        if fields:
-            return models.Product.query.find(query, fields=fields)
-        return models.Product.query.find(query).all()
+        fields = fields or []
+        filter = {'type': type}
+        filter.update(query or {})
+        return models.Product.query.find(filter, fields=fields)
+
+    def buy_product(self, product, configuration_index, amount):
+        quantity_field = 'configurations.%s.qty' % configuration_index
+        result = models.DBSession.impl.update_partial(mapper(models.Product).collection,
+                                                      {'_id': product._id,
+                                                        quantity_field: {'$gte': amount}},
+                                                      {'$inc': {quantity_field: -amount}})
+        bought = result.get('updatedExisting', False)
+
+        return bought
 
     def create_product_configuration(self, product_id, sku, price=1.0, vat=0.0, qty=0, initial_quantity=0,
                                      variety=None, **configuration_details):
