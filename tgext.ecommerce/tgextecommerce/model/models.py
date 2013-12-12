@@ -9,7 +9,10 @@ class Product(MappedClass):
         session = DBSession
         name = 'products'
         unique_indexes = [('slug',),
-                          ('configurations.sku',)]
+                          ('configurations.sku',)
+                          ]
+        indexes = [('active', 'type', 'valid_from', 'valid_to',),
+                   ('active', 'type',)]
 
     _id = FieldProperty(s.ObjectId)
     name = FieldProperty(s.String, required=True)

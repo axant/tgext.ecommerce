@@ -1,4 +1,3 @@
-from tg import flash
 from tgextecommerce.lib.exceptions import AlreadyExistingSlugException
 from tgextecommerce.lib.utils import slugify
 
@@ -51,24 +50,26 @@ class ShopManager(object):
                                                   'initial_quantity': initial_quantity,
                                                   'details': configuration_details}])
 
-    def get_product(self, sku=None, _id=None):
-        if _id is not None:
-            return models.Product.query.get(_id=_id)
+    def get_product(self, sku=None, product_id=None):
+        if product_id is not None:
+            return models.Product.query.get(_id=product_id)
         else:
             return models.Product.query.find({'configurations.sku': sku}).first()
 
-    def get_products(self, type, query=None, fields=[]):
+    def get_products(self, type, query=None, fields=None):
         if query is None:
             query = {}
+        if fields is None:
+            fields = []
         query['type'] = type
         if fields:
             return models.Product.query.find(query, fields=fields)
         return models.Product.query.find(query).all()
 
-    def create_product_configuration(self, slug, sku, price=1.0, vat=0.0, qty=0, initial_quantity=0,
+    def create_product_configuration(self, product_id, sku, price=1.0, vat=0.0, qty=0, initial_quantity=0,
                                      variety=None, **configuration_details):
 
-        product = models.Product.query.find({'slug': slug}).first()
+        product = self.get_product(product_id=product_id)
         product.configurations.append({'sku': sku,
                                        'variety': variety,
                                        'price': price,
