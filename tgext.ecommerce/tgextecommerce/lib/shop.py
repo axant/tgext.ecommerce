@@ -36,7 +36,7 @@ class ShopManager(object):
             raise AlreadyExistingSlugException('Already exist a Product with slug: %s' % slug)
 
         if models.Product.query.find({'configurations.sku': sku}).first():
-            raise AlreadyExistingSkuException('Already exist a Product with sku: %s' % sku)
+            raise AlreadyExistingSkuException('Already exist a Configuration with sku: %s' % sku)
 
         product = models.Product(type=type,
                                  name=name,
@@ -87,6 +87,8 @@ class ShopManager(object):
     def create_product_configuration(self, product, sku, price=1.0, vat=0.0,
                                      qty=0, initial_quantity=0, variety=None,
                                      **configuration_details):
+        if sku in [conf.sku for conf in product.configurations]:
+            raise AlreadyExistingSkuException('Already exist a Configuration with sku: %s' % sku)
 
         product.configurations.append({'sku': sku,
                                        'variety': variety,
