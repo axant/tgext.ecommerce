@@ -1,5 +1,5 @@
-from tgextecommerce.lib.exceptions import AlreadyExistingSlugException, AlreadyExistingSkuException
-from tgextecommerce.lib.utils import slugify
+from tgext.ecommerce.lib.exceptions import AlreadyExistingSlugException, AlreadyExistingSkuException
+from tgext.ecommerce.lib.utils import slugify
 from bson import ObjectId
 from ming.odm import mapper
 
@@ -10,7 +10,7 @@ class Models(object):
     @property
     def models(self):
         if self._models is None:
-            from tgextecommerce.model import models
+            from tgext.ecommerce.model import models
             self._models = models
         return self._models
 

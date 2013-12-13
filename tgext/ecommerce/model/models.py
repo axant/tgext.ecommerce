@@ -1,7 +1,7 @@
 from ming.odm import FieldProperty
 from ming.odm.declarative import MappedClass
 from ming import schema as s
-from tgextecommerce.model import DBSession
+from tgext.ecommerce.model import DBSession
 
 
 class Product(MappedClass):
