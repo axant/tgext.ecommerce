@@ -9,7 +9,6 @@ from tgext.ecommerce import model
 from tgext.ecommerce.model import DBSession
 
 class RootController(TGController):
-    @expose('tgext.ecommerce.templates.index')
+    @expose()
     def index(self):
-        sample = DBSession.query(model.Sample).first()
-        return dict(sample=sample)
+        return 'HELLO'
