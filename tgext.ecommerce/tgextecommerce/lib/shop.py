@@ -1,4 +1,4 @@
-from tgextecommerce.lib.exceptions import AlreadyExistingSlugException
+from tgextecommerce.lib.exceptions import AlreadyExistingSlugException, AlreadyExistingSkuException
 from tgextecommerce.lib.utils import slugify
 from bson import ObjectId
 from ming.odm import mapper
@@ -34,6 +34,9 @@ class ShopManager(object):
         slug = slugify(name, type)
         if models.Product.query.find({'slug': slug}).first():
             raise AlreadyExistingSlugException('Already exist a Product with slug: %s' % slug)
+
+        if models.Product.query.find({'configurations.sku': sku}).first():
+            raise AlreadyExistingSkuException('Already exist a Product with sku: %s' % sku)
 
         product = models.Product(type=type,
                                  name=name,

@@ -4,3 +4,7 @@ class ProductException(Exception):
 
 class AlreadyExistingSlugException(ProductException):
     pass
+
+
+class AlreadyExistingSkuException(ProductException):
+    pass
