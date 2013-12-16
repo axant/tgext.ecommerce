@@ -31,7 +31,7 @@ class ShopManager(object):
         if configuration_details is None:
             configuration_details = {}
 
-        slug = slugify(name, type)
+        slug = slugify(name, type, models)
         if models.Product.query.find({'slug': slug}).first():
             raise AlreadyExistingSlugException('Already exist a Product with slug: %s' % slug)
 
