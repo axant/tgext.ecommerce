@@ -1,5 +1,6 @@
 from tg import app_globals
 from formencode import FancyValidator, Invalid
+from tw2.core import Validator, ValidationError
 
 
 class ProductValidator(FancyValidator):
@@ -18,3 +19,13 @@ class ProductValidator(FancyValidator):
             raise Invalid('Product not valid', value, state)
 
         return product
+
+
+class UniqueSkuValidator(Validator):
+    msg = 'There is already a product with this SKU'
+
+    def _validate_python(self, value, state=None):
+        if app_globals.shop.get_product(sku=value):
+            raise ValidationError(self.msg, self)
+
+
