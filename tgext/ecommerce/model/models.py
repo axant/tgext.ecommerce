@@ -2,6 +2,7 @@ from ming.odm import FieldProperty, ForeignIdProperty, RelationProperty
 from ming.odm.declarative import MappedClass
 from ming import schema as s
 import tg
+from tgext.ecommerce.lib.utils import short_lang
 from tgext.ecommerce.model import DBSession
 
 
@@ -47,5 +48,5 @@ class Category(MappedClass):
 
     @property
     def i18n_name(self):
-        return self.name.get(tg.i18n.get_lang()[0], tg.config.lang)
+        return self.name.get(short_lang(tg.i18n.get_lang()), self.name.get(tg.config.lang))
 

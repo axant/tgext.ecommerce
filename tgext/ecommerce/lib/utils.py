@@ -11,10 +11,12 @@ def slugify(value, type, models):
     value = value + '-' + str(counter)
     return value
 
+def short_lang(languages_list):
+    return languages_list[0].split("_")[0]
+
 def internationalise(value):
     if isinstance(value, dict):
         return value
-
     return {tg.config.lang: value}
 
 
