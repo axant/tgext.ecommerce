@@ -43,7 +43,7 @@ class Category(MappedClass):
         name = 'categories'
 
     _id = FieldProperty(s.ObjectId)
-    name = FieldProperty(s.Document, required=True)
+    name = FieldProperty(s.Anything, required=True)
 
 
     @property
