@@ -13,7 +13,8 @@ class Product(MappedClass):
         unique_indexes = [('slug',),
                           ('configurations.sku',)
                           ]
-        indexes = [('type', 'active', ('valid_to', -1))]
+        indexes = [('type', 'active', ('valid_to', -1)),
+                   ('category_id', 'active')]
 
     _id = FieldProperty(s.ObjectId)
     name = FieldProperty(s.String, required=True)

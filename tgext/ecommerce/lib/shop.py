@@ -22,7 +22,7 @@ models = Models()
 
 
 class ShopManager(object):
-    def create_product(self, type, sku, name, description='', price=1.0,
+    def create_product(self, type, sku, name, category_id=None, description='', price=1.0,
                        vat=0.0, qty=0, initial_quantity=0,
                        variety=None, active=True, valid_from=None, valid_to=None,
                        configuration_details=None, **details):
@@ -41,6 +41,7 @@ class ShopManager(object):
 
         product = models.Product(type=type,
                                  name=name,
+                                 category_id=ObjectId(category_id) if category_id else None,
                                  description=description,
                                  slug=slug,
                                  details=details,
