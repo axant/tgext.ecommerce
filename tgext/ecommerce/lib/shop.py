@@ -1,5 +1,5 @@
 from tgext.ecommerce.lib.exceptions import AlreadyExistingSlugException, AlreadyExistingSkuException
-from tgext.ecommerce.lib.utils import slugify
+from tgext.ecommerce.lib.utils import slugify, internationalise as i
 from bson import ObjectId
 from ming.odm import mapper
 
@@ -53,7 +53,22 @@ class ShopManager(object):
                                                   'qty': qty,
                                                   'initial_quantity': initial_quantity,
                                                   'details': configuration_details}])
+        models.DBSession.flush()
 
+    def create_product_configuration(self, product, sku, price=1.0, vat=0.0,
+                                     qty=0, initial_quantity=0, variety=None,
+                                     **configuration_details):
+
+        if models.Product.query.find({'configurations.sku': sku}).first():
+            raise AlreadyExistingSkuException('Already exist a Configuration with sku: %s' % sku)
+
+        product.configurations.append({'sku': sku,
+                                       'variety': variety,
+                                       'price': price,
+                                       'vat': vat,
+                                       'qty': qty,
+                                       'initial_quantity': initial_quantity,
+                                       'details': configuration_details})
 
     def get_product(self, sku=None, _id=None, slug=None):
         if _id is not None:
@@ -71,6 +86,9 @@ class ShopManager(object):
         filter.update(query or {})
         return models.Product.query.find(filter, fields=fields)
 
+    def delete_product(self, product):
+        product.active = False
+
     def buy_product(self, product, configuration_index, amount):
         quantity_field = 'configurations.%s.qty' % configuration_index
         result = models.DBSession.impl.update_partial(mapper(models.Product).collection,
@@ -81,20 +99,7 @@ class ShopManager(object):
 
         return bought
 
-    def delete_product(self, product):
-        product.active = False
 
-    def create_product_configuration(self, product, sku, price=1.0, vat=0.0,
-                                     qty=0, initial_quantity=0, variety=None,
-                                     **configuration_details):
-
-        if models.Product.query.find({'configurations.sku': sku}).first():
-            raise AlreadyExistingSkuException('Already exist a Configuration with sku: %s' % sku)
-
-        product.configurations.append({'sku': sku,
-                                       'variety': variety,
-                                       'price': price,
-                                       'vat': vat,
-                                       'qty': qty,
-                                       'initial_quantity': initial_quantity,
-                                       'details': configuration_details})
+    def create_category(self, name):
+        category = models.Category(name=i(name))
+        models.DBSession.flush()

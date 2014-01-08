@@ -1,4 +1,5 @@
 import re, unicodedata
+import tg
 
 
 def slugify(value, type, models):
@@ -9,3 +10,12 @@ def slugify(value, type, models):
     value = re.sub('[-\s]+', '-', value)
     value = value + '-' + str(counter)
     return value
+
+def internationalise(value):
+    if isinstance(value, dict):
+        return value
+
+    return {tg.config.lang: value}
+
+
+
