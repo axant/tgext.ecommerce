@@ -1,4 +1,5 @@
-from tgext.ecommerce.lib.exceptions import AlreadyExistingSlugException, AlreadyExistingSkuException
+from tgext.ecommerce.lib.exceptions import AlreadyExistingSlugException, AlreadyExistingSkuException, \
+    CategoryAssignedToProductException
 from tgext.ecommerce.lib.utils import slugify, internationalise as i
 from bson import ObjectId
 from ming.odm import mapper
@@ -107,3 +108,13 @@ class ShopManager(object):
     def get_categories(self):
         return models.Category.query.find()
 
+    def get_category(self, _id):
+        return models.Category.query.get(_id=ObjectId(_id))
+
+    def delete_category(self, _id):
+        if models.Product.query.find({'category_id': ObjectId(_id), 'active': True}).first():
+            raise CategoryAssignedToProductException('The Category is assigned to an active Product')
+
+        models.Category.query.get(_id=ObjectId(_id)).delete()
+        models.Product.query.update({'category_id': ObjectId(_id), 'active': False},
+                                    {'$set': {'category_id': None}})

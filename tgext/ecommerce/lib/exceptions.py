@@ -8,3 +8,6 @@ class AlreadyExistingSlugException(ProductException):
 
 class AlreadyExistingSkuException(ProductException):
     pass
+
+class CategoryAssignedToProductException(ProductException):
+    pass
