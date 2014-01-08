@@ -6,6 +6,20 @@ from tgext.ecommerce.lib.utils import short_lang
 from tgext.ecommerce.model import DBSession
 
 
+class Category(MappedClass):
+    class __mongometa__:
+        session = DBSession
+        name = 'categories'
+
+    _id = FieldProperty(s.ObjectId)
+    name = FieldProperty(s.Anything, required=True)
+
+
+    @property
+    def i18n_name(self):
+        return self.name.get(short_lang(tg.i18n.get_lang()), self.name.get(tg.config.lang))
+
+
 class Product(MappedClass):
     class __mongometa__:
         session = DBSession
@@ -19,8 +33,8 @@ class Product(MappedClass):
     _id = FieldProperty(s.ObjectId)
     name = FieldProperty(s.String, required=True)
     type = FieldProperty(s.String, required=True)
-    category_id = ForeignIdProperty('categories')
-    category = RelationProperty('categories')
+    category_id = ForeignIdProperty(Category)
+    category = RelationProperty(Category)
     description = FieldProperty(s.String, if_missing='')
     slug = FieldProperty(s.String, required=True)
     details = FieldProperty(s.Anything, if_missing={})
@@ -36,18 +50,3 @@ class Product(MappedClass):
         'vat': s.Float(required=True),
         'details': s.Anything(if_missing={}),
     }])
-
-
-class Category(MappedClass):
-    class __mongometa__:
-        session = DBSession
-        name = 'categories'
-
-    _id = FieldProperty(s.ObjectId)
-    name = FieldProperty(s.Anything, required=True)
-
-
-    @property
-    def i18n_name(self):
-        return self.name.get(short_lang(tg.i18n.get_lang()), self.name.get(tg.config.lang))
-
