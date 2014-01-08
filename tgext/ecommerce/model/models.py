@@ -17,8 +17,8 @@ class Product(MappedClass):
     _id = FieldProperty(s.ObjectId)
     name = FieldProperty(s.String, required=True)
     type = FieldProperty(s.String, required=True)
-    category_id = ForeignIdProperty('category', required=True)
-    category = RelationProperty('category')
+    category_id = ForeignIdProperty('categories')
+    category = RelationProperty('categories')
     description = FieldProperty(s.String, if_missing='')
     slug = FieldProperty(s.String, required=True)
     details = FieldProperty(s.Anything, if_missing={})
@@ -39,7 +39,7 @@ class Product(MappedClass):
 class Category(MappedClass):
     class __mongometa__:
         session = DBSession
-        name = 'category'
+        name = 'categories'
 
     _id = FieldProperty(s.ObjectId)
     name = FieldProperty(s.Document, required=True)

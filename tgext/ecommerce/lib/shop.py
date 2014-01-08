@@ -103,3 +103,7 @@ class ShopManager(object):
     def create_category(self, name):
         category = models.Category(name=i(name))
         models.DBSession.flush()
+
+    def get_categories(self):
+        return models.Category.query.find()
+
