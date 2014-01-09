@@ -1,6 +1,6 @@
 from tgext.ecommerce.lib.exceptions import AlreadyExistingSlugException, AlreadyExistingSkuException, \
     CategoryAssignedToProductException
-from tgext.ecommerce.lib.utils import slugify, internationalise as i
+from tgext.ecommerce.lib.utils import slugify, internationalise as i_
 from bson import ObjectId
 from ming.odm import mapper
 
@@ -40,16 +40,16 @@ class ShopManager(object):
             raise AlreadyExistingSkuException('Already exist a Configuration with sku: %s' % sku)
 
         product = models.Product(type=type,
-                                 name=name,
+                                 name=i_(name),
                                  category_id=ObjectId(category_id) if category_id else None,
-                                 description=description,
+                                 description=i_(description),
                                  slug=slug,
                                  details=details,
                                  active=active,
                                  valid_from=valid_from,
                                  valid_to=valid_to,
                                  configurations=[{'sku': sku,
-                                                  'variety': variety,
+                                                  'variety': i_(variety),
                                                   'price': price,
                                                   'vat': vat,
                                                   'qty': qty,
@@ -65,7 +65,7 @@ class ShopManager(object):
             raise AlreadyExistingSkuException('Already exist a Configuration with sku: %s' % sku)
 
         product.configurations.append({'sku': sku,
-                                       'variety': variety,
+                                       'variety': i_(variety),
                                        'price': price,
                                        'vat': vat,
                                        'qty': qty,
@@ -103,7 +103,7 @@ class ShopManager(object):
 
 
     def create_category(self, name):
-        category = models.Category(name=i(name))
+        category = models.Category(name=i_(name))
         models.DBSession.flush()
 
     def get_categories(self):
