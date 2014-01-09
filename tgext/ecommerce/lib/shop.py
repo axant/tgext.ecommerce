@@ -4,6 +4,7 @@ from tgext.ecommerce.lib.utils import slugify, internationalise as i_
 from bson import ObjectId
 from ming.odm import mapper
 
+
 class Models(object):
     def __init__(self):
         self._models = None

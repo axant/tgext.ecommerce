@@ -27,5 +27,3 @@ class UniqueSkuValidator(Validator):
     def _validate_python(self, value, state=None):
         if app_globals.shop.get_product(sku=value):
             raise ValidationError(self.msg, self)
-
-

@@ -1,3 +1,4 @@
+from ming.odm.property import ORMProperty
 from ming.odm import FieldProperty, ForeignIdProperty, RelationProperty
 from ming.odm.declarative import MappedClass
 from ming import schema as s
@@ -14,16 +15,10 @@ class Category(MappedClass):
     _id = FieldProperty(s.ObjectId)
     name = FieldProperty(s.Anything, required=True)
 
-
     @property
     def i18n_name(self):
-        return self.name.get(short_lang(tg.i18n.get_lang()), self.name.get(tg.config.lang))
+        return self.name.get(tg.translator.preferred_language, self.name.get(tg.config.lang))
 
-class VarietyDict(s.Object):
-
-    @property
-    def i18n_variety(self):
-        return self.field_items[tg.translator.preferred_language or tg.config.lang]
 
 class Product(MappedClass):
     class __mongometa__:
@@ -64,6 +59,5 @@ class Product(MappedClass):
     def i18n_description(self):
         return self.description.get(tg.translator.preferred_language, self.description.get(tg.config.lang))
 
-    @property
-    def i18n_variety(self):
-        return self.configurations.variety.get(short_lang(tg.i18n.get_lang()), self.name.get(tg.config.lang))
+    def i18n_configuration_variety(self, configuration):
+        return configuration.variety.get(tg.translator.preferred_language, configuration.variety.get(tg.config.lang))
