@@ -13,11 +13,13 @@ class Models(object):
     def models(self):
         if self._models is None:
             from tgext.ecommerce.model import models
+
             self._models = models
         return self._models
 
     def __getattr__(self, item):
         return getattr(self.models, item)
+
 
 models = Models()
 
@@ -40,22 +42,22 @@ class ShopManager(object):
         if models.Product.query.find({'configurations.sku': sku}).first():
             raise AlreadyExistingSkuException('Already exist a Configuration with sku: %s' % sku)
 
-        product = models.Product(type=type,
-                                 name=i_(name),
-                                 category_id=ObjectId(category_id) if category_id else None,
-                                 description=i_(description),
-                                 slug=slug,
-                                 details=details,
-                                 active=active,
-                                 valid_from=valid_from,
-                                 valid_to=valid_to,
-                                 configurations=[{'sku': sku,
-                                                  'variety': i_(variety),
-                                                  'price': price,
-                                                  'vat': vat,
-                                                  'qty': qty,
-                                                  'initial_quantity': initial_quantity,
-                                                  'details': configuration_details}])
+        models.Product(type=type,
+                       name=i_(name),
+                       category_id=ObjectId(category_id) if category_id else None,
+                       description=i_(description),
+                       slug=slug,
+                       details=details,
+                       active=active,
+                       valid_from=valid_from,
+                       valid_to=valid_to,
+                       configurations=[{'sku': sku,
+                                        'variety': i_(variety),
+                                        'price': price,
+                                        'vat': vat,
+                                        'qty': qty,
+                                        'initial_quantity': initial_quantity,
+                                        'details': configuration_details}])
         models.DBSession.flush()
 
     def create_product_configuration(self, product, sku, price=1.0, vat=0.0,
@@ -83,11 +85,16 @@ class ShopManager(object):
         else:
             return None
 
-    def get_products(self, type, query=None, fields=None):
+    def get_products(self, type, query=None, fields=None, limit=None, skip=None):
         fields = fields or []
         filter = {'type': type}
         filter.update(query or {})
-        return models.Product.query.find(filter, fields=fields)
+        q = models.Product.query.find(filter, fields=fields)
+        if limit is not None:
+            q = q.limit(limit)
+        if skip is not None:
+            q = q.skip(limit)
+        return q
 
     def delete_product(self, product):
         product.active = False
@@ -96,15 +103,14 @@ class ShopManager(object):
         quantity_field = 'configurations.%s.qty' % configuration_index
         result = models.DBSession.impl.update_partial(mapper(models.Product).collection,
                                                       {'_id': product._id,
-                                                        quantity_field: {'$gte': amount}},
+                                                       quantity_field: {'$gte': amount}},
                                                       {'$inc': {quantity_field: -amount}})
         bought = result.get('updatedExisting', False)
 
         return bought
 
-
     def create_category(self, name):
-        category = models.Category(name=i_(name))
+        models.Category(name=i_(name))
         models.DBSession.flush()
 
     def get_categories(self):
