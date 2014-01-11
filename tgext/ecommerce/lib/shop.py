@@ -1,3 +1,4 @@
+import tg
 from tgext.ecommerce.lib.exceptions import AlreadyExistingSlugException, AlreadyExistingSkuException, \
     CategoryAssignedToProductException
 from tgext.ecommerce.lib.utils import slugify, internationalise as i_
@@ -86,10 +87,12 @@ class ShopManager(object):
             return None
 
     def get_products(self, type, query=None, fields=None, limit=None, skip=None):
-        fields = fields or []
         filter = {'type': type}
         filter.update(query or {})
-        q = models.Product.query.find(filter, fields=fields)
+        q_kwargs = {}
+        if fields:
+            q_kwargs['fields'] = fields
+        q = models.Product.query.find(filter, **q_kwargs)
         if limit is not None:
             q = q.limit(limit)
         if skip is not None:
@@ -116,8 +119,11 @@ class ShopManager(object):
     def get_categories(self):
         return models.Category.query.find()
 
-    def get_category(self, _id):
-        return models.Category.query.get(_id=ObjectId(_id))
+    def get_category(self, _id=None, name=None):
+        if _id:
+            return models.Category.query.get(_id=ObjectId(_id))
+        name_lang = 'name.%s' % tg.config.lang
+        return models.Category.query.find({name_lang: name}).first()
 
     def delete_category(self, _id):
         if models.Product.query.find({'category_id': ObjectId(_id), 'active': True}).first():
