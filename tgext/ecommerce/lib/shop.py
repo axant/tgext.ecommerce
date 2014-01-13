@@ -96,7 +96,7 @@ class ShopManager(object):
         if limit is not None:
             q = q.limit(limit)
         if skip is not None:
-            q = q.skip(limit)
+            q = q.skip(skip)
         return q
 
     def delete_product(self, product):
