@@ -3,6 +3,7 @@ from ming.odm import FieldProperty, ForeignIdProperty, RelationProperty
 from ming.odm.declarative import MappedClass
 from ming import schema as s
 import tg
+from tg.caching import cached_property
 from tgext.ecommerce.lib.utils import short_lang
 from tgext.ecommerce.model import DBSession
 
@@ -50,6 +51,10 @@ class Product(MappedClass):
         'vat': s.Float(required=True),
         'details': s.Anything(if_missing={}),
     }])
+
+    @cached_property
+    def min_price(self):
+        return min(map(lambda conf: conf['price'] * (1+conf['vat']), self.configurations))
 
     @property
     def i18n_name(self):
