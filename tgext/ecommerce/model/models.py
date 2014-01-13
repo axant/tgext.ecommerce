@@ -54,7 +54,11 @@ class Product(MappedClass):
 
     @cached_property
     def min_price(self):
-        return min(map(lambda conf: conf['price'] * (1+conf['vat']), self.configurations))
+        return '%.2f' % min(map(lambda conf: conf['price'] * (1+conf['vat']), self.configurations))
+
+    @property
+    def thumbnail(self):
+        return tg.url(self.details['product_photos'][0]['url']) if self.details['product_photos'] else '//placehold.it/300x300'
 
     @property
     def i18n_name(self):
