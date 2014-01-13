@@ -93,10 +93,6 @@ class ShopManager(object):
         if fields:
             q_kwargs['fields'] = fields
         q = models.Product.query.find(filter, **q_kwargs)
-        if limit is not None:
-            q = q.limit(limit)
-        if skip is not None:
-            q = q.skip(skip)
         return q
 
     def delete_product(self, product):
