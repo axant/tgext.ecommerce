@@ -78,14 +78,10 @@ class CartTtlExt(MapperExtension):
     _cart_ttl = None
 
     @classmethod
-    def cart_ttl(cls):
+    def cart_expiration(cls):
         if cls._cart_ttl is None:
             cls._cart_ttl = int(tg.config.get('cart.ttl', 30*60))
-        return cls._cart_ttl
-
-    @classmethod
-    def cart_expiration(cls):
-        return datetime.utcnow() + timedelta(seconds=cls.cart_ttl())
+        return datetime.utcnow() + timedelta(seconds=cls._cart_ttl)
 
     def before_update(self, instance, state, sess):
         instance.expires_at = self.cart_expiration()
@@ -102,7 +98,7 @@ class Cart(MappedClass):
     _id = FieldProperty(s.ObjectId)
     user_id = FieldProperty(s.String, required=True)
     items = FieldProperty(s.Anything)
-    expires_at = FieldProperty(s.DateTime, if_missing=CartTtlExt.cart_expiration)
+    expires_at = FieldProperty(s.DateTime)
 
     @classmethod
     def expired_carts(cls):

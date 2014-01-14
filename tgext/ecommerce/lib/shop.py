@@ -112,7 +112,8 @@ class ShopManager(object):
             sku_field = 'items.%s' % product.configurations[configuration_index]['sku']
             models.DBSession.update(models.Cart,
                                     {'user_id': user_id},
-                                    {'$inc': {sku_field: amount}},
+                                    {'$inc': {sku_field: amount},
+                                     '$set': {'expires_at': models.CartTtlExt.cart_expiration()}},
                                     upsert=True)
 
         return bought
