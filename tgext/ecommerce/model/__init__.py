@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from tgext.pluggable import PluggableSession
-import ming
+
 
 DBSession = PluggableSession()
 

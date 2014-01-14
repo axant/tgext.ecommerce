@@ -1,5 +1,6 @@
+from datetime import datetime, timedelta
 from ming.odm.property import ORMProperty
-from ming.odm import FieldProperty, ForeignIdProperty, RelationProperty
+from ming.odm import FieldProperty, ForeignIdProperty, RelationProperty, MapperExtension
 from ming.odm.declarative import MappedClass
 from ming import schema as s
 import tg
@@ -70,3 +71,39 @@ class Product(MappedClass):
 
     def i18n_configuration_variety(self, configuration):
         return configuration.variety.get(tg.translator.preferred_language, configuration.variety.get(tg.config.lang))
+
+
+class CartTtlExt(MapperExtension):
+
+    _cart_ttl = None
+
+    @classmethod
+    def cart_ttl(cls):
+        if cls._cart_ttl is None:
+            cls._cart_ttl = int(tg.config.get('cart.ttl', 30*60))
+        return cls._cart_ttl
+
+    @classmethod
+    def cart_expiration(cls):
+        return datetime.utcnow() + timedelta(seconds=cls.cart_ttl())
+
+    def before_update(self, instance, state, sess):
+        instance.expires_at = self.cart_expiration()
+
+
+class Cart(MappedClass):
+    class __mongometa__:
+        session = DBSession
+        name = 'carts'
+        unique_indexes = [('user_id', )]
+        indexes = [('expires_at', )]
+        extensions = [CartTtlExt]
+
+    _id = FieldProperty(s.ObjectId)
+    user_id = FieldProperty(s.String, required=True)
+    items = FieldProperty(s.Anything)
+    expires_at = FieldProperty(s.DateTime, if_missing=CartTtlExt.cart_expiration)
+
+    @classmethod
+    def expired_carts(cls):
+        return cls.query.find({'expires_at': {'$lte': datetime.utcnow()}})

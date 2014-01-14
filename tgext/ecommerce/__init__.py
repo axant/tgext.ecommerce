@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """The tgext.ecommerce package"""
+import tgscheduler
 from lib.shop import ShopManager
 from tg import hooks, config
 from lib.utils import detect_preferred_language
@@ -10,6 +11,7 @@ def plugme(app_config, options):
 
     hooks.wrap_controller(autodetect_preferred_language)
     hooks.register('before_config', setup_global_objects)
+    hooks.register('after_config', setup_clean_cart_scheduler)
 
     return dict(appid='shop', global_helpers=False, plug_bootstrap=False)
 
@@ -24,3 +26,10 @@ def autodetect_preferred_language(app_config, caller):
         detect_preferred_language()
         return caller(*args, **kw)
     return call
+
+
+def setup_clean_cart_scheduler(app):
+    from lib.async_jobs import clean_expired_carts
+    tgscheduler.start_scheduler()
+    tgscheduler.add_interval_task(clean_expired_carts, 60)
+    return app

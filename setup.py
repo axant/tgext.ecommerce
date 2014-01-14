@@ -11,7 +11,8 @@ except ImportError:
 install_requires=[
     "TurboGears2 >= 2.3.1",
     "tgext.pluggable",
-    "formencode"
+    "formencode",
+    "tgscheduler"
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))

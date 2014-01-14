@@ -1,3 +1,4 @@
+from operator import itemgetter
 import tg
 from tgext.ecommerce.lib.exceptions import AlreadyExistingSlugException, AlreadyExistingSkuException, \
     CategoryAssignedToProductException
@@ -43,23 +44,24 @@ class ShopManager(object):
         if models.Product.query.find({'configurations.sku': sku}).first():
             raise AlreadyExistingSkuException('Already exist a Configuration with sku: %s' % sku)
 
-        models.Product(type=type,
-                       name=i_(name),
-                       category_id=ObjectId(category_id) if category_id else None,
-                       description=i_(description),
-                       slug=slug,
-                       details=details,
-                       active=active,
-                       valid_from=valid_from,
-                       valid_to=valid_to,
-                       configurations=[{'sku': sku,
-                                        'variety': i_(variety),
-                                        'price': price,
-                                        'vat': vat,
-                                        'qty': qty,
-                                        'initial_quantity': initial_quantity,
-                                        'details': configuration_details}])
+        product = models.Product(type=type,
+                                 name=i_(name),
+                                 category_id=ObjectId(category_id) if category_id else None,
+                                 description=i_(description),
+                                 slug=slug,
+                                 details=details,
+                                 active=active,
+                                 valid_from=valid_from,
+                                 valid_to=valid_to,
+                                 configurations=[{'sku': sku,
+                                                  'variety': i_(variety),
+                                                  'price': price,
+                                                  'vat': vat,
+                                                  'qty': qty,
+                                                  'initial_quantity': initial_quantity,
+                                                  'details': configuration_details}])
         models.DBSession.flush()
+        return product
 
     def create_product_configuration(self, product, sku, price=1.0, vat=0.0,
                                      qty=0, initial_quantity=0, variety=None,
@@ -98,7 +100,7 @@ class ShopManager(object):
     def delete_product(self, product):
         product.active = False
 
-    def buy_product(self, product, configuration_index, amount):
+    def buy_product(self, product, configuration_index, amount, user_id):
         quantity_field = 'configurations.%s.qty' % configuration_index
         result = models.DBSession.impl.update_partial(mapper(models.Product).collection,
                                                       {'_id': product._id,
@@ -106,11 +108,19 @@ class ShopManager(object):
                                                       {'$inc': {quantity_field: -amount}})
         bought = result.get('updatedExisting', False)
 
+        if bought:
+            sku_field = 'items.%s' % product.configurations[configuration_index]['sku']
+            models.DBSession.update(models.Cart,
+                                    {'user_id': user_id},
+                                    {'$inc': {sku_field: amount}},
+                                    upsert=True)
+
         return bought
 
     def create_category(self, name):
-        models.Category(name=i_(name))
+        category = models.Category(name=i_(name))
         models.DBSession.flush()
+        return category
 
     def get_categories(self):
         return models.Category.query.find()
