@@ -84,4 +84,10 @@ class TestProduct(RootTest):
 
         clean_expired_carts()
         pr = sm.get_product('12345')
-        assert pr.configurations[0]['qty'] == 20, pr.configurations[0]['qty']
+
+        self.assertEqual(pr.configurations[0]['qty'], 20, 'Product qty has been restored')
+
+        cart = sm.get_cart('egg')
+        self.assertIsNone(cart, 'Cart has been cleaned')
+
+
