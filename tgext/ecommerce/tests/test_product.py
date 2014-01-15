@@ -16,7 +16,6 @@ class TestProduct(RootTest):
     @classmethod
     def tearDownClass(cls):
         from tgext.ecommerce.lib import shop
-
         shop.i_ = cls.old_i_
 
     def setUp(self):
@@ -86,8 +85,3 @@ class TestProduct(RootTest):
         clean_expired_carts()
         pr = sm.get_product('12345')
         assert pr.configurations[0]['qty'] == 20, pr.configurations[0]['qty']
-
-
-
-
-

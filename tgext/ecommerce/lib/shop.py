@@ -1,4 +1,3 @@
-from operator import itemgetter
 import tg
 from tgext.ecommerce.lib.exceptions import AlreadyExistingSlugException, AlreadyExistingSkuException, \
     CategoryAssignedToProductException
@@ -139,3 +138,6 @@ class ShopManager(object):
         models.Category.query.get(_id=ObjectId(_id)).delete()
         models.Product.query.update({'category_id': ObjectId(_id), 'active': False},
                                     {'$set': {'category_id': None}})
+
+    def get_cart(self, user_id):
+        return models.Cart.query.find({'user_id': user_id}).first()
