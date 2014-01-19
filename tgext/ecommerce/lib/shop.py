@@ -1,9 +1,13 @@
 import tg
 from tgext.ecommerce.lib.exceptions import AlreadyExistingSlugException, AlreadyExistingSkuException, \
-    CategoryAssignedToProductException
+    CategoryAssignedToProductException, InactiveProductException
 from tgext.ecommerce.lib.utils import slugify, internationalise as i_
 from bson import ObjectId
 from ming.odm import mapper
+
+
+class NoDefault(object):
+    """A dummy value used for parameters with no default."""
 
 
 class Models(object):
@@ -87,7 +91,7 @@ class ShopManager(object):
         else:
             return None
 
-    def get_products(self, type, query=None, fields=None, limit=None, skip=None):
+    def get_products(self, type, query=None, fields=None):
         filter = {'type': type}
         filter.update(query or {})
         q_kwargs = {}
@@ -95,6 +99,57 @@ class ShopManager(object):
             q_kwargs['fields'] = fields
         q = models.Product.query.find(filter, **q_kwargs)
         return q
+
+    def edit_product(self, product, type=NoDefault, name=NoDefault, category_id=NoDefault,
+                     description=NoDefault, valid_from=NoDefault, valid_to=NoDefault, **details):
+
+        if product.active == False:
+            raise InactiveProductException('Cannot edit an inactive product')
+
+        if type is not NoDefault:
+            product.type = type
+
+        if name is not NoDefault:
+            for k, v in i_(name).iteritems():
+                setattr(product.name, k, v)
+
+        if category_id is not NoDefault:
+            product.category_id = ObjectId(category_id)
+
+        if description is not NoDefault:
+            for k, v in i_(description).iteritems():
+                setattr(product.description, k, v)
+
+        if details is not {}:
+            for k, v in details.iteritems():
+                setattr(product.details, k, v)
+
+        if valid_from is not NoDefault:
+            product.valid_from = valid_from
+
+        if valid_to is not NoDefault:
+            product.valid_to = valid_to
+
+
+    def edit_product_configuration(self, product, configuration_index, sku=NoDefault, variety=NoDefault,
+                                   price=NoDefault, vat=NoDefault, qty=NoDefault,
+                                   initial_quantity=NoDefault, configuration_details=NoDefault):
+
+        if sku is not NoDefault:
+            product.configurations[configuration_index].sku = sku
+        if variety is not NoDefault:
+            for k, v in i_(variety).iteritems():
+                setattr(product.configurations[configuration_index].variety, k, v)
+        if price is not NoDefault:
+            product.configurations[configuration_index].price = price
+        if vat is not NoDefault:
+            product.configurations[configuration_index].vat = vat
+        if qty is not NoDefault:
+            product.configurations[configuration_index].qty = qty
+        if initial_quantity is not NoDefault:
+            product.configurations[configuration_index].initial_quantity = initial_quantity
+        for k, v in configuration_details.iteritems():
+            setattr(product.configurations[configuration_index].details, k, v)
 
     def delete_product(self, product):
         product.active = False

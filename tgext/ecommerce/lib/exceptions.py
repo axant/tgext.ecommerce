@@ -13,3 +13,7 @@ class AlreadyExistingSkuException(ProductException):
 
 class CategoryAssignedToProductException(ProductException):
     pass
+
+
+class InactiveProductException(ProductException):
+    pass
