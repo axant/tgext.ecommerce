@@ -200,7 +200,7 @@ class ShopManager(object):
         bought = result.get('updatedExisting', False)
 
         if bought:
-            self._add_to_cart(cart, self._product_dump(product, configuration_index), amount)
+            self._add_to_cart(cart, self._product_dump(product, configuration_index), total_qty)
 
         return bought
 
@@ -236,11 +236,11 @@ class ShopManager(object):
         return cart
 
     def update_cart_item_qty(self, cart, sku, qty):
-        if qty == 0:
-            return self.delete_from_cart(cart, sku)
-
+        product_in_cart = cart.items.get(sku, {})
+        already_bought = product_in_cart.get('qty', 0)
+        delta_qty = qty - already_bought
         product = self.get_product(sku=sku)
-        self.buy_product(product, self._config_idx(product, sku), qty, cart=cart)
+        self.buy_product(product, self._config_idx(product, sku), delta_qty, cart=cart)
         return cart
 
 

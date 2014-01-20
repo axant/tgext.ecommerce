@@ -143,10 +143,27 @@ class TestProduct(RootTest):
         models.DBSession.close_all()
 
         cart = sm.get_cart('egg')
-        sm.update_cart_item_qty(cart, '12345', 2)
+        sm.update_cart_item_qty(cart, '12345', 4)
         models.DBSession.flush_all()
         models.DBSession.close_all()
 
         pr = sm.get_product('12345')
         self.assertEqual(pr.configurations[0]['qty'], 16)
+
+    def test_update_cart_item_qty_noop(self):
+        from tgext.ecommerce.lib.shop import ShopManager, models
+
+        sm = ShopManager()
+        pr = self._create_product(sm, '12345')
+        sm.buy_product(pr, 0, 2, 'egg')
+        models.DBSession.flush_all()
+        models.DBSession.close_all()
+
+        cart = sm.get_cart('egg')
+        sm.update_cart_item_qty(cart, '12345', 2)
+        models.DBSession.flush_all()
+        models.DBSession.close_all()
+
+        pr = sm.get_product('12345')
+        self.assertEqual(pr.configurations[0]['qty'], 18)
 
