@@ -176,8 +176,11 @@ class ShopManager(object):
 
     def _add_to_cart(self, cart, product_dump, qty):
         sku = product_dump['sku']
-        product_dump['qty'] = qty
-        cart.items[sku] = product_dump
+        if qty == 0:
+            cart.items.pop(sku, None)
+        else:
+            product_dump['qty'] = qty
+            cart.items[sku] = product_dump
 
     def buy_product(self, product, configuration_index, amount, user_id=None, cart=None):
         assert user_id or cart
@@ -230,15 +233,14 @@ class ShopManager(object):
         return models.Cart.query.find({'user_id': user_id}).first()
 
     def delete_from_cart(self, cart, sku):
-        items = cart.items
-        items.pop(sku, None)
-        cart.items = items
-        return cart
+        return self.update_cart_item_qty(cart, sku, 0)
 
     def update_cart_item_qty(self, cart, sku, qty):
         product_in_cart = cart.items.get(sku, {})
         already_bought = product_in_cart.get('qty', 0)
         delta_qty = qty - already_bought
+        if delta_qty == 0:
+            return cart
         product = self.get_product(sku=sku)
         self.buy_product(product, self._config_idx(product, sku), delta_qty, cart=cart)
         return cart
