@@ -18,5 +18,9 @@ class CategoryAssignedToProductException(ProductException):
     pass
 
 
+class InactiveProductException(ProductException):
+    pass
+
+
 class CartException(EcommerceException):
     pass

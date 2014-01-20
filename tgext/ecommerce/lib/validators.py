@@ -1,6 +1,7 @@
 from tg import app_globals
 from formencode import FancyValidator, Invalid
 from tw2.core import Validator, ValidationError
+from bson import ObjectId
 
 
 class ProductValidator(FancyValidator):
@@ -22,8 +23,20 @@ class ProductValidator(FancyValidator):
 
 
 class UniqueSkuValidator(Validator):
-    msg = 'There is already a product with this SKU'
+    msgs = {'existing_sku':'There is already a product with this SKU',
+           'invalid_sku':'SKU is required'}
 
-    def _validate_python(self, value, state=None):
-        if app_globals.shop.get_product(sku=value):
-            raise ValidationError(self.msg, self)
+    def __init__(self, sku, product_id=None, **kw):
+        super(UniqueSkuValidator, self).__init__(**kw)
+        self.product_id = product_id
+        self.sku = sku
+
+    def _validate_python(self, values, state=None):
+        if not isinstance(values.get(self.sku), basestring):
+            raise ValidationError('invalid_sku', self)
+        product = app_globals.shop.get_product(sku=values.get(self.sku))
+        if product:
+            if ObjectId(values.get(self.product_id))!=product._id:
+                raise ValidationError('existing_sku', self)
+
+
