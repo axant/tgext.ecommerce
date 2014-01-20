@@ -1,5 +1,8 @@
+class EcommerceException(Exception):
+    pass
 
-class ProductException(Exception):
+
+class ProductException(EcommerceException):
     pass
 
 
@@ -12,4 +15,8 @@ class AlreadyExistingSkuException(ProductException):
 
 
 class CategoryAssignedToProductException(ProductException):
+    pass
+
+
+class CartException(EcommerceException):
     pass

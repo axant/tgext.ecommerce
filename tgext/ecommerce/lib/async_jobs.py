@@ -14,7 +14,7 @@ def clean_expired_carts():
     with cleanup_session(DBSession):
         expired_carts = models.Cart.expired_carts().all()
         expired_items = chain(*[c.items.iteritems() for c in expired_carts])
-        for item, qty in expired_items:
-            DBSession.update(models.Product, {'configurations.sku': item},
-                             {'$inc': {'configurations.$.qty': qty}})
+        for sku, item in expired_items:
+            DBSession.update(models.Product, {'configurations.sku': sku},
+                             {'$inc': {'configurations.$.qty': item['qty']}})
         [c.delete() for c in expired_carts]

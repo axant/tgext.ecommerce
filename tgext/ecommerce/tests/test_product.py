@@ -39,7 +39,8 @@ class TestProduct(RootTest):
                                    variety='test variety',
                                    active=True,
                                    valid_from=datetime.datetime.utcnow(),
-                                   valid_to=datetime.datetime.utcnow())
+                                   valid_to=datetime.datetime.utcnow(),
+                                   configuration_details={'max_allowed_quantity': 12})
 
     def test_create_product(self):
         from tgext.ecommerce.lib.shop import ShopManager, models
@@ -48,6 +49,17 @@ class TestProduct(RootTest):
         self._create_product(sm, '12345')
         r = models.Product.query.find({'configurations.sku': '12345'}).first()
         assert r is not None, r
+
+    def test_get_product_by_sku(self):
+        from tgext.ecommerce.lib.shop import ShopManager, models
+
+        sm = ShopManager()
+        self._create_product(sm, '12345')
+        models.DBSession.flush_all()
+        models.DBSession.close_all()
+
+        product = sm.get_product(sku='12345')
+        self.assertEqual(product.configurations[0]['sku'], '12345')
 
     def test_add_to_cart(self):
         from tgext.ecommerce.lib.shop import ShopManager, models
@@ -59,7 +71,7 @@ class TestProduct(RootTest):
         pr = sm.get_product('12345')
         assert pr.configurations[0]['qty'] == 18, pr.configurations[0]['qty']
 
-    def test_cant_buy(self):
+    def test_not_enough_products(self):
         from tgext.ecommerce.lib.shop import ShopManager, models
 
         sm = ShopManager()
@@ -68,6 +80,23 @@ class TestProduct(RootTest):
         models.DBSession.clear()
         pr = sm.get_product('12345')
         assert pr.configurations[0]['qty'] == 20, pr.configurations[0]['qty']
+
+    def test_max_quantity_reached(self):
+        from tgext.ecommerce.lib.shop import ShopManager, models
+
+        sm = ShopManager()
+        pr = self._create_product(sm, '12345')
+        self.assertFalse(sm.buy_product(pr, 0, 14, 'egg'))
+        models.DBSession.flush_all()
+        models.DBSession.close_all()
+        self.assertTrue(sm.buy_product(pr, 0, 12, 'egg'))
+        self.assertFalse(sm.buy_product(pr, 0, 1, 'egg'))
+
+        models.DBSession.flush_all()
+        models.DBSession.close_all()
+
+        pr = sm.get_product('12345')
+        self.assertEqual(pr.configurations[0]['qty'], 8)
 
     def test_cleanup_cart(self):
         from tgext.ecommerce.lib.shop import ShopManager, models
@@ -85,9 +114,39 @@ class TestProduct(RootTest):
         clean_expired_carts()
         pr = sm.get_product('12345')
 
-        self.assertEqual(pr.configurations[0]['qty'], 20, 'Product qty has been restored')
+        self.assertEqual(pr.configurations[0]['qty'], 20)
 
         cart = sm.get_cart('egg')
-        self.assertIsNone(cart, 'Cart has been cleaned')
+        self.assertIsNone(cart)
 
+    def test_delete_item_from_cart(self):
+        from tgext.ecommerce.lib.shop import ShopManager, models
+
+        sm = ShopManager()
+        pr = self._create_product(sm, '12345')
+        sm.buy_product(pr, 0, 2, 'egg')
+        models.DBSession.flush_all()
+        models.DBSession.close_all()
+
+        cart = sm.get_cart('egg')
+        self.assertIn('12345', cart.items)
+        sm.delete_from_cart(cart, '12345')
+        self.assertNotIn('12345', cart.items)
+
+    def test_update_cart_item_qty(self):
+        from tgext.ecommerce.lib.shop import ShopManager, models
+
+        sm = ShopManager()
+        pr = self._create_product(sm, '12345')
+        sm.buy_product(pr, 0, 2, 'egg')
+        models.DBSession.flush_all()
+        models.DBSession.close_all()
+
+        cart = sm.get_cart('egg')
+        sm.update_cart_item_qty(cart, '12345', 2)
+        models.DBSession.flush_all()
+        models.DBSession.close_all()
+
+        pr = sm.get_product('12345')
+        self.assertEqual(pr.configurations[0]['qty'], 16)
 

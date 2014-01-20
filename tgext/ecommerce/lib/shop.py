@@ -1,3 +1,4 @@
+import sys
 import tg
 from tgext.ecommerce.lib.exceptions import AlreadyExistingSlugException, AlreadyExistingSkuException, \
     CategoryAssignedToProductException
@@ -99,21 +100,52 @@ class ShopManager(object):
     def delete_product(self, product):
         product.active = False
 
-    def buy_product(self, product, configuration_index, amount, user_id):
+    def _config_idx(self, product, sku):
+        return [i for i, config in enumerate(product['configurations']) if config['sku'] == sku][0]
+
+    def _product_dump(self, product, configuration_index=None, sku=None):
+        """Normalize product and configuration in a single level dict
+
+        :param product: product mapped object
+        :param configuration_index: configuration index
+        """
+        assert configuration_index is not None or sku
+        if configuration_index is None:
+            configuration_index = self._config_idx(product, sku)
+        config = product['configurations'][configuration_index]
+        return dict(
+            name=product.name,
+            description=product.description,
+            **config
+        )
+
+    def _add_to_cart(self, cart, product_dump, qty):
+        sku = product_dump['sku']
+        product_dump['qty'] = qty
+        cart.items[sku] = product_dump
+
+    def buy_product(self, product, configuration_index, amount, user_id=None, cart=None):
+        assert user_id or cart
+
+        cart = cart or self.get_cart(user_id)
+        if cart is None:
+            cart = models.Cart(user_id=user_id)
+        sku = product.configurations[configuration_index]['sku']
+        product_in_cart = cart.items.get(sku, {})
+        already_bought = product_in_cart.get('qty', 0)
+        total_qty = already_bought+amount
+
         quantity_field = 'configurations.%s.qty' % configuration_index
+        max_qty_field = 'configurations.%s.details.max_allowed_quantity' % configuration_index
         result = models.DBSession.impl.update_partial(mapper(models.Product).collection,
                                                       {'_id': product._id,
-                                                       quantity_field: {'$gte': amount}},
+                                                       quantity_field: {'$gte': amount},
+                                                       max_qty_field: {'$gte': total_qty}},
                                                       {'$inc': {quantity_field: -amount}})
         bought = result.get('updatedExisting', False)
 
         if bought:
-            sku_field = 'items.%s' % product.configurations[configuration_index]['sku']
-            models.DBSession.update(models.Cart,
-                                    {'user_id': user_id},
-                                    {'$inc': {sku_field: amount},
-                                     '$set': {'expires_at': models.CartTtlExt.cart_expiration()}},
-                                    upsert=True)
+            self._add_to_cart(cart, self._product_dump(product, configuration_index), amount)
 
         return bought
 
@@ -141,3 +173,19 @@ class ShopManager(object):
 
     def get_cart(self, user_id):
         return models.Cart.query.find({'user_id': user_id}).first()
+
+    def delete_from_cart(self, cart, sku):
+        items = cart.items
+        items.pop(sku, None)
+        cart.items = items
+        return cart
+
+    def update_cart_item_qty(self, cart, sku, qty):
+        if qty == 0:
+            return self.delete_from_cart(cart, sku)
+
+        product = self.get_product(sku=sku)
+        self.buy_product(product, self._config_idx(product, sku), qty, cart=cart)
+        return cart
+
+

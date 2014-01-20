@@ -97,8 +97,8 @@ class Cart(MappedClass):
 
     _id = FieldProperty(s.ObjectId)
     user_id = FieldProperty(s.String, required=True)
-    items = FieldProperty(s.Anything)
-    expires_at = FieldProperty(s.DateTime)
+    items = FieldProperty(s.Anything, if_missing={})
+    expires_at = FieldProperty(s.DateTime, if_missing=CartTtlExt.cart_expiration)
 
     @classmethod
     def expired_carts(cls):
