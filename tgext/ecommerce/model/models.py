@@ -100,6 +100,11 @@ class Cart(MappedClass):
     items = FieldProperty(s.Anything, if_missing={})
     expires_at = FieldProperty(s.DateTime, if_missing=CartTtlExt.cart_expiration)
 
+    @property
+    def item_count(self):
+        return sum([item['qty'] for item in self.items.values()])
+
+
     @classmethod
     def expired_carts(cls):
         return cls.query.find({'expires_at': {'$lte': datetime.utcnow()}})
