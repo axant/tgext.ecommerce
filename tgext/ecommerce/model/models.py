@@ -30,7 +30,8 @@ class Product(MappedClass):
                           ('configurations.sku',)
                           ]
         indexes = [('type', 'active', ('valid_to', -1)),
-                   ('type', 'category_id', 'active')]
+                   ('type', 'category_id', 'active'),
+                   ('type','active' 'name' )]
 
     _id = FieldProperty(s.ObjectId)
     name = FieldProperty(s.Anything, required=True)
