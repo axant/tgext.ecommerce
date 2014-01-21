@@ -131,6 +131,10 @@ class TestProduct(RootTest):
         cart = sm.get_cart('egg')
         self.assertIn('12345', cart.items)
         sm.delete_from_cart(cart, '12345')
+        models.DBSession.flush_all()
+        models.DBSession.close_all()
+
+        cart = sm.get_cart('egg')
         self.assertNotIn('12345', cart.items)
 
     def test_update_cart_item_qty(self):
