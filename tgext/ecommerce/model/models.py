@@ -105,7 +105,11 @@ class Cart(MappedClass):
     def item_count(self):
         return sum([item['qty'] for item in self.items.values()])
 
+    @property
+    def total(self):
+        return sum([item['price']*item['qty']*(1+item['vat']) for item in self.items.values()])
 
     @classmethod
     def expired_carts(cls):
         return cls.query.find({'expires_at': {'$lte': datetime.utcnow()}})
+
