@@ -168,9 +168,11 @@ class ShopManager(object):
         if configuration_index is None:
             configuration_index = self._config_idx(product, sku)
         config = product['configurations'][configuration_index]
+
         return dict(
             name=product.name,
             description=product.description,
+            product_details=product.details, #TODO: find better way to add product img!!
             **config
         )
 
