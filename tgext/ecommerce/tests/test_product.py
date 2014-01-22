@@ -39,8 +39,7 @@ class TestProduct(RootTest):
                                    variety='test variety',
                                    active=True,
                                    valid_from=datetime.datetime.utcnow(),
-                                   valid_to=datetime.datetime.utcnow(),
-                                   configuration_details={'max_allowed_quantity': 12})
+                                   valid_to=datetime.datetime.utcnow())
 
     def test_create_product(self):
         from tgext.ecommerce.lib.shop import ShopManager, models
@@ -66,7 +65,7 @@ class TestProduct(RootTest):
 
         sm = ShopManager()
         pr = self._create_product(sm, '12345')
-        self.assertTrue(sm.buy_product(pr, 0, 2, 'egg'))
+        self.assertTrue(sm.buy_product(sm.create_or_get_cart('egg'), pr, 0, 2))
         models.DBSession.clear()
         pr = sm.get_product('12345')
         assert pr.configurations[0]['qty'] == 18, pr.configurations[0]['qty']
@@ -76,22 +75,19 @@ class TestProduct(RootTest):
 
         sm = ShopManager()
         pr = self._create_product(sm, '12345')
-        self.assertFalse(sm.buy_product(pr, 0, 22, 'egg'))
+        self.assertFalse(sm.buy_product(sm.create_or_get_cart('egg'), pr, 0, 22))
         models.DBSession.clear()
         pr = sm.get_product('12345')
         assert pr.configurations[0]['qty'] == 20, pr.configurations[0]['qty']
 
-    def test_max_quantity_reached(self):
+    def test_not_enough_product_after(self):
         from tgext.ecommerce.lib.shop import ShopManager, models
 
         sm = ShopManager()
         pr = self._create_product(sm, '12345')
-        self.assertFalse(sm.buy_product(pr, 0, 14, 'egg'))
-        models.DBSession.flush_all()
-        models.DBSession.close_all()
-        self.assertTrue(sm.buy_product(pr, 0, 12, 'egg'))
-        self.assertFalse(sm.buy_product(pr, 0, 1, 'egg'))
-
+        cart = sm.create_or_get_cart('egg')
+        self.assertTrue(sm.buy_product(cart, pr, 0, 12))
+        self.assertFalse(sm.buy_product(cart, pr, 0, 14))
         models.DBSession.flush_all()
         models.DBSession.close_all()
 
@@ -107,7 +103,7 @@ class TestProduct(RootTest):
 
         sm = ShopManager()
         pr = self._create_product(sm, '12345')
-        sm.buy_product(pr, 0, 2, 'egg')
+        sm.buy_product(sm.create_or_get_cart('egg'), pr, 0, 2)
         models.DBSession.flush_all()
         models.DBSession.close_all()
 
@@ -124,7 +120,7 @@ class TestProduct(RootTest):
 
         sm = ShopManager()
         pr = self._create_product(sm, '12345')
-        sm.buy_product(pr, 0, 2, 'egg')
+        sm.buy_product(sm.create_or_get_cart('egg'), pr, 0, 2)
         models.DBSession.flush_all()
         models.DBSession.close_all()
 
@@ -142,7 +138,7 @@ class TestProduct(RootTest):
 
         sm = ShopManager()
         pr = self._create_product(sm, '12345')
-        sm.buy_product(pr, 0, 2, 'egg')
+        sm.buy_product(sm.create_or_get_cart('egg'), pr, 0, 2)
         models.DBSession.flush_all()
         models.DBSession.close_all()
 
@@ -159,7 +155,7 @@ class TestProduct(RootTest):
 
         sm = ShopManager()
         pr = self._create_product(sm, '12345')
-        sm.buy_product(pr, 0, 2, 'egg')
+        sm.buy_product(sm.create_or_get_cart('egg'), pr, 0, 2)
         models.DBSession.flush_all()
         models.DBSession.close_all()
 

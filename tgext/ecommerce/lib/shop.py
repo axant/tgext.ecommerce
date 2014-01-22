@@ -184,23 +184,16 @@ class ShopManager(object):
             product_dump['qty'] = qty
             cart.items[sku] = product_dump
 
-    def buy_product(self, product, configuration_index, amount, user_id=None, cart=None):
-        assert user_id or cart
-
-        cart = cart or self.get_cart(user_id)
-        if cart is None:
-            cart = models.Cart(user_id=user_id)
+    def buy_product(self, cart, product, configuration_index, amount):
         sku = product.configurations[configuration_index]['sku']
         product_in_cart = cart.items.get(sku, {})
         already_bought = product_in_cart.get('qty', 0)
         total_qty = already_bought+amount
 
         quantity_field = 'configurations.%s.qty' % configuration_index
-        max_qty_field = 'configurations.%s.details.max_allowed_quantity' % configuration_index
         result = models.DBSession.impl.update_partial(mapper(models.Product).collection,
                                                       {'_id': product._id,
-                                                       quantity_field: {'$gte': amount},
-                                                       max_qty_field: {'$gte': total_qty}},
+                                                       quantity_field: {'$gte': amount}},
                                                       {'$inc': {quantity_field: -amount}})
         bought = result.get('updatedExisting', False)
 
@@ -234,6 +227,13 @@ class ShopManager(object):
     def get_cart(self, user_id):
         return models.Cart.query.find({'user_id': user_id}).first()
 
+    def create_or_get_cart(self, user_id):
+        cart = self.get_cart(user_id)
+        if cart is None:
+            cart = models.Cart(user_id=user_id)
+            models.DBSession.flush()
+        return cart
+
     def delete_from_cart(self, cart, sku):
         return self.update_cart_item_qty(cart, sku, 0)
 
@@ -244,7 +244,7 @@ class ShopManager(object):
         if delta_qty == 0:
             return cart
         product = self.get_product(sku=sku)
-        self.buy_product(product, self._config_idx(product, sku), delta_qty, cart=cart)
+        self.buy_product(cart, product, self._config_idx(product, sku), delta_qty)
         return cart
 
 
