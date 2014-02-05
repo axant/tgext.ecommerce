@@ -172,7 +172,7 @@ class ShopManager(object):
         return dict(
             name=product.name,
             description=product.description,
-            product_details=product.details, #TODO: find better way to add product img!!
+            product_details=product.details,
             **config
         )
 

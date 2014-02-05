@@ -55,7 +55,7 @@ class Product(MappedClass):
     }])
 
     @cached_property
-    def min_price(self):
+    def min_price_configuration(self):
         return '%.2f' % min(map(lambda conf: conf['price'] * (1+conf['vat']), self.configurations))
 
     @property
