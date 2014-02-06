@@ -7,6 +7,7 @@ import tg
 from tg.caching import cached_property
 from tgext.ecommerce.lib.utils import short_lang
 from tgext.ecommerce.model import DBSession
+import operator
 
 
 class Category(MappedClass):
@@ -54,9 +55,20 @@ class Product(MappedClass):
         'details': s.Anything(if_missing={}),
     }])
 
-    @cached_property
-    def min_price_configuration(self):
-        return '%.2f' % min(map(lambda conf: conf['price'] * (1+conf['vat']), self.configurations))
+    def min_price_configuration(self, min_qty_getter=1):
+        if isinstance(min_qty_getter, str):
+            min_qty_getter = operator.attrgetter(min_qty_getter)
+        else:
+            min_qty_getter = lambda c: min_qty_getter
+
+        configurations_by_price = sorted(filter(lambda conf: conf[2]['qty'] >= min_qty_getter(conf[2]),
+                                                map(lambda conf: (conf[0], conf[1]['price'] * (1+conf[1]['vat']), conf[1]),
+                                                    enumerate(self.configurations))),
+                                         key=lambda x: x[1])
+        if not configurations_by_price:
+            return None, None
+
+        return configurations_by_price[0][:2]
 
     @property
     def thumbnail(self):
