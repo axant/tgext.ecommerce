@@ -112,6 +112,7 @@ class Cart(MappedClass):
     user_id = FieldProperty(s.String, required=True)
     items = FieldProperty(s.Anything, if_missing={})
     expires_at = FieldProperty(s.DateTime, if_missing=CartTtlExt.cart_expiration)
+    payment = FieldProperty(s.Anything, if_missing={})
 
     @property
     def item_count(self):

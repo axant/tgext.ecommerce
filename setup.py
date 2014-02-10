@@ -12,7 +12,8 @@ install_requires=[
     "TurboGears2 >= 2.3.1",
     "tgext.pluggable",
     "formencode",
-    "tgscheduler"
+    "tgscheduler",
+    "paypalrestsdk"
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))

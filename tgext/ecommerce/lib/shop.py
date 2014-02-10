@@ -2,6 +2,7 @@ import sys
 import tg
 from tgext.ecommerce.lib.exceptions import AlreadyExistingSlugException, AlreadyExistingSkuException, \
     CategoryAssignedToProductException, InactiveProductException
+from tgext.ecommerce.lib.payments import paypal
 from tgext.ecommerce.lib.utils import slugify, internationalise as i_
 from bson import ObjectId
 from ming.odm import mapper
@@ -247,4 +248,11 @@ class ShopManager(object):
         self.buy_product(cart, product, self._config_idx(product, sku), delta_qty)
         return cart
 
+    def pay(self, cart, redirection):
+        return paypal.pay(cart, redirection)
 
+    def confirm(self, cart, redirection, data):
+        return paypal.confirm(cart, redirection, data)
+
+    def execute(self, cart, data):
+        return paypal.execute(cart, data)
