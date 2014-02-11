@@ -119,6 +119,14 @@ class Cart(MappedClass):
         return sum([item['qty'] for item in self.items.values()])
 
     @property
+    def subtotal(self):
+        return sum([item['price']*item['qty'] for item in self.items.values()])
+
+    @property
+    def tax(self):
+        return sum([item['price']*item['qty']*item['vat'] for item in self.items.values()])
+
+    @property
     def total(self):
         return sum([item['price']*item['qty']*(1+item['vat']) for item in self.items.values()])
 

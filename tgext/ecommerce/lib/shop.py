@@ -248,8 +248,8 @@ class ShopManager(object):
         self.buy_product(cart, product, self._config_idx(product, sku), delta_qty)
         return cart
 
-    def pay(self, cart, redirection):
-        return paypal.pay(cart, redirection)
+    def pay(self, cart, redirection_url, cancel_url, shipping_charges=0):
+        return paypal.pay(cart, redirection_url, cancel_url, shipping_charges)
 
     def confirm(self, cart, redirection, data):
         return paypal.confirm(cart, redirection, data)

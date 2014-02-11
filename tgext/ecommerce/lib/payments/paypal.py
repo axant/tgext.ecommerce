@@ -10,28 +10,41 @@ paypalrestsdk.configure({
   "client_secret": "EKxWWhA9m2tTPStb57Y73vaA8wbnmNKXY93GYPd6Kk_KHdagyqTetEd7UTVW"})
 
 
-def pay(cart, redirection):
+def pay(cart, redirection_url, cancel_url, shipping_charges):
+    raw_items = [v for k, v in cart.items.iteritems()]
+    items = []
+    for item in raw_items:
+        item_name = item.name.get(tg.translator.preferred_language, item.name.get(tg.config.lang))
+        item_variety = item.variety.get(tg.translator.preferred_language, item.variety.get(tg.config.lang))
+        item = {"name": "%s, %s" % (item_name, item_variety),
+                "sku": item.sku,
+                "price": item.price,
+                "currency": "EUR",
+                "quantity": item.qty}
+        items.append(item)
+
+    print shipping_charges
     payment = paypalrestsdk.Payment({
         "intent": "sale",
         "payer": {
-        "payment_method": "paypal"
+            "payment_method": "paypal"
         },
         "redirect_urls": {
-        "return_url": redirection,
-        "cancel_url": "http://localhost:3000/cancel"
+            "return_url": redirection_url,
+            "cancel_url": cancel_url
         },
-        "transactions": [{
-                          "item_list": {
-        "items": [{
-                      "name": "item",
-                   "sku": "item",
-                   "price": "60.00",
-                   "currency": "EUR",
-                   "quantity": 3 }]},
-        "amount": {
-        "total": "180.00",
-        "currency": "EUR"},
-        "description": "This is the payment transaction description."}]})
+        "transactions": [{"item_list": {"items": items},
+                          "amount": {
+                              "total": cart.total + shipping_charges,
+                              "currency": "EUR",
+                              "details": {
+                                  "shipping": "%0.2f" % shipping_charges,
+                                  "subtotal": cart.subtotal,
+                                  "tax": cart.tax
+                              }
+                          },
+                          }]
+    })
 
     if payment.create():
         cart.payment = {'backend': 'paypal',
@@ -41,8 +54,10 @@ def pay(cart, redirection):
             if link.rel == "approval_url":
                 print 'LINK', link.href
                 return link.href
+    else:
+        print 'PAYMENT ERROR', payment.error
+        return cancel_url
 
-    return None
 
 
 def confirm(cart, redirection, data):
