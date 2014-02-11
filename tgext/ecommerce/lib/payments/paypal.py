@@ -3,11 +3,13 @@ from __future__ import unicode_literals
 
 import tg
 import paypalrestsdk
+import datetime
 
-paypalrestsdk.configure({
-  "mode": "sandbox", # sandbox or live
-  "client_id": "AfOarBB0asXM-rUIkPcJWZHznMlre38CV0ZYudX0Lv2cVujzNGDgE4u7aZAT",
-  "client_secret": "EKxWWhA9m2tTPStb57Y73vaA8wbnmNKXY93GYPd6Kk_KHdagyqTetEd7UTVW"})
+def configure_paypal(mode, client_id, client_secret):
+    paypalrestsdk.configure({
+    "mode": mode,
+    "client_id": client_id,
+    "client_secret": client_secret})
 
 
 def pay(cart, redirection_url, cancel_url, shipping_charges):
@@ -23,7 +25,6 @@ def pay(cart, redirection_url, cancel_url, shipping_charges):
                 "quantity": item.qty}
         items.append(item)
 
-    print shipping_charges
     payment = paypalrestsdk.Payment({
         "intent": "sale",
         "payer": {
@@ -35,12 +36,12 @@ def pay(cart, redirection_url, cancel_url, shipping_charges):
         },
         "transactions": [{"item_list": {"items": items},
                           "amount": {
-                              "total": cart.total + shipping_charges,
+                              "total": "%0.2f" % (cart.total + shipping_charges),
                               "currency": "EUR",
                               "details": {
                                   "shipping": "%0.2f" % shipping_charges,
-                                  "subtotal": cart.subtotal,
-                                  "tax": cart.tax
+                                  "subtotal": "%0.2f" % cart.subtotal,
+                                  "tax":   "%0.2f" % cart.tax
                               }
                           },
                           }]
@@ -48,7 +49,8 @@ def pay(cart, redirection_url, cancel_url, shipping_charges):
 
     if payment.create():
         cart.payment = {'backend': 'paypal',
-                        'id': payment.id}
+                        'id': payment.id,
+                        'timestamp': datetime.datetime.utcnow()}
 
         for link in payment.links:
             if link.rel == "approval_url":
@@ -57,7 +59,6 @@ def pay(cart, redirection_url, cancel_url, shipping_charges):
     else:
         print 'PAYMENT ERROR', payment.error
         return cancel_url
-
 
 
 def confirm(cart, redirection, data):

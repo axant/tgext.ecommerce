@@ -1,4 +1,5 @@
 import sys
+import datetime
 import tg
 from tgext.ecommerce.lib.exceptions import AlreadyExistingSlugException, AlreadyExistingSkuException, \
     CategoryAssignedToProductException, InactiveProductException
@@ -179,6 +180,7 @@ class ShopManager(object):
 
     def _add_to_cart(self, cart, product_dump, qty):
         sku = product_dump['sku']
+        cart.last_update = datetime.datetime.utcnow()
         if qty == 0:
             cart.items.pop(sku, None)
         else:
