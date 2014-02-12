@@ -9,8 +9,6 @@ from tgext.ecommerce.lib.payments.paypal import configure_paypal
 
 
 def plugme(app_config, options):
-    if not hasattr(app_config, 'DBSession'):
-        app_config.DBSession = app_config.package.model.DBSession
 
     hooks.register('before_validate', autodetect_preferred_language)
     hooks.register('before_config', setup_global_objects)

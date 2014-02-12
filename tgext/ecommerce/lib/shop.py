@@ -5,31 +5,13 @@ from tgext.ecommerce.lib.exceptions import AlreadyExistingSlugException, Already
     CategoryAssignedToProductException, InactiveProductException
 from tgext.ecommerce.lib.payments import paypal
 from tgext.ecommerce.lib.utils import slugify, internationalise as i_
+from tgext.ecommerce.model import models
 from bson import ObjectId
 from ming.odm import mapper
 
 
 class NoDefault(object):
     """A dummy value used for parameters with no default."""
-
-
-class Models(object):
-    def __init__(self):
-        self._models = None
-
-    @property
-    def models(self):
-        if self._models is None:
-            from tgext.ecommerce.model import models
-
-            self._models = models
-        return self._models
-
-    def __getattr__(self, item):
-        return getattr(self.models, item)
-
-
-models = Models()
 
 
 class ShopManager(object):
