@@ -12,7 +12,7 @@ def plugme(app_config, options):
     if not hasattr(app_config, 'DBSession'):
         app_config.DBSession = app_config.package.model.DBSession
 
-    hooks.wrap_controller(autodetect_preferred_language)
+    hooks.register('before_validate', autodetect_preferred_language)
     hooks.register('before_config', setup_global_objects)
     hooks.register('after_config', setup_clean_cart_scheduler)
     hooks.register('after_config', init_paypal)
@@ -25,11 +25,8 @@ def setup_global_objects(app):
     return app
 
 
-def autodetect_preferred_language(app_config, caller):
-    def call(*args, **kw):
-        detect_preferred_language()
-        return caller(*args, **kw)
-    return call
+def autodetect_preferred_language(*args, **kwargs):
+    detect_preferred_language()
 
 
 def setup_clean_cart_scheduler(app):
