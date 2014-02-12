@@ -114,7 +114,7 @@ class Cart(MappedClass):
     expires_at = FieldProperty(s.DateTime, if_missing=CartTtlExt.cart_expiration)
     last_update = FieldProperty(s.DateTime, if_missing=datetime.utcnow())
     payment = FieldProperty(s.Anything, if_missing={})
-    oder_info = FieldProperty(s.Anything, if_missing={})
+    order_info = FieldProperty(s.Anything, if_missing={})
 
     @property
     def item_count(self):
