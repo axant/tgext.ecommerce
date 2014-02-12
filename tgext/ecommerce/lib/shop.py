@@ -241,7 +241,7 @@ class ShopManager(object):
     def execute(self, cart, data):
         return paypal.execute(cart, data)
 
-    def create_order(self, cart, items, net_total, gross_total, tax=0.0, shipment_charges=0.0,
+    def create_order(self, cart, items, shipment_charges=0.0,
                      payment_date=None, shipment_info=None, bill_info=None, **details):
         if shipment_info is None:
             shipment_info = {}
@@ -255,9 +255,9 @@ class ShopManager(object):
                              shipment_info=shipment_info,
                              bill_info=bill_info,
                              items=items,
-                             net_total=net_total,
-                             tax=tax,
-                             gross_total=gross_total,
+                             net_total=cart.subtotal,
+                             tax=cart.tax,
+                             gross_total=cart.total,
                              shipment_charges=shipment_charges,
                              details=details)
 
