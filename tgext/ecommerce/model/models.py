@@ -137,4 +137,34 @@ class Cart(MappedClass):
         return cls.query.find({'expires_at': {'$lte': datetime.utcnow()}})
 
 
+class Order(MappedClass):
+    class __mongometa__:
+        session = DBSession
+        name = 'orders'
+        indexes = [('user_id', )]
+
+    _id = FieldProperty(s.ObjectId)
+    user_id = FieldProperty(s.String, required=True)
+    payment_date = FieldProperty(s.DateTime, required=True)
+    cancellation_date = FieldProperty(s.DateTime)
+    creation_date = FieldProperty(s.DateTime, required=True)
+    shipment_info = FieldProperty(s.Anything, if_missing={})
+    bill_info = FieldProperty(s.Anything, if_missing={})
+    items = FieldProperty([{
+        'name': s.Anything(required=True),
+        'variety': s.Anything(required=True),
+        'qty': s.Int(required=True),
+        'sku': s.String(required=True),
+        'net_price': s.Float(required=True),
+        'vat': s.Float(required=True),
+        'gross_price': s.Float(required=True),
+        'details': s.Anything(if_missing={})
+    }])
+    net_total = s.Float(required=True)
+    tax = s.Float(required=True)
+    gross_total = s.Float(required=True)
+    shipment_charges = s.Float(required=True)
+    details = FieldProperty(s.Anything, if_missing={})
+
+
 
