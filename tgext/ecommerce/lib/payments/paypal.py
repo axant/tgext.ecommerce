@@ -54,10 +54,8 @@ def pay(cart, redirection_url, cancel_url, shipping_charges):
 
         for link in payment.links:
             if link.rel == "approval_url":
-                print 'LINK', link.href
                 return link.href
     else:
-        print 'PAYMENT ERROR', payment.error
         return cancel_url
 
 
@@ -68,9 +66,5 @@ def confirm(cart, redirection, data):
 
 def execute(cart, data):
     paymentId = cart.payment['id']
-
-    print 'PAYER: %s, PAYMENT: %s' % (data, paymentId)
     payment = paypalrestsdk.Payment.find(paymentId)
-    print 'PAYMENT', payment
-
     return payment.execute(data)
