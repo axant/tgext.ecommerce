@@ -137,11 +137,29 @@ class Cart(MappedClass):
         return cls.query.find({'expires_at': {'$lte': datetime.utcnow()}})
 
 
+class OrderStatusExt(MapperExtension):
+    def before_insert(self, instance, state, sess):
+        status = instance.status or 'created'
+        instance.change_status(status)
+
+    def before_update(self, instance, state, sess):
+        if instance.status != self._prev_status(instance):
+            self._change_status(instance, instance.status)
+
+    def _change_status(self, instance, status):
+        user = tg.request.identity['user']._id if tg.request.identity['user'] else None
+        instance.status_changes.append({'status': status, 'changed_by': user, 'changed_at': datetime.utcnow()})
+
+    def _prev_status(self, instance):
+        return instance.status_changes[0]['status']
+
+
 class Order(MappedClass):
     class __mongometa__:
         session = DBSession
         name = 'orders'
         indexes = [('user_id', )]
+        extensions = [OrderStatusExt]
 
     _id = FieldProperty(s.ObjectId)
     user_id = FieldProperty(s.String, required=True)
@@ -193,6 +211,4 @@ class Order(MappedClass):
     total = FieldProperty(s.Float, required=True)
     status = FieldProperty(s.String, required=True)
     details = FieldProperty(s.Anything, if_missing={})
-
-
-
+    status_changes = FieldProperty(s.Anything, if_missing=[])
