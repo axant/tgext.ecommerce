@@ -160,10 +160,11 @@ class Order(MappedClass):
         'gross_price': s.Float(required=True),
         'details': s.Anything(if_missing={})
     }])
-    net_total = s.Float(required=True)
-    tax = s.Float(required=True)
-    gross_total = s.Float(required=True)
-    shipment_charges = s.Float(required=True)
+    net_total = FieldProperty(s.Float, required=True)
+    tax = FieldProperty(s.Float, required=True)
+    gross_total = FieldProperty(s.Float, required=True)
+    shipping_charges = FieldProperty(s.Float, required=True)
+    total = FieldProperty(s.Float, required=True)
     details = FieldProperty(s.Anything, if_missing={})
 
 
