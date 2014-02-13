@@ -67,4 +67,12 @@ def confirm(cart, redirection, data):
 def execute(cart, data):
     paymentId = cart.payment['id']
     payment = paypalrestsdk.Payment.find(paymentId)
-    return payment.execute(data)
+    result = payment.execute(data)
+    payer_info = dict()
+    if result:
+        payer_info['first_name'] = payment.payer.payer_info.first_name
+        payer_info['last_name'] = payment.payer.payer_info.last_name
+        payer_info['email'] = payment.payer.payer_info.email
+
+    return dict(result=result, payer_info=payer_info)
+

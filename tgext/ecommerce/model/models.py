@@ -171,6 +171,11 @@ class Order(MappedClass):
         'bill_emitted': s.Bool(),
         'details': s.Anything(if_missing={})
     })
+    payer_info = FieldProperty({
+        'first_name': s.String(),
+        'last_name': s.String(),
+        'email': s.String()
+    })
     items = FieldProperty([{
         'name': s.Anything(required=True),
         'variety': s.Anything(required=True),

@@ -243,11 +243,14 @@ class ShopManager(object):
         return paypal.execute(cart, data)
 
     def create_order(self, cart, items, shipping_charges=0.0, payment_date=None, shipment_info=None, bill=False,
-                     bill_info=None, status='created', **details):
+                     bill_info=None, payer_info=None, status='created', **details):
         if shipment_info is None:
             shipment_info = {}
         if bill_info is None:
             bill_info = {}
+        if payer_info is None:
+            payer_info = {}
+
         order = models.Order(_id=cart._id,
                              user_id=cart.user_id,
                              payment_date=payment_date,
@@ -255,6 +258,7 @@ class ShopManager(object):
                              shipment_info=shipment_info,
                              bill=bill,
                              bill_info=bill_info,
+                             payer_info=payer_info,
                              items=items,
                              net_total=cart.subtotal,
                              tax=cart.tax,
