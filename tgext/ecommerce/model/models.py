@@ -148,8 +148,29 @@ class Order(MappedClass):
     payment_date = FieldProperty(s.DateTime, required=True)
     cancellation_date = FieldProperty(s.DateTime)
     creation_date = FieldProperty(s.DateTime, required=True)
-    shipment_info = FieldProperty(s.Anything, if_missing={})
-    bill_info = FieldProperty(s.Anything, if_missing={})
+    shipment_info = FieldProperty({
+        'receiver': s.String(),
+        'address': s.String(),
+        'city': s.String(),
+        'province': s.String(),
+        'state': s.String(),
+        'zip_code': s.String(),
+        'country': s.String(),
+        'details': s.Anything(if_missing={})
+    })
+    bill = FieldProperty(s.Bool, if_missing=False)
+    bill_info = FieldProperty({
+        'company': s.String(),
+        'vat': s.String(),
+        'address': s.String(),
+        'city': s.String(),
+        'province': s.String(),
+        'state': s.String(),
+        'zip_code': s.String(),
+        'country': s.String(),
+        'bill_emitted': s.Bool(),
+        'details': s.Anything(if_missing={})
+    })
     items = FieldProperty([{
         'name': s.Anything(required=True),
         'variety': s.Anything(required=True),
