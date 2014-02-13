@@ -241,13 +241,13 @@ class ShopManager(object):
     def execute(self, cart, data):
         return paypal.execute(cart, data)
 
-    def create_order(self, cart, items, shipment_charges=0.0,
+    def create_order(self, cart, items, shipping_charges=0.0,
                      payment_date=None, shipment_info=None, bill_info=None, **details):
         if shipment_info is None:
             shipment_info = {}
         if bill_info is None:
             bill_info = {}
-
+        print cart.total
         order = models.Order(_id=cart._id,
                              user_id=cart.user_id,
                              payment_date=payment_date,
@@ -258,8 +258,16 @@ class ShopManager(object):
                              net_total=cart.subtotal,
                              tax=cart.tax,
                              gross_total=cart.total,
-                             shipment_charges=shipment_charges,
+                             shipping_charges=shipping_charges,
+                             total=cart.total+shipping_charges,
                              details=details)
 
         models.DBSession.flush()
         return order
+
+    def get_order(self,_id):
+        return models.Order.query.get(_id=ObjectId(_id))
+
+    def get_user_orders(self, user_id):
+        return models.Order.query.find({'user_id': user_id})
+
