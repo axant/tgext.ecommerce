@@ -241,8 +241,8 @@ class ShopManager(object):
     def execute(self, cart, data):
         return paypal.execute(cart, data)
 
-    def create_order(self, cart, items, shipping_charges=0.0,
-                     payment_date=None, shipment_info=None, bill=False, bill_info=None, **details):
+    def create_order(self, cart, items, shipping_charges=0.0, payment_date=None, shipment_info=None, bill=False,
+                     bill_info=None, status='created', **details):
         if shipment_info is None:
             shipment_info = {}
         if bill_info is None:
@@ -260,6 +260,7 @@ class ShopManager(object):
                              gross_total=cart.total,
                              shipping_charges=shipping_charges,
                              total=cart.total+shipping_charges,
+                             status=status,
                              details=details)
 
         models.DBSession.flush()

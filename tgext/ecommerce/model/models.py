@@ -186,6 +186,7 @@ class Order(MappedClass):
     gross_total = FieldProperty(s.Float, required=True)
     shipping_charges = FieldProperty(s.Float, required=True)
     total = FieldProperty(s.Float, required=True)
+    status = FieldProperty(s.String, required=True)
     details = FieldProperty(s.Anything, if_missing={})
 
 
