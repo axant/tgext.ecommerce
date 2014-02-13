@@ -8,6 +8,7 @@ from tgext.ecommerce.lib.utils import slugify, internationalise as i_
 from tgext.ecommerce.model import models
 from bson import ObjectId
 from ming.odm import mapper
+from collections import Counter
 
 
 class NoDefault(object):
@@ -270,5 +271,19 @@ class ShopManager(object):
         return models.Order.query.get(_id=ObjectId(_id))
 
     def get_user_orders(self, user_id):
+        '''Retrieves all the past orders of a given user
+
+        @param user_id: the user id string to filter for
+        '''
         return models.Order.query.find({'user_id': user_id})
 
+    def get_suggested_products_per_user(self, user_id, limit=5):
+        '''Gives a list of suggested sku products based on the past orders of a user
+
+        @param user_id: the user id string to get suggestions for
+        @parmas limit: optional max number of suggestions (default to 5)
+        '''
+        past_orders = models.Order.query.find({'user_id': user_id})
+        skus = Counter([item.sku for order in past_orders for item in order.items])
+        suggested_skus = skus.most_common(limit)
+        return [t[0] for t in suggested_skus]  # filter just the sku without the frequency
