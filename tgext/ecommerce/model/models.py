@@ -140,7 +140,7 @@ class Cart(MappedClass):
 class OrderStatusExt(MapperExtension):
     def before_insert(self, instance, state, sess):
         status = instance.status or 'created'
-        instance.change_status(status)
+        self._change_status(instance, status)
 
     def before_update(self, instance, state, sess):
         if instance.status != self._prev_status(instance):
