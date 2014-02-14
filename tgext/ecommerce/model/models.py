@@ -201,6 +201,7 @@ class Order(MappedClass):
         'sku': s.String(required=True),
         'net_price': s.Float(required=True),
         'vat': s.Float(required=True),
+        'base_vat': s.Float(required=True),
         'gross_price': s.Float(required=True),
         'details': s.Anything(if_missing={})
     }])
