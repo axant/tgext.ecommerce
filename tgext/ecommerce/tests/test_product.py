@@ -20,10 +20,6 @@ class TestProduct(RootTest):
 
     def setUp(self):
         super(TestProduct, self).setUp()
-        from tgext.ecommerce import model
-
-        self.old_session = model.DBSession
-        model.DBSession = self.test_session
 
     def _create_product(self, shop, sku):
         cat = shop.create_category('ham')
