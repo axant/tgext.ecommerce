@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from bson import ObjectId
-from tg import TGController, expose, validate, lurl, redirect
+from tg import TGController, expose, validate, lurl, redirect, request
 from tg.i18n import lazy_ugettext as l_
 import tw2.core as twc
 import tw2.forms as twf
@@ -88,4 +88,6 @@ class ManageController(TGController):
     def bill_issue(self, order_id):
         order = Order.query.get(_id=ObjectId(order_id))
         order.billed = True
+        order.billed_by = request.identity['user'].user_id
+        order.billed_date = datetime.utcnow()
         return redirect(self.mount_point + '/orders')

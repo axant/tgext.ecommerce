@@ -193,6 +193,8 @@ class Order(MappedClass):
     })
     bill = FieldProperty(s.Bool, if_missing=False)
     billed = FieldProperty(s.Bool, if_missing=False)
+    billed_date = FieldProperty(s.DateTime)
+    billed_by = FieldProperty(s.String)
     bill_info = FieldProperty({
         'company': s.String(),
         'vat': s.String(),
