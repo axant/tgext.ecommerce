@@ -21,7 +21,7 @@
   <td>PAYPAL</td>
   <td>${order.bill}</td>
   <td py:if="not order.billed">${order.billed}</td>
-  <td py:if="order.billed">${order.billed_date.strftime('%d/%m/%Y') + '\n' + order.billed_by}</td>
+  <td py:if="order.billed">${order.billed_date.strftime('%d/%m/%Y') + '\n' + order.billed_by_name}</td>
   <td py:if="not order.billed and order.bill"><a href="${bill_issue % order._id}">Marcare come fatturato</a></td>
 </div>
 

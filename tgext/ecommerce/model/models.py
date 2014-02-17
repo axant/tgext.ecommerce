@@ -241,3 +241,9 @@ class Order(MappedClass):
 
         return mapping
 
+    @property
+    def billed_by_name(self):
+        user_obj = app_model.User.query.get(_id=ObjectId(self.billed_by))
+        user = '%s %s' % (user_obj.name, user_obj.surname)
+        return user
+
