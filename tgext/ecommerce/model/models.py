@@ -1,10 +1,13 @@
 from datetime import datetime, timedelta
+from itertools import groupby, imap
+from bson import ObjectId
 from ming.odm.property import ORMProperty
 from ming.odm import FieldProperty, ForeignIdProperty, RelationProperty, MapperExtension
 from ming.odm.declarative import MappedClass
 from ming import schema as s
 import tg
 from tg.caching import cached_property
+from tgext.pluggable import app_model
 from tgext.ecommerce.lib.utils import short_lang
 from tgext.ecommerce.model import DBSession
 import operator
@@ -141,28 +144,40 @@ class OrderStatusExt(MapperExtension):
     def before_insert(self, instance, state, sess):
         status = instance.status or 'created'
         self._change_status(instance, status)
+        self._store_user_name(instance)
 
     def before_update(self, instance, state, sess):
         if instance.status != self._prev_status(instance):
             self._change_status(instance, instance.status)
 
     def _change_status(self, instance, status):
-        user = tg.request.identity['user']._id if tg.request.identity['user'] else None
-        instance.status_changes.append({'status': status, 'changed_by': user, 'changed_at': datetime.utcnow()})
+        identity = tg.request.identity['user']
+        changed_by = '%s %s' % (identity.name, identity.surname) if identity else None
+        instance.status_changes.append({'status': status, 'changed_by': changed_by, 'changed_at': datetime.utcnow()})
 
     def _prev_status(self, instance):
-        return instance.status_changes[0]['status']
+        return instance.status_changes[-1]['status']
+
+    def _store_user_name(self, instance):
+        user_id = instance.user_id
+        user_obj = app_model.User.query.get(_id=ObjectId(user_id))
+        user = '%s %s' % (user_obj.name, user_obj.surname)
+        instance.user = user
 
 
 class Order(MappedClass):
     class __mongometa__:
         session = DBSession
         name = 'orders'
-        indexes = [('user_id', )]
+        indexes = [('user_id', ),
+                   ('status_changes.changed_at', ),
+                   (('user', ), ('status_changes.changed_at', )),
+                   (('status', ), ('status_changes.changed_at', ))]
         extensions = [OrderStatusExt]
 
     _id = FieldProperty(s.ObjectId)
     user_id = FieldProperty(s.String, required=True)
+    user = FieldProperty(s.String)
     payment_date = FieldProperty(s.DateTime, required=True)
     cancellation_date = FieldProperty(s.DateTime)
     creation_date = FieldProperty(s.DateTime, required=True)
@@ -177,6 +192,7 @@ class Order(MappedClass):
         'details': s.Anything(if_missing={})
     })
     bill = FieldProperty(s.Bool, if_missing=False)
+    billed = FieldProperty(s.Bool, if_missing=False)
     bill_info = FieldProperty({
         'company': s.String(),
         'vat': s.String(),
@@ -213,3 +229,13 @@ class Order(MappedClass):
     status = FieldProperty(s.String, required=True)
     details = FieldProperty(s.Anything, if_missing={})
     status_changes = FieldProperty(s.Anything, if_missing=[])
+
+    @cached_property
+    def net_per_vat_rate(self):
+        mapping = {}
+        sorted_items = sorted(self.items, key=lambda i: i['vat'])
+        for k, g in groupby(sorted_items, key=lambda i: i['vat']):
+            mapping[k] = sum(imap(lambda i: i.net_price, g))
+
+        return mapping
+

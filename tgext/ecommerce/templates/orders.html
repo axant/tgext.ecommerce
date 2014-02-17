@@ -1,0 +1,57 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="master.html"/>
+
+<div py:def="order_row(order)">
+  <td>${str(order._id)}</td>
+  <td>${order.user}</td>
+  <td>${order.status_changes[-1].changed_at.strftime('%d/%m/%Y')}</td>
+  <td>${order.total}</td>
+  <td>
+    <py:for each="rate, net in order.net_per_vat_rate.items()">
+      ${rate*100}% - ${'%.2f' % net}€<br/>
+    </py:for>
+  </td>
+  <td>${order.status}
+    <span py:if="order.user != order.status_changes[-1].changed_by"> - modificato da ${order.status_changes[-1].changed_by}</span>
+  </td>
+  <td>PAYPAL</td>
+  <td>${order.bill}</td>
+  <td>${order.billed}</td>
+</div>
+
+<head>
+    <title>Gestione Ordini</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/cart.scss')}"/>
+</head>
+
+<body>
+<div class="container">
+  <div class="row">
+    <div class="col-md-16">${form.display(value=value, action=action)}</div>
+  </div>
+  <div class="row">
+    <div class="col-md-16">
+      <table class="table table-striped">
+        <thead><tr>
+          <th>ID ORDINE</th>
+          <th>UTENTE</th>
+          <th>DATA</th>
+          <th>TOTALE</th>
+          <th>ALIQUOTA</th>
+          <th>STATO</th>
+          <th>METODO DI PAGAMENTO</th>
+          <th>RIC. FATTURA</th>
+          <th>FATTURATO</th>
+        </tr></thead>
+        <tbody>
+          <tr py:for="order in orders">${order_row(order)}</tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>
