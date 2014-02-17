@@ -75,7 +75,7 @@ class ManageController(TGController):
     @validate(OrderFilterForm, error_handler=orders)
     def submit_orders(self, **kw):
         if kw['field'] == 'user':
-            orders = Order.query.find({kw['field']: {'$regex': kw['filt']}})
+            orders = Order.query.find({kw['field']: {'$regex': kw['filt'], '$options': 'i'}})
         elif kw['field'] == 'status_changes.changed_at':
             date_ = kw['filt']
             day_start = datetime(date_.year, date_.month, date_.day)
