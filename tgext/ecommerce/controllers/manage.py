@@ -30,17 +30,19 @@ class MaybeDateValidator(twc.Validator):
 
 
 class OrderFilterForm(twf.Form):
-    css_class = 'form-inline'
     submit = None
+    buttons = [twf.Button(value=l_('RESET'), css_class='btn btn-default',
+                          attrs={'data-url': lurl('/shop/manage/orders'), 'onclick': 'resetClick(this)'})]
+    css_class = 'form-inline'
 
     class child(BaseLayout):
         inline_engine_name = 'genshi'
         template = """
-<div xmlns:py="http://genshi.edgewall.org/">
+<div xmlns:py="http://genshi.edgewall.org/" style="display: inline-block">
     <py:for each="c in w.children_hidden">
         ${c.display()}
     </py:for>
-    <div class="form-inline">
+    <div>
         <div class="form-group">
             <span py:content="w.children.field.error_msg"/>
             ${w.children.field.display()}
