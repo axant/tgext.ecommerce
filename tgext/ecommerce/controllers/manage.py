@@ -91,3 +91,8 @@ class ManageController(TGController):
         order.billed_by = request.identity['user'].user_id
         order.billed_date = datetime.utcnow()
         return redirect(self.mount_point + '/orders')
+
+    @expose('tgext.ecommerce.templates.order_detail')
+    def order_detail(self, order_id, **kw):
+        order = Order.query.get(_id=ObjectId(order_id))
+        return dict(order=order)

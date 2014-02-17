@@ -5,7 +5,7 @@
 <xi:include href="master.html"/>
 
 <div py:def="order_row(order)">
-    <td>${str(order._id)}</td>
+    <td><a href="${h.plug_url('tgext.ecommerce', '/manage/order_detail?order_id=%s' %str(order._id))}">${str(order._id)}</a></td>
     <td>${order.user}</td>
     <td>${order.status_changes[-1].changed_at.strftime('%d/%m/%Y')}</td>
     <td>${order.total}</td>
