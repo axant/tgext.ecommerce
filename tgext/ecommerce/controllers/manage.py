@@ -1,5 +1,6 @@
 from datetime import date, datetime
-from tg import TGController, expose, validate, lurl
+from bson import ObjectId
+from tg import TGController, expose, validate, lurl, redirect
 from tg.i18n import lazy_ugettext as l_
 import tw2.core as twc
 import tw2.forms as twf
@@ -65,7 +66,8 @@ class ManageController(TGController):
     @expose('tgext.ecommerce.templates.orders')
     def orders(self, **kw):
         orders = Order.query.find().sort('status_changes.changed_at', -1).limit(250)
-        return dict(orders=orders, form=OrderFilterForm, value=kw, action=self.mount_point+'/submit_orders')
+        return dict(orders=orders, form=OrderFilterForm, value=kw, action=self.mount_point+'/submit_orders',
+                    bill_issue=self.mount_point+'/bill_issue/%s')
 
     @expose('tgext.ecommerce.templates.orders')
     @validate(OrderFilterForm, error_handler=orders)
@@ -81,3 +83,9 @@ class ManageController(TGController):
             orders = Order.query.find({kw['field']: kw['filt']})
         orders = orders.sort('status_changes.changed_at', -1).limit(250)
         return dict(orders=orders, form=OrderFilterForm, value=kw, action=self.mount_point+'/submit_orders')
+
+    @expose()
+    def bill_issue(self, order_id):
+        order = Order.query.get(_id=ObjectId(order_id))
+        order.billed = True
+        return redirect(self.mount_point + '/orders')

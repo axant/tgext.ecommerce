@@ -20,6 +20,7 @@
   <td>PAYPAL</td>
   <td>${order.bill}</td>
   <td>${order.billed}</td>
+  <td><a href="${bill_issue % order._id}">Marka come fatturato</a></td>
 </div>
 
 <head>
@@ -45,6 +46,7 @@
           <th>METODO DI PAGAMENTO</th>
           <th>RIC. FATTURA</th>
           <th>FATTURATO</th>
+          <th>&nbsp;</th>
         </tr></thead>
         <tbody>
           <tr py:for="order in orders">${order_row(order)}</tr>
