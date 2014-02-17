@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from itertools import groupby
 from bson import ObjectId
 from tg import TGController, expose, validate, lurl, redirect, request
 from tg.i18n import lazy_ugettext as l_
@@ -66,7 +67,8 @@ class ManageController(TGController):
     @expose('tgext.ecommerce.templates.orders')
     def orders(self, **kw):
         orders = Order.query.find().sort('status_changes.changed_at', -1).limit(250)
-        return dict(orders=orders, form=OrderFilterForm, value=kw, action=self.mount_point+'/submit_orders',
+        grouped_orders = groupby(orders, lambda o: o.status_changes[-1].changed_at.strftime('%d/%m/%Y'))
+        return dict(orders=grouped_orders, form=OrderFilterForm, value=kw, action=self.mount_point+'/submit_orders',
                     bill_issue=self.mount_point+'/bill_issue/%s')
 
     @expose('tgext.ecommerce.templates.orders')
@@ -82,7 +84,8 @@ class ManageController(TGController):
         else:
             orders = Order.query.find({kw['field']: kw['filt']})
         orders = orders.sort('status_changes.changed_at', -1).limit(250)
-        return dict(orders=orders, form=OrderFilterForm, value=kw, action=self.mount_point+'/submit_orders')
+        grouped_orders = groupby(orders, lambda o: o.status_changes[-1].changed_at.strftime('%d/%m/%Y'))
+        return dict(orders=grouped_orders, form=OrderFilterForm, value=kw, action=self.mount_point+'/submit_orders')
 
     @expose()
     def bill_issue(self, order_id):

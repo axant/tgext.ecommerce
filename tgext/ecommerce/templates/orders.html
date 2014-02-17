@@ -5,56 +5,62 @@
 <xi:include href="master.html"/>
 
 <div py:def="order_row(order)">
-    <td><a href="${h.plug_url('tgext.ecommerce', '/manage/order_detail?order_id=%s' %str(order._id))}">${str(order._id)}</a></td>
-    <td>${order.user}</td>
-    <td>${order.status_changes[-1].changed_at.strftime('%d/%m/%Y')}</td>
-    <td>${order.total}</td>
-    <td>
-        <py:for each="rate, net in order.net_per_vat_rate.items()">
-            ${rate*100}% - ${'%.2f' % net}€<br/>
-        </py:for>
-    </td>
-    <td>${order.status}
-        <span py:if="order.user != order.status_changes[-1].changed_by"> - modificato da ${order.status_changes[-1].changed_by}</span>
-    </td>
-    <td>PAYPAL</td>
-    <td>${order.bill}</td>
-    <td py:if="not order.billed">${order.billed}</td>
-    <td py:if="order.billed">${order.billed_date.strftime('%d/%m/%Y') + '\n' + order.billed_by} </td>
-    <td py:if="not order.billed and order.bill"><a href="${bill_issue % order._id}">Marka come fatturato</a></td>
+  <td><a
+      href="${h.plug_url('tgext.ecommerce', '/manage/order_detail?order_id=%s' %str(order._id))}">${str(order._id)}</a>
+  </td>
+  <td>${order.user}</td>
+  <td>${order.total}</td>
+  <td>
+    <py:for each="rate, net in order.net_per_vat_rate.items()">
+      ${rate*100}% - ${'%.2f' % net}€<br/>
+    </py:for>
+  </td>
+  <td>${order.status}
+    <span py:if="order.user != order.status_changes[-1].changed_by"> - modificato da ${order.status_changes[-1].changed_by}</span>
+  </td>
+  <td>PAYPAL</td>
+  <td>${order.bill}</td>
+  <td py:if="not order.billed">${order.billed}</td>
+  <td py:if="order.billed">${order.billed_date.strftime('%d/%m/%Y') + '\n' + order.billed_by}</td>
+  <td py:if="not order.billed and order.bill"><a href="${bill_issue % order._id}">Marka come fatturato</a></td>
 </div>
 
 <head>
-    <title>Gestione Ordini</title>
-    <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/cart.scss')}"/>
+  <title>Gestione Ordini</title>
+  <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/cart.scss')}"/>
 </head>
 
 <body>
 <div class="container">
-    <div class="row">
-        <div class="col-md-16">${form.display(value=value, action=action)}</div>
+  <div class="row">
+    <div class="col-md-16">${form.display(value=value, action=action)}</div>
+  </div>
+  <div py:for="date, g_orders in orders" class="row">
+    <div class="col-md-16">
+      <div class="panel panel-default">
+        <div class="panel-heading">${date}</div>
+        <table class="table table-striped">
+        <thead>
+        <tr>
+          <th>ID ORDINE</th>
+          <th>UTENTE</th>
+          <th>TOTALE</th>
+          <th>ALIQUOTA</th>
+          <th>STATO</th>
+          <th>METODO DI PAGAMENTO</th>
+          <th>RIC. FATTURA</th>
+          <th>FATTURATO</th>
+          <th>&nbsp;</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr py:for="order in g_orders">${order_row(order)}</tr>
+        </tbody>
+      </table>
+      </div>
+
     </div>
-    <div class="row">
-        <div class="col-md-16">
-            <table class="table table-striped">
-                <thead><tr>
-                    <th>ID ORDINE</th>
-                    <th>UTENTE</th>
-                    <th>DATA</th>
-                    <th>TOTALE</th>
-                    <th>ALIQUOTA</th>
-                    <th>STATO</th>
-                    <th>METODO DI PAGAMENTO</th>
-                    <th>RIC. FATTURA</th>
-                    <th>FATTURATO</th>
-                    <th>&nbsp;</th>
-                </tr></thead>
-                <tbody>
-                <tr py:for="order in orders">${order_row(order)}</tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+  </div>
 </div>
 </body>
 </html>
