@@ -48,9 +48,9 @@ def pay(cart, redirection_url, cancel_url, shipping_charges):
     })
 
     if payment.create():
-        cart.payment = {'backend': 'paypal',
-                        'id': payment.id,
-                        'timestamp': datetime.datetime.utcnow()}
+        cart.order_info.payment = {'backend': 'paypal',
+                                   'id': payment.id,
+                                   'date': datetime.datetime.utcnow()}
 
         for link in payment.links:
             if link.rel == "approval_url":
@@ -65,7 +65,7 @@ def confirm(cart, redirection, data):
 
 
 def execute(cart, data):
-    paymentId = cart.payment['id']
+    paymentId = cart.order_info.payment['id']
     payment = paypalrestsdk.Payment.find(paymentId)
     result = payment.execute(data)
     payer_info = dict()

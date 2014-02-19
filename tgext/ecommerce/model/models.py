@@ -116,8 +116,34 @@ class Cart(MappedClass):
     items = FieldProperty(s.Anything, if_missing={})
     expires_at = FieldProperty(s.DateTime, if_missing=CartTtlExt.cart_expiration)
     last_update = FieldProperty(s.DateTime, if_missing=datetime.utcnow())
-    payment = FieldProperty(s.Anything, if_missing={})
-    order_info = FieldProperty(s.Anything, if_missing={})
+    order_info = FieldProperty({
+        'payment': s.Anything(if_missing={}),
+        'shipment_info': {
+            'receiver': s.String(),
+            'address': s.String(),
+            'city': s.String(),
+            'province': s.String(),
+            'state': s.String(),
+            'zip_code': s.String(),
+            'country': s.String(),
+            'details': s.Anything(if_missing={})
+        },
+        'shipping_charges': s.Float(),
+        'bill': s.Bool(if_missing=False),
+        'bill_info': {
+            'company': s.String(),
+            'vat': s.String(),
+            'address': s.String(),
+            'city': s.String(),
+            'province': s.String(),
+            'state': s.String(),
+            'zip_code': s.String(),
+            'country': s.String(),
+            'bill_emitted': s.Bool(if_missing=False),
+            'details': s.Anything(if_missing={})
+        },
+        'details': s.Anything(if_missing={})
+    })
 
     @property
     def item_count(self):

@@ -87,7 +87,7 @@ class ProductManager(object):
 
     @classmethod
     def edit(cls, product, type=NoDefault, name=NoDefault, category_id=NoDefault, #edit_product
-                     description=NoDefault, valid_from=NoDefault, valid_to=NoDefault, **details):
+             description=NoDefault, valid_from=NoDefault, valid_to=NoDefault, **details):
 
         if product.active == False:
             raise InactiveProductException('Cannot edit an inactive product')

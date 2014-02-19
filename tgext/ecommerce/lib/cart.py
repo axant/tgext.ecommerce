@@ -1,11 +1,11 @@
 # coding=utf-8
 from __future__ import unicode_literals
 from tgext.ecommerce.lib.product import ProductManager
+from tgext.ecommerce.lib.utils import NoDefault
 from tgext.ecommerce.model import models
 
 
 class CartManager(object):
-
     @classmethod
     def create_or_get(cls, user_id):  #create_or_get_cart
         cart = cls.get(user_id)
@@ -32,3 +32,30 @@ class CartManager(object):
     @classmethod
     def delete_item(cls, cart, sku):  #delete_from_cart
         return cls.update_item_qty(cart, sku, 0)
+
+    @classmethod
+    def update_order_info(cls, cart, payment=NoDefault, shipment_info=NoDefault, shipping_charges=NoDefault,
+                          bill=NoDefault, bill_info=NoDefault, **details):
+
+        if payment is not NoDefault:
+            for k, v in payment.iteritems():
+                setattr(cart.order_info.payment, k, v)
+
+        if shipment_info is not NoDefault:
+            print shipment_info
+            cart.order_info.shipment_info.update(shipment_info)
+
+        if shipping_charges is not NoDefault:
+            cart.order_info.shipping_charges = shipping_charges
+
+        if bill is not NoDefault:
+            cart.order_info.bill = bill
+
+        if bill_info is not NoDefault:
+            for k, v in bill_info.iteritems():
+                setattr(cart.order_info.bill_info, k, v)
+
+        if details is not {}:
+            for k, v in details.iteritems():
+                setattr(cart.order_info.details, k, v)
+
