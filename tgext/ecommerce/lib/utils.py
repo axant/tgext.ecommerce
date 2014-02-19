@@ -4,6 +4,10 @@ import tg
 import gettext
 
 
+class NoDefault(object):
+    """A dummy value used for parameters with no default."""
+
+
 def slugify(value, type, models):
     counter = models.Product.query.find({'name.%s' % tg.config.lang: value, 'type': type}).count()
     value = type + '-' + value
