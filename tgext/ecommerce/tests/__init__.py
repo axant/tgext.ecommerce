@@ -13,7 +13,7 @@ class RootTest(TestCase):
         init_model(ThreadLocalODMSession(session))
 
     def tearDown(self):
-        from tgext.ecommerce.lib.shop import models
-        DBSession.remove(models.Product)
+        from tgext.ecommerce.model import models
+        #DBSession.remove(models.Product)
         DBSession.remove(models.Category)
         DBSession.remove(models.Cart)

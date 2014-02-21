@@ -9,9 +9,9 @@ class ProductValidator(FancyValidator):
         super(ProductValidator, self).__init__(not_empty=True)
         self.using = using
 
-    def _to_python(self, value, state):
+    def _convert_to_python(self, value, state):
         kwargs = {self.using: value}
-        product = app_globals.shop.get_product(**kwargs)
+        product = app_globals.shop.product.get(**kwargs)
 
         if product is None:
             raise Invalid('Product not found', value, state)
@@ -34,7 +34,7 @@ class UniqueSkuValidator(Validator):
     def _validate_python(self, values, state=None):
         if not isinstance(values.get(self.sku), basestring):
             raise ValidationError('invalid_sku', self)
-        product = app_globals.shop.get_product(sku=values.get(self.sku))
+        product = app_globals.shop.product.get(sku=values.get(self.sku))
         if product:
             if ObjectId(values.get(self.product_id))!=product._id:
                 raise ValidationError('existing_sku', self)
