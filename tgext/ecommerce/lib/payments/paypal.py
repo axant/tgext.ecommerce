@@ -12,7 +12,7 @@ def configure_paypal(mode, client_id, client_secret):
     "client_secret": client_secret})
 
 
-def pay(cart, redirection_url, cancel_url, shipping_charges):
+def pay(cart, redirection_url, cancel_url):
     raw_items = [v for k, v in cart.items.iteritems()]
     items = []
     for item in raw_items:
@@ -36,10 +36,10 @@ def pay(cart, redirection_url, cancel_url, shipping_charges):
         },
         "transactions": [{"item_list": {"items": items},
                           "amount": {
-                              "total": "%0.2f" % (cart.total + shipping_charges),
+                              "total": "%0.2f" % (cart.total + cart.order_info.shipping_charges),
                               "currency": "EUR",
                               "details": {
-                                  "shipping": "%0.2f" % shipping_charges,
+                                  "shipping": "%0.2f" % cart.order_info.shipping_charges,
                                   "subtotal": "%0.2f" % cart.subtotal,
                                   "tax":   "%0.2f" % cart.tax
                               }

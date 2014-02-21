@@ -20,8 +20,8 @@ class ShopManager(object):
     category = CategoryManager()
     order = OrderManager()
 
-    def pay(self, cart, redirection_url, cancel_url, shipping_charges=0):
-        return paypal.pay(cart, redirection_url, cancel_url, shipping_charges)
+    def pay(self, cart, redirection_url, cancel_url):
+        return paypal.pay(cart, redirection_url, cancel_url)
 
     def confirm(self, cart, redirection, data):
         return paypal.confirm(cart, redirection, data)

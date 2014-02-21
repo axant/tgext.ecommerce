@@ -7,7 +7,7 @@ from tgext.ecommerce.model import models
 
 class OrderManager(object):
     @classmethod
-    def create(cls, cart, items, shipping_charges=0.0, payment_date=None, shipment_info=None,  #create_order
+    def create(cls, cart, shipping_charges=0.0, payment_date=None, shipment_info=None,  #create_order
                bill=False, bill_info=None, payer_info=None, status='created', **details):
         if shipment_info is None:
             shipment_info = {}
@@ -15,6 +15,13 @@ class OrderManager(object):
             bill_info = {}
         if payer_info is None:
             payer_info = {}
+
+        cart_items = [v for k, v in cart.items.iteritems()]
+        items = [dict(name=cart_item.get('name'), variety=cart_item.get('variety'), qty=cart_item.get('qty'),
+                      sku=cart_item.get('sku'), net_price=cart_item.get('price'), vat=cart_item.get('vat'),
+                      gross_price=cart_item.get('price') * (1+cart_item.get('vat')),base_vat=cart_item.get('base_vat'),
+                      details=cart_item.get('product_details'))
+                 for cart_item in cart_items]
 
         order = models.Order(_id=cart._id,
                              user_id=cart.user_id,
@@ -32,7 +39,7 @@ class OrderManager(object):
                              total=cart.total+shipping_charges,
                              status=status,
                              details=details)
-
+        cart.delete()
         models.DBSession.flush()
         return order
 

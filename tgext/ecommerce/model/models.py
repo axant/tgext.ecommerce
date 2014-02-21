@@ -128,7 +128,7 @@ class Cart(MappedClass):
             'country': s.String(),
             'details': s.Anything(if_missing={})
         },
-        'shipping_charges': s.Float(),
+        'shipping_charges': s.Float(if_missing=0.0),
         'bill': s.Bool(if_missing=False),
         'bill_info': {
             'company': s.String(),

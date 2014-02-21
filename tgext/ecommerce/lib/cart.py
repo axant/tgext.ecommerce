@@ -42,7 +42,6 @@ class CartManager(object):
                 setattr(cart.order_info.payment, k, v)
 
         if shipment_info is not NoDefault:
-            print shipment_info
             cart.order_info.shipment_info.update(shipment_info)
 
         if shipping_charges is not NoDefault:
