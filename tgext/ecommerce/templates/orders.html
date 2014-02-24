@@ -19,7 +19,7 @@
     <span py:if="order.user != order.status_changes[-1].changed_by"> - modificato da ${order.status_changes[-1].changed_by}</span>
   </td>
   <td>PAYPAL</td>
-  <td py:if="order.notes"><a href="${notes % order._id}">visualizza</a></td>
+  <td py:if="order.notes"><a href="${notes % order._id}" target="_blank">visualizza</a></td>
   <td py:if="not order.notes">&nbsp;
   </td>
   <td>${order.bill}</td>
