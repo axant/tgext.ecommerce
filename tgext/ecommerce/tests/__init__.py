@@ -14,6 +14,6 @@ class RootTest(TestCase):
 
     def tearDown(self):
         from tgext.ecommerce.model import models
-        #DBSession.remove(models.Product)
+        DBSession.remove(models.Product)
         DBSession.remove(models.Category)
         DBSession.remove(models.Cart)
