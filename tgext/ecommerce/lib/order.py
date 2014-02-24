@@ -34,6 +34,7 @@ class OrderManager(object):
                              shipping_charges=cart.order_info.shipping_charges,
                              total=cart.total+cart.order_info.shipping_charges,
                              status=status,
+                             notes=cart.order_info.notes,
                              details=details)
         cart.delete()
         models.DBSession.flush()

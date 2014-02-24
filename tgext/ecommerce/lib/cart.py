@@ -35,7 +35,7 @@ class CartManager(object):
 
     @classmethod
     def update_order_info(cls, cart, payment=NoDefault, shipment_info=NoDefault, shipping_charges=NoDefault,
-                          bill=NoDefault, bill_info=NoDefault, **details):
+                          bill=NoDefault, bill_info=NoDefault, notes=NoDefault, **details):
 
         if payment is not NoDefault:
             for k, v in payment.iteritems():
@@ -53,6 +53,8 @@ class CartManager(object):
         if bill_info is not NoDefault:
             for k, v in bill_info.iteritems():
                 setattr(cart.order_info.bill_info, k, v)
+        if notes is not NoDefault:
+            cart.order_info.notes = notes
 
         if details is not {}:
             for k, v in details.iteritems():

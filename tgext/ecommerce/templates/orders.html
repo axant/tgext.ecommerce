@@ -19,6 +19,9 @@
     <span py:if="order.user != order.status_changes[-1].changed_by"> - modificato da ${order.status_changes[-1].changed_by}</span>
   </td>
   <td>PAYPAL</td>
+  <td py:if="order.notes"><a href="${notes % order._id}">visualizza</a></td>
+  <td py:if="not order.notes">&nbsp;
+  </td>
   <td>${order.bill}</td>
   <td py:if="not order.billed">${order.billed}</td>
   <td py:if="order.billed">${order.billed_date.strftime('%d/%m/%Y') + '\n' + order.billed_by_name}</td>
@@ -53,6 +56,7 @@
           <th>ALIQUOTA</th>
           <th>STATO</th>
           <th>METODO DI PAGAMENTO</th>
+          <th>NOTE</th>
           <th>RIC. FATTURA</th>
           <th>FATTURATO</th>
           <th>&nbsp;</th>
