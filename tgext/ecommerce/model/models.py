@@ -265,7 +265,7 @@ class Order(MappedClass):
         mapping = {}
         sorted_items = sorted(self.items, key=lambda i: i['vat'])
         for k, g in groupby(sorted_items, key=lambda i: i['vat']):
-            mapping[k] = sum(imap(lambda i: i.net_price, g))
+            mapping[k] = sum(imap(lambda i: i.net_price*i.qty, g))
 
         return mapping
 
