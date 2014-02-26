@@ -41,7 +41,7 @@ def detect_preferred_language():
             localedir = os.path.join(conf['paths']['root'], 'i18n')
 
         try:
-            mos = gettext.find(conf['package'].__name__, localedir, languages=translator.tg_lang, all=True)
+            mos = gettext.find(conf['package'].__name__, localedir, languages=getattr(translator, 'tg_lang', ['en']), all=True)
         except IOError as ioe:
             translator.preferred_language = conf['lang']
             return translator.preferred_language
