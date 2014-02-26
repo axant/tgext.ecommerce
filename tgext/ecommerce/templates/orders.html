@@ -6,7 +6,7 @@
 
 <div py:def="order_row(order)">
   <td><a
-      href="${h.plug_url('tgext.ecommerce', '/manage/order_detail?order_id=%s' %str(order._id))}">${str(order._id)}</a>
+      href="${'/order/detail?order_id=%s' %str(order._id)}">${str(order._id)}</a>
   </td>
   <td>${order.user}</td>
   <td>${order.total}</td>
