@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from itertools import groupby
 from bson import ObjectId
-from tg import TGController, expose, validate, lurl, redirect, request
+from tg import TGController, expose, validate, lurl, redirect, request, tmpl_context
 from tg.i18n import lazy_ugettext as l_
 import tw2.core as twc
 import tw2.forms as twf
@@ -66,6 +66,10 @@ class OrderFilterForm(twf.Form):
 
 
 class ManageController(TGController):
+
+    def _before(self, *args, **kw):
+        tmpl_context.manage_pages = True
+
     @expose('tgext.ecommerce.templates.orders')
     def orders(self, **kw):
         orders = Order.query.find().sort('status_changes.changed_at', -1).limit(250)
