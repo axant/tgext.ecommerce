@@ -76,9 +76,9 @@ class ProductManager(object):
             return None
 
     @classmethod
-    def get_many(cls, type, query=None, fields=None): #get_products
+    def get_many(cls, type, query=dict(), fields=None): #get_products
         filter = {'type': type}
-        filter.update(query or {})
+        filter.update(query)
         q_kwargs = {}
         if fields:
             q_kwargs['fields'] = fields
