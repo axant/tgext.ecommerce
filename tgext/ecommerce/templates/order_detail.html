@@ -19,6 +19,7 @@
             </ul>
         </div>
         <div class="col-md-4 col-md-offset-1">
+            <button class="btn btn-default btn-block">STAMPA</button>
         </div>
     </div>
     <div class="row purchase-title">
@@ -118,12 +119,14 @@
             <br/>
         </div>
         <div class="col-md-5 col-md-offset-1 col-xs-14 col-xs-offset-1 customer-info">
-            <p class="customer-info-subtitle">NOTE</p>
+            <p class="customer-info-subtitle">DATI UTENTE</p>
             <ul>
-                <li>${order.notes}</li>
-                <br/>
                 <li>Email <b>${order.details.email}</b></li>
                 <li>Telefono <b>${order.details.phone}</b></li>
+            </ul>
+            <p py:if="order.notes" class="customer-info-subtitle">NOTE</p>
+            <ul>
+                <li>${order.notes}</li>
             </ul>
         </div>
     </div>
