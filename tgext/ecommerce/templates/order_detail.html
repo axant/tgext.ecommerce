@@ -19,8 +19,21 @@
             </ul>
         </div>
         <div class="col-md-4 col-md-offset-1">
-            <button class="btn btn-default btn-block">STAMPA</button>
+            <button class="btn btn-default btn-block" onClick="window.print()">STAMPA</button>
         </div>
+    </div>
+    <div id="print-order-detail">
+        <table>
+            <p>DETTAGLI ORDINE</p>
+            <tr> <th>PRODOTTO</th><th>TIPO</th><th>QUANTITÀ</th><th>TOTALE</th></tr>
+            <tr py:for="item in order.items">
+                <td>${h.i_entity_value(item, 'name')}<br/>${item.details.producer_name}</td>
+                <td>${h.i_entity_value(item, 'variety')}</td>
+                <td>${item.qty}</td>
+                <td>€ ${"%0.2f" % (item.net_price*item.qty)}<br/>(IVA € ${"%0.2f" % (item.net_price*item.base_vat*item.qty)})</td>
+            </tr>
+        </table>
+        <br/>
     </div>
     <div class="row purchase-title">
         <div class="col-md-14 col-md-offset-1 col-sm-14 col-sm-offset-1 col-xs-14 col-xs-offset-1">
