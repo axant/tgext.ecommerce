@@ -138,7 +138,7 @@
                 <li>Telefono <b>${order.details.phone}</b></li>
             </ul>
             <p py:if="order.notes" class="customer-info-subtitle">NOTE</p>
-            <ul>
+            <ul py:if="order.notes">
                 <li>${order.notes}</li>
             </ul>
         </div>
