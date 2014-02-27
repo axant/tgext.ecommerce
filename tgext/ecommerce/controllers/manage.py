@@ -86,12 +86,13 @@ class ManageController(TGController):
             date_ = kw['filt']
             day_start = datetime(date_.year, date_.month, date_.day)
             day_end = datetime(date_.year, date_.month, date_.day, 23, 59, 59)
-            orders = Order.query.find({kw['field']: {'$gte': day_start}, kw['field']: {'$lte': day_end}})
+            orders = Order.query.find({kw['field']: {'$gte': day_start, '$lte': day_end}})
         else:
             orders = Order.query.find({kw['field']: kw['filt']})
         orders = orders.sort('status_changes.changed_at', -1).limit(250)
         grouped_orders = groupby(orders, lambda o: o.status_changes[-1].changed_at.strftime('%d/%m/%Y'))
-        return dict(orders=grouped_orders, form=OrderFilterForm, value=kw, action=self.mount_point+'/submit_orders')
+        return dict(orders=grouped_orders, form=OrderFilterForm, value=kw, action=self.mount_point+'/submit_orders',
+                    bill_issue=self.mount_point+'/bill_issue/%s', notes=self.mount_point+'/notes/%s')
 
     @expose()
     def bill_issue(self, order_id):
