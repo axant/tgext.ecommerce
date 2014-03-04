@@ -24,3 +24,7 @@ class InactiveProductException(ProductException):
 
 class CartException(EcommerceException):
     pass
+
+
+class CartLockedException(CartException):
+    pass

@@ -1,12 +1,25 @@
 # coding=utf-8
 from __future__ import unicode_literals
+from functools import wraps
+from tgext.ecommerce.lib.exceptions import CartLockedException
 from tgext.ecommerce.lib.product import ProductManager
 from tgext.ecommerce.lib.utils import NoDefault
-from tgext.ecommerce.model import models
+from tgext.ecommerce.model import models, Setting
+
+
+def check_cart_lock(f):
+    @wraps(f)
+    def wrapper(*args, **kw):
+        locked = Setting.query.find({'setting': 'cart_locked'}).first()
+        if locked is not None and locked.value:
+            raise CartLockedException('The cart is locked')
+        return f(*args, **kw)
+    return wrapper
 
 
 class CartManager(object):
     @classmethod
+    @check_cart_lock
     def create_or_get(cls, user_id):  #create_or_get_cart
         cart = cls.get(user_id)
         if cart is None:
@@ -15,10 +28,12 @@ class CartManager(object):
         return cart
 
     @classmethod
+    @check_cart_lock
     def get(cls, user_id):  #get_cart
         return models.Cart.query.find({'user_id': user_id}).first()
 
     @classmethod
+    @check_cart_lock
     def update_item_qty(cls, cart, sku, qty): #update_cart_item_qty
         product_in_cart = cart.items.get(sku, {})
         already_bought = product_in_cart.get('qty', 0)
@@ -30,10 +45,12 @@ class CartManager(object):
         return cart
 
     @classmethod
+    @check_cart_lock
     def delete_item(cls, cart, sku):  #delete_from_cart
         return cls.update_item_qty(cart, sku, 0)
 
     @classmethod
+    @check_cart_lock
     def update_order_info(cls, cart, payment=NoDefault, shipment_info=NoDefault, shipping_charges=NoDefault,
                           bill=NoDefault, bill_info=NoDefault, notes=NoDefault, **details):
 
