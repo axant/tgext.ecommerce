@@ -25,6 +25,23 @@ def pay(cart, redirection_url, cancel_url):
                 "quantity": item.qty}
         items.append(item)
 
+    total_discount = 0
+    for discount in cart.order_info['details'].get('discounts', {}).values():
+        if discount['type'] == 'percentage':
+            qty = -(discount['qty']/100.0) * cart.total
+            qty
+        else:
+            #todo: other kind of discounts
+            qty = 0
+        total_discount += qty
+        items.append({
+            "name": discount['description'],
+            "price": qty,
+            "sku": 'DISCOUNT',
+            "currency": "EUR",
+            "quantity": 1
+        })
+
     payment = paypalrestsdk.Payment({
         "intent": "sale",
         "payer": {
@@ -36,11 +53,11 @@ def pay(cart, redirection_url, cancel_url):
         },
         "transactions": [{"item_list": {"items": items},
                           "amount": {
-                              "total": "%0.2f" % (cart.total + cart.order_info.shipping_charges),
+                              "total": "%0.2f" % (cart.total + cart.order_info.shipping_charges + total_discount),
                               "currency": "EUR",
                               "details": {
                                   "shipping": "%0.2f" % cart.order_info.shipping_charges,
-                                  "subtotal": "%0.2f" % cart.subtotal,
+                                  "subtotal": "%0.2f" % (cart.subtotal+total_discount),
                                   "tax":   "%0.2f" % cart.tax
                               }
                           },
@@ -56,6 +73,7 @@ def pay(cart, redirection_url, cancel_url):
             if link.rel == "approval_url":
                 return link.href
     else:
+        print payment.error
         return cancel_url
 
 
