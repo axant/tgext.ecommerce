@@ -275,3 +275,13 @@ class Order(MappedClass):
         user = '%s %s' % (user_obj.name, user_obj.surname)
         return user
 
+
+class Setting(MappedClass):
+    class __mongometa__:
+        session = DBSession
+        name = 'ecommerce_settings'
+
+    _id = FieldProperty(s.ObjectId)
+    setting = FieldProperty(s.String, unique=True, index=True)
+    value = FieldProperty(s.Anything)
+
