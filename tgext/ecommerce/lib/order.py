@@ -45,6 +45,14 @@ class OrderManager(object):
         return models.Order.query.get(_id=ObjectId(_id))
 
     @classmethod
+    def get_many(cls, query=dict(), fields=None): #get_products
+        q_kwargs = {}
+        if fields:
+            q_kwargs['fields'] = fields
+        q = models.Order.query.find(query, **q_kwargs)
+        return q
+
+    @classmethod
     def get_user_orders(self, user_id):
         """Retrieves all the past orders of a given user
 

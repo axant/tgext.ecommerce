@@ -199,7 +199,9 @@ class Order(MappedClass):
         indexes = [('user_id', ),
                    ('status_changes.changed_at', ),
                    (('user', ), ('status_changes.changed_at', )),
-                   (('status', ), ('status_changes.changed_at', ))]
+                   (('status', ), ('status_changes.changed_at', )),
+                   ('creation_date', )
+                   ]
         extensions = [OrderStatusExt]
 
     _id = FieldProperty(s.ObjectId)
