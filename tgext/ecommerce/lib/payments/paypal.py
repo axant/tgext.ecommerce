@@ -5,42 +5,27 @@ import tg
 import paypalrestsdk
 import datetime
 
+
 def configure_paypal(mode, client_id, client_secret):
     paypalrestsdk.configure({
-    "mode": mode,
-    "client_id": client_id,
-    "client_secret": client_secret})
+        "mode": mode,
+        "client_id": client_id,
+        "client_secret": client_secret})
 
 
 def pay(cart, redirection_url, cancel_url):
-    raw_items = [v for k, v in cart.items.iteritems()]
-    items = []
-    for item in raw_items:
-        item_name = item.name.get(tg.translator.preferred_language, item.name.get(tg.config.lang))
-        item_variety = item.variety.get(tg.translator.preferred_language, item.variety.get(tg.config.lang))
-        item = {"name": "%s, %s" % (item_name, item_variety),
-                "sku": item.sku,
-                "price": item.price,
-                "currency": "EUR",
-                "quantity": item.qty}
-        items.append(item)
-
     total_discount = 0
+    tax_discount = 0
     for discount in cart.order_info['details'].get('discounts', {}).values():
         if discount['type'] == 'percentage':
-            qty = -(discount['qty']/100.0) * cart.total
-            qty
+            qty = -(discount['qty'] / 100.0) * cart.subtotal
+            tax = -(discount['qty'] / 100.0) * cart.tax
         else:
             #todo: other kind of discounts
             qty = 0
+            tax = 0
         total_discount += qty
-        items.append({
-            "name": discount['description'],
-            "price": qty,
-            "sku": 'DISCOUNT',
-            "currency": "EUR",
-            "quantity": 1
-        })
+        tax_discount += tax
 
     payment = paypalrestsdk.Payment({
         "intent": "sale",
@@ -51,17 +36,22 @@ def pay(cart, redirection_url, cancel_url):
             "return_url": redirection_url,
             "cancel_url": cancel_url
         },
-        "transactions": [{"item_list": {"items": items},
+        "transactions": [{"item_list": {"items": [{"name": "Tavolaclandestina",
+                                                   "price": '%.2f' % (cart.subtotal + total_discount),
+                                                   "sku": 'TC',
+                                                   "currency": "EUR",
+                                                   "quantity": 1}]},
                           "amount": {
-                              "total": "%0.2f" % (cart.total + cart.order_info.shipping_charges + total_discount),
+                              "total": "%0.2f" % (cart.total + cart.order_info.shipping_charges +
+                                                  total_discount + tax_discount),
                               "currency": "EUR",
                               "details": {
                                   "shipping": "%0.2f" % cart.order_info.shipping_charges,
-                                  "subtotal": "%0.2f" % (cart.subtotal+total_discount),
-                                  "tax":   "%0.2f" % cart.tax
+                                  "subtotal": "%0.2f" % (cart.subtotal + total_discount),
+                                  "tax": "%0.2f" % (cart.tax + tax_discount)
                               }
                           },
-                          }]
+                         }]
     })
 
     if payment.create():
