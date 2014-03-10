@@ -103,6 +103,25 @@
             <b>€ ${"%0.2f" % (order.total)}</b>
         </div>
     </div>
+    <py:if test="order.details.get('discounts', {}).get('applied_discount', 0)">
+      <div class="row">
+        <div class="col-md-11 col-md-offset-1 col-sm-11 col-sm-offset-1 col-xs-10 col-xs-offset-1 item-price">
+            <span class="total-order-label">SCONTO </span>
+        </div>
+        <div class="col-md-2 col-md-offset-1 col-sm-2 col-sm-offset-1 col-xs-3 col-xs-offset-1 item-price">
+            <b>€ ${"%0.2f" % (-order.details.discounts.applied_discount)}</b>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-11 col-md-offset-1 col-sm-11 col-sm-offset-1 col-xs-10 col-xs-offset-1 item-price">
+            <span class="total-order-label">PAGATO </span>
+        </div>
+        <div class="col-md-2 col-md-offset-1 col-sm-2 col-sm-offset-1 col-xs-3 col-xs-offset-1 item-price">
+            <b>€ ${"%0.2f" % (order.total+order.details.discounts.applied_discount)}</b>
+        </div>
+      </div>
+    </py:if>
+
 
     <div class="row purchase-title">
         <div class="col-md-14 col-md-offset-1 col-sm-14 col-sm-offset-1 col-xs-14 col-xs-offset-1">

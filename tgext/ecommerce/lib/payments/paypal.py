@@ -21,11 +21,12 @@ def pay(cart, redirection_url, cancel_url):
             qty = -(discount['qty'] / 100.0) * cart.subtotal
             tax = -(discount['qty'] / 100.0) * cart.tax
         else:
-            #todo: other kind of discounts
-            qty = 0
+            qty = -discount['qty']
             tax = 0
         total_discount += qty
         tax_discount += tax
+
+    cart.order_info['details']['discounts']['applied_discount'] = total_discount + tax_discount
 
     payment = paypalrestsdk.Payment({
         "intent": "sale",
