@@ -17,11 +17,14 @@ def pay(cart, redirection_url, cancel_url):
     total_discount = 0
     tax_discount = 0
     for discount in cart.order_info['details'].get('discounts', {}).values():
-        if discount['type'] == 'percentage':
+        if isinstance(discount, dict) and discount['type'] == 'percentage':
             qty = -(discount['qty'] / 100.0) * cart.subtotal
             tax = -(discount['qty'] / 100.0) * cart.tax
-        else:
+        elif isinstance(discount, dict) and discount['type'] == 'fixed':
             qty = -discount['qty']
+            tax = 0
+        else:
+            qty = 0
             tax = 0
         total_discount += qty
         tax_discount += tax
