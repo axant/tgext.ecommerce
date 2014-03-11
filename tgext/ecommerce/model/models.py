@@ -179,8 +179,10 @@ class OrderStatusExt(MapperExtension):
             self._change_status(instance, instance.status)
 
     def _change_status(self, instance, status):
-        identity = tg.request.identity['user'] if getattr(tg.request, 'identity', None) \
-                                               else Bunch(name='Automatic', surname='Change')
+        try:
+            identity = tg.request.identity['user']
+        except:
+            identity = Bunch(name='Automatic', surname='Change')
         changed_by = '%s %s' % (identity.name, identity.surname) if identity else None
         instance.status_changes.append({'status': status, 'changed_by': changed_by, 'changed_at': datetime.utcnow()})
 
