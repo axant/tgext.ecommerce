@@ -26,6 +26,7 @@ def pay(cart, redirection_url, cancel_url):
         total_discount += qty
         tax_discount += tax
 
+    cart.order_info['details'].setdefault('discounts', {})
     cart.order_info['details']['discounts']['applied_discount'] = total_discount + tax_discount
 
     payment = paypalrestsdk.Payment({
