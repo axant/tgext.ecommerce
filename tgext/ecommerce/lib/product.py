@@ -49,9 +49,9 @@ class ProductManager(object):
         return product
 
     @classmethod
-    def create_configuration(cls, product, sku, price=1.0, vat=0.0, #create_product_configuration
-                                     qty=0, initial_quantity=0, variety=None,
-                                     **configuration_details):
+    def create_configuration(cls, product, sku, price=1.0, vat=0.0,  #create_product_configuration
+                             qty=0, initial_quantity=0, variety=None,
+                             **configuration_details):
 
         if models.Product.query.find({'configurations.sku': sku}).first():
             raise AlreadyExistingSkuException('Already exist a Configuration with sku: %s' % sku)
@@ -65,7 +65,7 @@ class ProductManager(object):
                                        'details': configuration_details})
 
     @classmethod
-    def get(cls, sku=None, _id=None, slug=None): #get_product
+    def get(cls, sku=None, _id=None, slug=None):  #get_product
         if _id is not None:
             return models.Product.query.get(_id=ObjectId(_id))
         elif sku is not None:
@@ -76,8 +76,12 @@ class ProductManager(object):
             return None
 
     @classmethod
-    def get_many(cls, type, query=dict(), fields=None): #get_products
-        filter = {'type': type}
+    def get_many(cls, type=None, query=None, fields=None):  #get_products
+        if not query:
+            query = dict()
+        filter = {}
+        if type:
+            filter['type'] = type
         filter.update(query)
         q_kwargs = {}
         if fields:
@@ -86,7 +90,7 @@ class ProductManager(object):
         return q
 
     @classmethod
-    def edit(cls, product, type=NoDefault, name=NoDefault, category_id=NoDefault, #edit_product
+    def edit(cls, product, type=NoDefault, name=NoDefault, category_id=NoDefault,  #edit_product
              description=NoDefault, valid_from=NoDefault, valid_to=NoDefault, **details):
 
         if product.active == False:
@@ -117,9 +121,10 @@ class ProductManager(object):
             product.valid_to = valid_to
 
     @classmethod
-    def edit_configuration(cls, product, configuration_index, sku=NoDefault, variety=NoDefault, #edit_product_configuration
-                                   price=NoDefault, vat=NoDefault, qty=NoDefault,
-                                   initial_quantity=NoDefault, configuration_details=NoDefault):
+    def edit_configuration(cls, product, configuration_index, sku=NoDefault, variety=NoDefault,
+                           #edit_product_configuration
+                           price=NoDefault, vat=NoDefault, qty=NoDefault,
+                           initial_quantity=NoDefault, configuration_details=NoDefault):
 
         if sku is not NoDefault:
             product.configurations[configuration_index].sku = sku
@@ -138,15 +143,15 @@ class ProductManager(object):
             setattr(product.configurations[configuration_index].details, k, v)
 
     @classmethod
-    def delete(cls, product): #delete_product
+    def delete(cls, product):  #delete_product
         product.active = False
 
     @classmethod
-    def buy(cls, cart, product, configuration_index, amount): #buy_product
+    def buy(cls, cart, product, configuration_index, amount):  #buy_product
         sku = product.configurations[configuration_index]['sku']
         product_in_cart = cart.items.get(sku, {})
         already_bought = product_in_cart.get('qty', 0)
-        total_qty = already_bought+amount
+        total_qty = already_bought + amount
 
         quantity_field = 'configurations.%s.qty' % configuration_index
         result = models.DBSession.impl.update_partial(mapper(models.Product).collection,
@@ -160,16 +165,23 @@ class ProductManager(object):
 
         return bought
 
-    def get_suggested_for_user(self, user_id, limit=5): #get_suggested_products_per_user
+    def get_suggested_for_user(self, user_id, limit=5):  #get_suggested_products_per_user
         """Gives a list of suggested sku products based on the past orders of a user
 
         :param user_id: the user id string to get suggestions for
-        :parmas limit: optional max number of suggestions (default to 5)
+        :param limit: optional max number of suggestions (default to 5)
         """
         past_orders = models.Order.query.find({'user_id': user_id})
         skus = Counter([item.sku for order in past_orders for item in order.items])
-        suggested_skus = skus.most_common(limit)
-        return [t[0] for t in suggested_skus]  # filter just the sku without the frequency
+        suggested_skus = [t[0] for t in skus.most_common(limit)]
+        offers_placeholders = len(suggested_skus) - limit
+        if offers_placeholders:
+            offers = self.get_many('product', {'active': True},
+                                   fields=['name', 'type', 'configurations', 'slug', 'details'])\
+                .sort([('valid_to', -1)]).limit(offers_placeholders)
+            suggested_skus.extend([offer.configurations[0].sku for offer in offers])
+
+        return suggested_skus  # filter just the sku without the frequency
 
     @classmethod
     def _config_idx(cls, product, sku):

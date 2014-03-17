@@ -15,22 +15,17 @@ def configure_paypal(mode, client_id, client_secret):
 
 def pay(cart, redirection_url, cancel_url):
     total_discount = 0
-    tax_discount = 0
     for discount in cart.order_info['details'].get('discounts', {}).values():
         if isinstance(discount, dict) and discount['type'] == 'percentage':
-            qty = -(discount['qty'] / 100.0) * cart.subtotal
-            tax = -(discount['qty'] / 100.0) * cart.tax
+            qty = -(discount['qty'] / 100.0) * cart.total
         elif isinstance(discount, dict) and discount['type'] == 'fixed':
             qty = -discount['qty']
-            tax = 0
         else:
             qty = 0
-            tax = 0
         total_discount += qty
-        tax_discount += tax
 
     cart.order_info['details'].setdefault('discounts', {})
-    cart.order_info['details']['discounts']['applied_discount'] = total_discount + tax_discount
+    cart.order_info['details']['discounts']['applied_discount'] = total_discount
 
     payment = paypalrestsdk.Payment({
         "intent": "sale",
@@ -42,21 +37,15 @@ def pay(cart, redirection_url, cancel_url):
             "cancel_url": cancel_url
         },
         "transactions": [{"item_list": {"items": [{"name": "Tavolaclandestina",
-                                                   "price": '%.2f' % (cart.subtotal + total_discount),
+                                                   "price": '%0.2f' % (cart.total + cart.order_info.shipping_charges +
+                                                                       total_discount),
                                                    "sku": 'TC',
                                                    "currency": "EUR",
                                                    "quantity": 1}]},
                           "amount": {
-                              "total": "%0.2f" % (cart.total + cart.order_info.shipping_charges +
-                                                  total_discount + tax_discount),
+                              "total": "%0.2f" % (cart.total + cart.order_info.shipping_charges + total_discount),
                               "currency": "EUR",
-                              "details": {
-                                  "shipping": "%0.2f" % cart.order_info.shipping_charges,
-                                  "subtotal": "%0.2f" % (cart.subtotal + total_discount),
-                                  "tax": "%0.2f" % (cart.tax + tax_discount)
-                              }
-                          },
-                         }]
+                          }}]
     })
 
     if payment.create():
