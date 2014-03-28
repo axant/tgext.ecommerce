@@ -286,8 +286,9 @@ class Setting(MappedClass):
     class __mongometa__:
         session = DBSession
         name = 'ecommerce_settings'
+        unique_indexes = [('setting', )]
 
     _id = FieldProperty(s.ObjectId)
-    setting = FieldProperty(s.String, unique=True, index=True)
+    setting = FieldProperty(s.String)
     value = FieldProperty(s.Anything)
 
