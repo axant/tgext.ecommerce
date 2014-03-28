@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from datetime import datetime, timedelta
 from itertools import chain
 import logging
 import os
@@ -15,18 +16,32 @@ def cleanup_session(session):
     session.close_all()
 
 
+def clean_expired_cart(expired_cart):
+    log.warn('Expiring Cart %s for user %s', expired_cart._id, expired_cart.user_id)
+
+    for sku, item in expired_cart.items.iteritems():
+        DBSession.update(Product, {'configurations.sku': sku},
+                         {'$inc': {'configurations.$.qty': item['qty']}})
+
+    expired_cart.delete()
+
+
 def clean_expired_carts(clear_all=False):
     with cleanup_session(DBSession):
         if clear_all:
             expired_carts = Cart.query.find().all()
+            for c in expired_carts:
+                clean_expired_cart(c)
         else:
-            expired_carts = Cart.expired_carts().all()
+            now = datetime.utcnow()
+            shifted_expire = now + timedelta(minutes=5)
+            while True:
+                expired_cart = Cart.query.find_and_modify(query={'expires_at': {'$lte': now}},
+                                                          update={'$set': {'expires_at': shifted_expire}})
+                if expired_cart is None:
+                    break
 
-        expired_items = chain(*[c.items.iteritems() for c in expired_carts])
-        for sku, item in expired_items:
-            DBSession.update(Product, {'configurations.sku': sku},
-                             {'$inc': {'configurations.$.qty': item['qty']}})
-        [c.delete() for c in expired_carts]
+                clean_expired_cart(expired_cart)
 
 
 def cart_locked_by_me():
