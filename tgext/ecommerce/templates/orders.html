@@ -9,7 +9,7 @@
       href="${'/order/detail?order_id=%s' %str(order._id)}">${str(order._id)}</a>
   </td>
   <td>${order.user}</td>
-  <td>${order.total}</td>
+  <td>${"%0.2f" % (order.total,)}</td>
   <td>
     <py:for each="rate, net in order.net_per_vat_rate.items()">
       ${rate*100}% - ${'%.2f' % net}€<br/>
