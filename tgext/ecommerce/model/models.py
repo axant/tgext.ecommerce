@@ -143,6 +143,7 @@ class Cart(MappedClass):
             'bill_emitted': s.Bool(if_missing=False),
             'details': s.Anything(if_missing={})
         },
+        'discounts': s.Anything(if_missing={}),
         'notes': s.String(),
         'details': s.Anything(if_missing={})
     })
@@ -261,6 +262,7 @@ class Order(MappedClass):
     gross_total = FieldProperty(s.Float, required=True)
     shipping_charges = FieldProperty(s.Float, required=True)
     total = FieldProperty(s.Float, required=True)
+    discounts = FieldProperty(s.Anything, if_missing={})
     status = FieldProperty(s.String, required=True)
     notes = FieldProperty(s.String, if_missing='')
     details = FieldProperty(s.Anything, if_missing={})
