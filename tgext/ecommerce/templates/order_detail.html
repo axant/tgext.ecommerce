@@ -14,7 +14,7 @@
             <ul>
                 <li>ORDINE <b>${order._id}</b></li>
                 <li>DATA <b>${h.format_date(order.creation_date)}</b></li>
-                <li>TOTALE <b>€ ${"%0.2f" %  order.total}</b></li>
+                <li>TOTALE <b>€ ${"%0.2f" % (order.total+order.applied_discount)}</b></li>
                 <li>MODALITÀ DI PAGAMENTO <b>PAYPAL</b></li>
             </ul>
         </div>
