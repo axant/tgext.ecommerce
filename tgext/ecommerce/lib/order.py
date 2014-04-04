@@ -15,8 +15,8 @@ class OrderManager(object):
         cart_items = [v for k, v in cart.items.iteritems()]
         items = [dict(name=cart_item.get('name'), variety=cart_item.get('variety'), qty=cart_item.get('qty'),
                       sku=cart_item.get('sku'), net_price=cart_item.get('price'), vat=cart_item.get('vat'),
-                      gross_price=cart_item.get('price') * (1+cart_item.get('vat')),base_vat=cart_item.get('base_vat'),
-                      details=cart_item.get('product_details'))
+                      gross_price=cart_item.get('price') * (1+cart_item.get('vat')), base_vat=cart_item.get('base_vat'),
+                      details=dict(cart_item.get('product_details').items() + cart_item.get('details').items()))
                  for cart_item in cart_items]
 
         order = models.Order(_id=cart._id,
