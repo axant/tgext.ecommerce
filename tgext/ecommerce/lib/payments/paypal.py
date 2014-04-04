@@ -36,7 +36,7 @@ def pay(cart, redirection_url, cancel_url):
             "return_url": redirection_url,
             "cancel_url": cancel_url
         },
-        "transactions": [{"item_list": {"items": [{"name": "Tavolaclandestina",
+        "transactions": [{"item_list": {"items": [{"name": "Tavolaclandestina order number: %s" % str(cart._id),
                                                    "price": '%0.2f' % (cart.total + cart.order_info.shipping_charges +
                                                                        total_discount),
                                                    "sku": 'TC',
