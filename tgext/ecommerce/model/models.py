@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta
-from itertools import groupby, imap
+from itertools import groupby, imap, chain
 from bson import ObjectId
 from ming.odm.property import ORMProperty
 from ming.odm import FieldProperty, ForeignIdProperty, RelationProperty, MapperExtension
 from ming.odm.declarative import MappedClass
 from ming import schema as s
 import tg
+from tg import cache
 from tg.caching import cached_property
 from tg.util import Bunch
 from tgext.pluggable import app_model
@@ -284,6 +285,20 @@ class Order(MappedClass):
         user_obj = app_model.User.query.get(_id=ObjectId(self.billed_by))
         user = '%s %s' % (user_obj.name, user_obj.surname)
         return user
+
+    @classmethod
+    def all_the_vats(cls):
+        def aggregate_vats():
+            vat_for_status = DBSession.impl.db.orders.aggregate({'$group': {'_id': '$status',
+                                                                 'vat_rates': {'$addToSet': '$items.vat'}}})
+            return sorted(list(set(chain(*[v['vat_rates'] for v in vat_for_status]))))
+        vat_cache = cache.get_cache('all_the_vats')
+        cachedvalue = vat_cache.get_value(
+            key='42',
+            createfunc=aggregate_vats,
+            expiretime=3600*24*30  # one month
+        )
+        return cachedvalue
 
 
 class Setting(MappedClass):
