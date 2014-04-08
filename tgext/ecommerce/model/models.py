@@ -10,7 +10,7 @@ from tg import cache
 from tg.caching import cached_property
 from tg.util import Bunch
 from tgext.pluggable import app_model
-from tgext.ecommerce.lib.utils import short_lang
+from tgext.ecommerce.lib.utils import short_lang, preferred_language
 from tgext.ecommerce.model import DBSession
 import operator
 
@@ -25,7 +25,7 @@ class Category(MappedClass):
 
     @property
     def i18n_name(self):
-        return self.name.get(tg.translator.preferred_language, self.name.get(tg.config.lang))
+        return self.name.get(preferred_language(), self.name.get(tg.config.lang))
 
 
 class Product(MappedClass):
@@ -81,14 +81,14 @@ class Product(MappedClass):
 
     @property
     def i18n_name(self):
-        return self.name.get(tg.translator.preferred_language, self.name.get(tg.config.lang))
+        return self.name.get(preferred_language(), self.name.get(tg.config.lang))
 
     @property
     def i18n_description(self):
-        return self.description.get(tg.translator.preferred_language, self.description.get(tg.config.lang))
+        return self.description.get(preferred_language(), self.description.get(tg.config.lang))
 
     def i18n_configuration_variety(self, configuration):
-        return configuration.variety.get(tg.translator.preferred_language, configuration.variety.get(tg.config.lang))
+        return configuration.variety.get(preferred_language(), configuration.variety.get(tg.config.lang))
 
 
 class CartTtlExt(MapperExtension):
@@ -135,6 +135,8 @@ class Cart(MappedClass):
         'bill_info': {
             'company': s.String(),
             'vat': s.String(),
+            'fiscal_code': s.String(),
+
             'address': s.String(),
             'city': s.String(),
             'province': s.String(),
@@ -234,6 +236,7 @@ class Order(MappedClass):
     bill_info = FieldProperty({
         'company': s.String(),
         'vat': s.String(),
+        'fiscal_code': s.String(),
         'address': s.String(),
         'city': s.String(),
         'province': s.String(),

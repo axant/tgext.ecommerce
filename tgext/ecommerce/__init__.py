@@ -4,13 +4,11 @@ import tg
 from tgscheduler.scheduler import scheduler
 from lib.shop import ShopManager
 from tg import hooks, config
-from lib.utils import detect_preferred_language
 from tgext.ecommerce.lib.payments.paypal import configure_paypal
 
 
 def plugme(app_config, options):
 
-    hooks.register('before_validate', autodetect_preferred_language)
     hooks.register('before_config', setup_global_objects)
     hooks.register('after_config', setup_clean_cart_scheduler)
     hooks.register('after_config', init_paypal)
@@ -21,10 +19,6 @@ def plugme(app_config, options):
 def setup_global_objects(app):
     config['tg.app_globals'].shop = ShopManager()
     return app
-
-
-def autodetect_preferred_language(*args, **kwargs):
-    detect_preferred_language()
 
 
 def setup_clean_cart_scheduler(app):

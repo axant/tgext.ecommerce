@@ -9,7 +9,7 @@ except ImportError:
     from setuptools import setup, find_packages
 
 install_requires=[
-    "TurboGears2 >= 2.3.1",
+    "TurboGears2 >= 2.3.2",
     "tgext.pluggable",
     "formencode",
     "tgscheduler",
@@ -34,9 +34,13 @@ setup(
     packages=find_packages(exclude=['ez_setup']),
     install_requires=install_requires,
     include_package_data=True,
-    package_data={'tgapp.tgextecommerce': ['i18n/*/LC_MESSAGES/*.mo',
+    package_data={'tgext.ecommerce': ['i18n/*/LC_MESSAGES/*.mo',
                                  'templates/*/*',
                                  'public/*/*']},
+    message_extractors={'tgext/ecommerce': [
+            ('**.py', 'python', None),
+            ('templates/**.html', 'genshi', None),
+            ('public/**', 'ignore', None)]},
     entry_points="""
     """,
     zip_safe=False,
