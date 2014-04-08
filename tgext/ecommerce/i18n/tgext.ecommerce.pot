@@ -1,0 +1,227 @@
+# Translations template for tgext.ecommerce.
+# Copyright (C) 2014 ORGANIZATION
+# This file is distributed under the same license as the tgext.ecommerce
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: tgext.ecommerce 0.1.2\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2014-04-08 12:31+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 1.3\n"
+
+#: tgext/ecommerce/controllers/manage.py:12
+msgid "data"
+msgstr ""
+
+#: tgext/ecommerce/controllers/manage.py:12
+msgid "stato"
+msgstr ""
+
+#: tgext/ecommerce/controllers/manage.py:12
+msgid "utente"
+msgstr ""
+
+#: tgext/ecommerce/controllers/manage.py:23
+msgid "La data deve essere nel formato dd/mm/yyyy"
+msgstr ""
+
+#: tgext/ecommerce/controllers/manage.py:34
+msgid "RESET"
+msgstr ""
+
+#: tgext/ecommerce/controllers/manage.py:62
+msgid "filtro"
+msgstr ""
+
+#: tgext/ecommerce/controllers/manage.py:64
+msgid "FILTRA"
+msgstr ""
+
+#: tgext/ecommerce/templates/notes.html:7
+msgid "Note Ordine"
+msgstr ""
+
+#: tgext/ecommerce/templates/notes.html:19
+msgid "NOTE ORDINE"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:6
+msgid "Dettaglio ordine"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:15
+msgid "ORDINE"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:16
+msgid "DATA"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:17
+#: tgext/ecommerce/templates/order_detail.html:28
+#: tgext/ecommerce/templates/order_detail.html:44
+#: tgext/ecommerce/templates/order_detail.html:100
+#: tgext/ecommerce/templates/orders.html:56
+msgid "TOTALE"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:18
+msgid "MODALITÀ DI PAGAMENTO"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:18
+#: tgext/ecommerce/templates/orders.html:22
+msgid "PAYPAL"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:22
+msgid "STAMPA"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:27
+#: tgext/ecommerce/templates/order_detail.html:40
+msgid "DETTAGLI ORDINE"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:28
+#: tgext/ecommerce/templates/order_detail.html:41
+msgid "PRODOTTO"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:28
+#: tgext/ecommerce/templates/order_detail.html:42
+msgid "TIPO"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:28
+#: tgext/ecommerce/templates/order_detail.html:43
+msgid "QUANTITÀ"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:33
+#: tgext/ecommerce/templates/order_detail.html:70
+msgid "(IVA €"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:45
+msgid "QTÀ"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:46
+msgid "TOT."
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:79
+msgid "TOTALE ORDINE"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:86
+msgid "(include €"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:87
+msgid "IVA)"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:92
+msgid "SPESE DI SPEDIZIONE E TRATTAMENTO"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:109
+msgid "SCONTO"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:117
+msgid "PAGATO"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:128
+msgid "DETTAGLI CLIENTE"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:134
+msgid "INDIRIZZO FATTURAZIONE"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:144
+msgid "INDIRIZZO SPEDIZIONE"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:154
+msgid "DATI UTENTE"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:156
+msgid "Email"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:157
+msgid "Telefono"
+msgstr ""
+
+#: tgext/ecommerce/templates/order_detail.html:159
+#: tgext/ecommerce/templates/orders.html:61
+msgid "NOTE"
+msgstr ""
+
+#: tgext/ecommerce/templates/orders.html:18
+msgid "g"
+msgstr ""
+
+#: tgext/ecommerce/templates/orders.html:20
+msgid "- modificato da"
+msgstr ""
+
+#: tgext/ecommerce/templates/orders.html:23
+msgid "visualizza"
+msgstr ""
+
+#: tgext/ecommerce/templates/orders.html:29
+msgid "Marcare come fatturato"
+msgstr ""
+
+#: tgext/ecommerce/templates/orders.html:33
+msgid "Gestione Ordini"
+msgstr ""
+
+#: tgext/ecommerce/templates/orders.html:54
+msgid "ID ORDINE"
+msgstr ""
+
+#: tgext/ecommerce/templates/orders.html:55
+msgid "UTENTE"
+msgstr ""
+
+#: tgext/ecommerce/templates/orders.html:57
+msgid "ALIQUOTA"
+msgstr ""
+
+#: tgext/ecommerce/templates/orders.html:58
+msgid "PESO"
+msgstr ""
+
+#: tgext/ecommerce/templates/orders.html:59
+msgid "STATO"
+msgstr ""
+
+#: tgext/ecommerce/templates/orders.html:60
+msgid "METODO DI PAGAMENTO"
+msgstr ""
+
+#: tgext/ecommerce/templates/orders.html:62
+msgid "RIC. FATTURA"
+msgstr ""
+
+#: tgext/ecommerce/templates/orders.html:63
+msgid "FATTURATO"
+msgstr ""
+
