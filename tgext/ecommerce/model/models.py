@@ -292,9 +292,11 @@ class Order(MappedClass):
     @classmethod
     def all_the_vats(cls):
         def aggregate_vats():
-            vat_for_status = DBSession.impl.db.orders.aggregate({'$group': {'_id': '$status',
-                                                                 'vat_rates': {'$addToSet': '$items.vat'}}})
-            return sorted(list(set(chain(*[v['vat_rates'] for v in vat_for_status['result']]))))
+            vat_for_status = DBSession.impl.db.orders.aggregate([{'$project': {'items': 1, 'status': 1}},
+                                                                 {'$unwind': '$items'},
+                                                                 {'$group': {'_id': '$status',
+                                                                            'vat_rates': {'$addToSet': '$items.vat'}}}])
+            return sorted(set(chain(*[v['vat_rates'] for v in vat_for_status['result']])))
         vat_cache = cache.get_cache('all_the_vats')
         cachedvalue = vat_cache.get_value(
             key='42',
