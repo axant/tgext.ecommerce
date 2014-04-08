@@ -34,7 +34,7 @@ class OrderManager(object):
                              shipping_charges=cart.order_info.shipping_charges,
                              total=cart.total+cart.order_info.shipping_charges,
                              discounts=cart.order_info.discounts,
-                             applied_discount = cart.order_info.applied_discount,
+                             applied_discount=cart.order_info.applied_discount,
                              status=status,
                              notes=cart.order_info.notes,
                              details=details)

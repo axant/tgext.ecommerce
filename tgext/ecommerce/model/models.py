@@ -134,6 +134,7 @@ class Cart(MappedClass):
         'bill_info': {
             'company': s.String(),
             'vat': s.String(),
+            'fiscal_code': s.String(),
             'address': s.String(),
             'city': s.String(),
             'province': s.String(),
@@ -233,6 +234,7 @@ class Order(MappedClass):
     bill_info = FieldProperty({
         'company': s.String(),
         'vat': s.String(),
+        'fiscal_code': s.String(),
         'address': s.String(),
         'city': s.String(),
         'province': s.String(),
