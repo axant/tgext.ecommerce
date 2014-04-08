@@ -271,7 +271,7 @@ class Order(MappedClass):
     details = FieldProperty(s.Anything, if_missing={})
     status_changes = FieldProperty(s.Anything, if_missing=[])
 
-    @cached_property
+    @property
     def net_per_vat_rate(self):
         mapping = {}
         sorted_items = sorted(self.items, key=lambda i: i['vat'])
@@ -291,7 +291,7 @@ class Order(MappedClass):
         def aggregate_vats():
             vat_for_status = DBSession.impl.db.orders.aggregate({'$group': {'_id': '$status',
                                                                  'vat_rates': {'$addToSet': '$items.vat'}}})
-            return sorted(list(set(chain(*[v['vat_rates'] for v in vat_for_status]))))
+            return sorted(list(set(chain(*[v['vat_rates'] for v in vat_for_status['result']]))))
         vat_cache = cache.get_cache('all_the_vats')
         cachedvalue = vat_cache.get_value(
             key='42',
