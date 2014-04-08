@@ -9,7 +9,7 @@ from tw2.forms.widgets import BaseLayout
 from tgext.ecommerce.model import Order
 
 
-FILTER_FIELDS = [('status_changes.changed_at', l_('data')), ('status', l_('stato')), ('user', l_('utente'))]
+FILTER_FIELDS = [('status_changes.changed_at', l_('date')), ('status', l_('status')), ('user', l_('user'))]
 
 
 class MaybeDateValidator(twc.Validator):
@@ -20,7 +20,7 @@ class MaybeDateValidator(twc.Validator):
             try:
                 value['filt'] = datetime.strptime(value['filt'], self.date_format)
             except:
-                raise twc.ValidationError(l_('La data deve essere nel formato dd/mm/yyyy'))
+                raise twc.ValidationError(l_('Date format must be dd/mm/yyyy'))
         return value
 
     def _convert_from_python(self, value, state=None):
@@ -59,9 +59,9 @@ class OrderFilterForm(twf.Form):
         field = twf.SingleSelectField(label=None,
                                       validator=twc.OneOfValidator(values=[f[0] for f in FILTER_FIELDS], required=True),
                                       options=FILTER_FIELDS, css_class="form-control")
-        filt = twf.TextField(label=None, validator=twc.Validator(required=True), placeholder=l_('filtro'),
+        filt = twf.TextField(label=None, validator=twc.Validator(required=True), placeholder=l_('filter'),
                              css_class="form-control")
-        submit = twf.SubmitButton(value=l_('FILTRA'), css_class='btn btn-default')
+        submit = twf.SubmitButton(value=l_('FILTER'), css_class='btn btn-default')
         validator = MaybeDateValidator()
 
 

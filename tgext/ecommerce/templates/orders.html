@@ -17,20 +17,20 @@
     </td>
         <td>${sum([item.details.get('weight', 0) * item.qty for item in order.items])} g</td>
     <td>${order.status}
-        <span py:if="order.user != order.status_changes[-1].changed_by"> - modificato da ${order.status_changes[-1].changed_by}</span>
+        <span py:if="order.user != order.status_changes[-1].changed_by"> - edited by ${order.status_changes[-1].changed_by}</span>
     </td>
     <td>PAYPAL</td>
-    <td py:if="order.notes"><a href="${notes % order._id}" target="_blank">visualizza</a></td>
+    <td py:if="order.notes"><a href="${notes % order._id}" target="_blank">show</a></td>
     <td py:if="not order.notes">&nbsp;
     </td>
     <td>${order.bill}</td>
     <td py:if="not order.billed">${order.billed}</td>
     <td py:if="order.billed">${order.billed_date.strftime('%d/%m/%Y') + '\n' + order.billed_by_name}</td>
-    <td py:if="not order.billed and order.bill"><a href="${bill_issue % order._id}">Marcare come fatturato</a></td>
+    <td py:if="not order.billed and order.bill"><a href="${bill_issue % order._id}">Mark as billed</a></td>
 </div>
 
 <head>
-    <title>Gestione Ordini</title>
+    <title>Orders Management</title>
     <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/cart.scss')}"/>
     <style>
         .form-inline .form-group {
@@ -51,16 +51,16 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th>ID ORDINE</th>
-                        <th>UTENTE</th>
-                        <th>TOTALE</th>
-                        <th>ALIQUOTA</th>
-                        <th>PESO</th>
-                        <th>STATO</th>
-                        <th>METODO DI PAGAMENTO</th>
-                        <th>NOTE</th>
-                        <th>RIC. FATTURA</th>
-                        <th>FATTURATO</th>
+                        <th>ORDER ID</th>
+                        <th>USER</th>
+                        <th>TOTAL</th>
+                        <th>RATE</th>
+                        <th>WEIGHT</th>
+                        <th>STATUS</th>
+                        <th>PAYMENT METHOD</th>
+                        <th>NOTES</th>
+                        <th>BILL REQUESTED</th>
+                        <th>BILLED</th>
                         <th>&nbsp;</th>
                     </tr>
                     </thead>

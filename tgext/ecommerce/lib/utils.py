@@ -28,30 +28,5 @@ def internationalise(value):
     return {tg.config.lang: value}
 
 
-def detect_preferred_language():
-    translator = tg.translator._current_obj()
-    try:
-        return translator.preferred_language
-    except AttributeError:
-        conf = tg.config._current_obj()
-
-        try:
-            localedir = conf['localedir']
-        except KeyError: #pragma: no cover
-            localedir = os.path.join(conf['paths']['root'], 'i18n')
-
-        try:
-            mos = gettext.find(conf['package'].__name__, localedir, languages=getattr(translator, 'tg_lang', ['en']), all=True)
-        except IOError as ioe:
-            translator.preferred_language = conf['lang']
-            return translator.preferred_language
-        langs = []
-        for i, mo in enumerate(mos):
-            path, lang = os.path.split(os.path.split(os.path.dirname(mo))[0])
-            langs.append(lang)
-            if i == 0:
-                translator.preferred_language = lang
-
-        translator.supported_langs = langs
-        return lang
-
+def preferred_language():
+    return short_lang(tg.i18n.get_lang(all=False))
