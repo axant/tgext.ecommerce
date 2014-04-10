@@ -135,6 +135,7 @@
             <ul>
                 <li>${order.bill_info.company}</li>
                 <li>${order.bill_info.vat}</li>
+                <li py:if="order.bill_info.fiscal_code">${order.bill_info.fiscal_code}</li>
                 <li>${order.bill_info.address}</li>
                 <li>${order.bill_info.zip_code} ${order.bill_info.city} ${order.bill_info.province}</li>
                 <li>${order.bill_info.country}</li>

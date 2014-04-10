@@ -27,6 +27,9 @@
     <td py:if="not order.billed">${order.billed}</td>
     <td py:if="order.billed">${order.billed_date.strftime('%d/%m/%Y') + '\n' + order.billed_by_name}</td>
     <td py:if="not order.billed and order.bill"><a href="${bill_issue % order._id}">Mark as billed</a></td>
+    <th py:if="not order.bill">&nbsp;</th>
+    <td py:if="order.status != 'shipped'">
+        <a href="${edit % order._id}" class="glyphicon glyphicon-edit"></a></td>
 </div>
 
 <head>

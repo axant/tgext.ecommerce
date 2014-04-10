@@ -8,10 +8,11 @@ from tgext.ecommerce.lib.payments.paypal import configure_paypal
 
 
 def plugme(app_config, options):
-
+    app_config['_pluggable_ecommerce_config'] = options
     hooks.register('before_config', setup_global_objects)
     hooks.register('after_config', setup_clean_cart_scheduler)
     hooks.register('after_config', init_paypal)
+
 
     return dict(appid='shop', global_helpers=False, plug_bootstrap=False)
 

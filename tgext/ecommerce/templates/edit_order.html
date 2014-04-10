@@ -1,0 +1,17 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="master.html"/>
+<head>
+    <title>Edit Order</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/admin.scss')}" />
+</head>
+<body>
+<div class="row">
+    <div class="col-md-offset-4 col-md-8">
+        ${form.display(value=value, action=tg.url('/shop/manage/save'))}
+    </div>
+</div>
+</body>
+</html>

@@ -1,11 +1,14 @@
+# coding=utf-8
+from __future__ import unicode_literals
 from datetime import date, datetime
 from itertools import groupby
 from bson import ObjectId
-from tg import TGController, expose, validate, lurl, redirect, request, tmpl_context
+from tg import TGController, expose, validate, lurl, redirect, request, tmpl_context, config, flash
 from tg.i18n import lazy_ugettext as l_
 import tw2.core as twc
 import tw2.forms as twf
 from tw2.forms.widgets import BaseLayout
+from tgext.ecommerce.lib import get_edit_order_form
 from tgext.ecommerce.model import Order
 
 
@@ -75,7 +78,8 @@ class ManageController(TGController):
         orders = Order.query.find().sort('status_changes.changed_at', -1).limit(250)
         grouped_orders = groupby(orders, lambda o: o.status_changes[-1].changed_at.strftime('%d/%m/%Y'))
         return dict(orders=grouped_orders, form=OrderFilterForm, value=kw, action=self.mount_point+'/submit_orders',
-                    bill_issue=self.mount_point+'/bill_issue/%s', notes=self.mount_point+'/notes/%s')
+                    bill_issue=self.mount_point+'/bill_issue/%s', notes=self.mount_point+'/notes/%s',
+                    edit=self.mount_point+'/edit?order_id=%s')
 
     @expose('tgext.ecommerce.templates.orders')
     @validate(OrderFilterForm, error_handler=orders)
@@ -111,3 +115,22 @@ class ManageController(TGController):
     def notes(self, order_id, **kw):
         order = Order.query.get(_id=ObjectId(order_id))
         return dict(notes=order.notes)
+
+    @expose('tgext.ecommerce.templates.edit_order')
+    def edit(self, **kw):
+        order = Order.query.get(_id=ObjectId(kw.get('order_id', kw.get('_id'))))
+        return dict(form=get_edit_order_form(), value=order)
+
+    @expose()
+    @validate(get_edit_order_form(), error_handler=edit)
+    def save(self, **kw):
+        order = Order.query.get(_id=ObjectId(kw['_id']))
+        if kw.get('bill'):
+            for k, v in kw.get('bill_info').iteritems():
+                setattr(order.bill_info, k, v)
+        for k, v in kw.get('shipment_info').iteritems():
+            setattr(order.shipment_info, k, v)
+        for k, v in kw.get('details').iteritems():
+            setattr(order.details, k, v)
+        flash(l_('Order successfully edited'))
+        return redirect(self.mount_point + '/orders')
