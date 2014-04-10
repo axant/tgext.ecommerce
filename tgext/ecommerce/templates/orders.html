@@ -10,12 +10,10 @@
     </td>
     <td>${order.user}</td>
     <td>${"%0.2f" % (order.total+order.applied_discount)}</td>
-    <td>
-        <py:for each="rate, net in order.net_per_vat_rate.items()">
-            ${rate*100}% - ${'%.2f' % net}€<br/>
-        </py:for>
+    <td py:for="vat in all_the_vats">
+        ${'%.2f' % order.net_per_vat_rate.get(vat, 0)}€<br/>
     </td>
-        <td>${sum([item.details.get('weight', 0) * item.qty for item in order.items])} g</td>
+    <td>${sum([item.details.get('weight', 0) * item.qty for item in order.items])} g</td>
     <td>${order.status}
         <span py:if="order.user != order.status_changes[-1].changed_by"> - edited by ${order.status_changes[-1].changed_by}</span>
     </td>
@@ -57,7 +55,7 @@
                         <th>ORDER ID</th>
                         <th>USER</th>
                         <th>TOTAL</th>
-                        <th>RATE</th>
+                        <th py:for="vat in all_the_vats">VAT ${int(vat*100)}%</th>
                         <th>WEIGHT</th>
                         <th>STATUS</th>
                         <th>PAYMENT METHOD</th>
