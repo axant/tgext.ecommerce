@@ -119,6 +119,9 @@ class ManageController(TGController):
     @expose('tgext.ecommerce.templates.edit_order')
     def edit(self, **kw):
         order = Order.query.get(_id=ObjectId(kw.get('order_id', kw.get('_id'))))
+        if order.status == 'shipped':
+            flash(l_('Is not possible to edit a shipped Order'), 'error')
+            return redirect(self.mount_point + '/orders')
         return dict(form=get_edit_order_form(), value=order)
 
     @expose()
