@@ -177,6 +177,17 @@ class ProductManager(object):
         product.sort_weight = little_weight + (big_weight-little_weight)/2
 
     @classmethod
+    def sort_before_other(cls, product_to_sort, other_product):
+        subsequent = models.Product.subsequent(other_product)
+        little_weight = other_product.sort_weight
+        try:
+            big_weight = subsequent[0].sort_weight
+        except:
+            big_weight = little_weight + 20000
+
+        product_to_sort.sort_weight = little_weight + (big_weight-little_weight)/2
+
+    @classmethod
     def buy(cls, cart, product, configuration_index, amount):  #buy_product
         sku = product.configurations[configuration_index]['sku']
         product_in_cart = cart.items.get(sku, {})
