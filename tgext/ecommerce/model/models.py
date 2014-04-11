@@ -4,7 +4,7 @@ from bson import ObjectId
 from ming.odm.property import ORMProperty
 from ming.odm import FieldProperty, ForeignIdProperty, RelationProperty, MapperExtension
 from ming.odm.declarative import MappedClass
-from ming import schema as s
+from ming import schema as s, DESCENDING, ASCENDING
 import tg
 from tg import cache
 from tg.caching import cached_property
@@ -37,7 +37,9 @@ class Product(MappedClass):
                           ]
         indexes = [('type', 'active', ('valid_to', -1)),
                    ('type', 'category_id', 'active'),
-                   ('type','active' 'name' )]
+                   ('type', 'active' 'name'),
+                   ('type', 'active', ('sort_weight', -1)),
+                   ('type', 'active', 'sort_weight')]
 
     _id = FieldProperty(s.ObjectId)
     name = FieldProperty(s.Anything, required=True)
@@ -50,6 +52,7 @@ class Product(MappedClass):
     active = FieldProperty(s.Bool, if_missing=True)
     valid_from = FieldProperty(s.DateTime)
     valid_to = FieldProperty(s.DateTime)
+    sort_weight = FieldProperty(s.Int, if_missing=0)
     configurations = FieldProperty([{
         'variety': s.Anything(required=True),
         'qty': s.Int(required=True),
@@ -90,6 +93,15 @@ class Product(MappedClass):
     def i18n_configuration_variety(self, configuration):
         return configuration.variety.get(preferred_language(), configuration.variety.get(tg.config.lang))
 
+    @classmethod
+    def previous(cls, product):
+        return cls.query.find({'sort_weight': {'$lt': product.sort_weight}}).\
+                         sort([('sort_weight', DESCENDING)]).limit(2).all()
+
+    @classmethod
+    def subsequent(cls, product):
+        return cls.query.find({'sort_weight': {'$gt': product.sort_weight}}).\
+                         sort([('sort_weight', ASCENDING)]).limit(2).all()
 
 class CartTtlExt(MapperExtension):
 

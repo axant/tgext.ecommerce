@@ -147,6 +147,36 @@ class ProductManager(object):
         product.active = False
 
     @classmethod
+    def sort_up(cls, product):
+        subsequent = models.Product.subsequent(product)
+        try:
+            little_weight = subsequent[0].sort_weight
+        except:
+            little_weight = 0
+
+        try:
+            big_weight = subsequent[1].sort_weight
+        except:
+            big_weight = little_weight + 20000
+
+        product.sort_weight = little_weight + (big_weight-little_weight)/2
+
+    @classmethod
+    def sort_down(cls, product):
+        previous = models.Product.previous(product)
+        try:
+            big_weight = previous[0].sort_weight
+        except:
+            big_weight = 0
+
+        try:
+            little_weight = previous[1].sort_weight
+        except:
+            little_weight = big_weight - 20000
+
+        product.sort_weight = little_weight + (big_weight-little_weight)/2
+
+    @classmethod
     def buy(cls, cart, product, configuration_index, amount):  #buy_product
         sku = product.configurations[configuration_index]['sku']
         product_in_cart = cart.items.get(sku, {})
