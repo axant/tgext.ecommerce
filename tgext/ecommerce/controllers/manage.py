@@ -77,9 +77,10 @@ class ManageController(TGController):
     def orders(self, **kw):
         orders = Order.query.find().sort('status_changes.changed_at', -1).limit(250)
         grouped_orders = groupby(orders, lambda o: o.status_changes[-1].changed_at.strftime('%d/%m/%Y'))
+        all_the_vats = Order.all_the_vats()
         return dict(orders=grouped_orders, form=OrderFilterForm, value=kw, action=self.mount_point+'/submit_orders',
                     bill_issue=self.mount_point+'/bill_issue/%s', notes=self.mount_point+'/notes/%s',
-                    edit=self.mount_point+'/edit?order_id=%s')
+                    edit=self.mount_point+'/edit?order_id=%s', all_the_vats=all_the_vats)
 
     @expose('tgext.ecommerce.templates.orders')
     @validate(OrderFilterForm, error_handler=orders)
@@ -95,8 +96,10 @@ class ManageController(TGController):
             orders = Order.query.find({kw['field']: kw['filt']})
         orders = orders.sort('status_changes.changed_at', -1).limit(250)
         grouped_orders = groupby(orders, lambda o: o.status_changes[-1].changed_at.strftime('%d/%m/%Y'))
+        all_the_vats = Order.all_the_vats()
         return dict(orders=grouped_orders, form=OrderFilterForm, value=kw, action=self.mount_point+'/submit_orders',
-                    bill_issue=self.mount_point+'/bill_issue/%s', notes=self.mount_point+'/notes/%s')
+                    bill_issue=self.mount_point+'/bill_issue/%s', notes=self.mount_point+'/notes/%s',
+                    all_the_vats=all_the_vats)
 
     @expose()
     def bill_issue(self, order_id):
