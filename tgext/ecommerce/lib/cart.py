@@ -1,7 +1,7 @@
 # coding=utf-8
 from __future__ import unicode_literals
 from functools import wraps
-from tgext.ecommerce.lib.exceptions import CartLockedException
+from tgext.ecommerce.lib.exceptions import CartLockedException, CartException
 from tgext.ecommerce.lib.product import ProductManager
 from tgext.ecommerce.lib.utils import NoDefault
 from tgext.ecommerce.model import models, Setting
@@ -35,6 +35,8 @@ class CartManager(object):
     @classmethod
     @check_cart_lock
     def update_item_qty(cls, cart, sku, qty): #update_cart_item_qty
+        if cart is None:
+            raise CartException('cart is None, maybe it\'s expired.')
         product_in_cart = cart.items.get(sku, {})
         already_bought = product_in_cart.get('qty', 0)
         delta_qty = qty - already_bought
