@@ -27,7 +27,7 @@
     <td py:if="not order.billed and order.bill"><a href="${bill_issue % order._id}">Mark as billed</a></td>
     <th py:if="not order.bill">&nbsp;</th>
     <td py:if="order.status != 'shipped'">
-        <a href="${edit % order._id}" class="glyphicon glyphicon-edit"></a></td>
+        <a href="${edit % order._id}" class="glyphicon glyphicon-edit edit-order-link"></a></td>
 </div>
 
 <head>
