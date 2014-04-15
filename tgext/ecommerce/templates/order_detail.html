@@ -67,7 +67,7 @@
                 <div class="col-md-2 col-md-offset-1 col-sm-2 col-sm-offset-1 col-xs-3 col-xs-offset-1 item-price">
                     <div class="name-container">
                         <span>€ ${"%0.2f" % (item.net_price*item.qty)}</span><br/>
-                        <span class="vat">(VAT € ${"%0.2f" % (item.net_price*item.base_vat*item.qty)})</span>
+                        <span class="vat">(${'%d%%' % (item.base_vat*100)} VAT € ${"%0.2f" % (item.net_price*item.base_vat*item.qty)})</span>
                     </div>
                 </div>
             </div>
