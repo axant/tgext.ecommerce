@@ -9,7 +9,14 @@ class NoDefault(object):
 
 
 def slugify(value, type, models):
-    counter = models.Product.query.find({'name.%s' % tg.config.lang: value, 'type': type}).count()
+    if isinstance(value, dict):
+        for k, v in value.iteritems():
+            key = k
+            value = v
+        counter = models.Product.query.find({'name.%s' % key: value, 'type': type}).count()
+    else:
+        counter = models.Product.query.find({'name.%s' % tg.config.lang: value, 'type': type}).count()
+
     value = type + '-' + value
     value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
     value = re.sub('[^\w\s-]', '', value).strip().lower()
