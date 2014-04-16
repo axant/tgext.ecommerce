@@ -304,6 +304,13 @@ class Order(MappedClass):
         user = '%s %s' % (user_obj.name, user_obj.surname)
         return user
 
+    @property
+    def bill_country(self):
+        if self.bill_info.get('country') is not None:
+            return self.bill_info.get('country')
+        else:
+            return self.shipment_info.get('country')
+
     @classmethod
     def all_the_vats(cls):
         def aggregate_vats():
