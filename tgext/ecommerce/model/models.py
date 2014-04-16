@@ -286,12 +286,16 @@ class Order(MappedClass):
     details = FieldProperty(s.Anything, if_missing={})
     status_changes = FieldProperty(s.Anything, if_missing=[])
 
+    def discount_per_item(self, item):
+        discount_chunk = self.applied_discount / self.gross_total
+        return item.gross_price * discount_chunk
+
     @property
     def net_per_vat_rate(self):
         mapping = {}
         sorted_items = sorted(self.items, key=lambda i: i['vat'])
         for k, g in groupby(sorted_items, key=lambda i: i['vat']):
-            mapping[k] = sum(imap(lambda i: i.gross_price*i.qty, g))
+            mapping[k] = sum(imap(lambda i: (i.gross_price+self.discount_per_item(i))*i.qty, g))
 
         return mapping
 
@@ -307,7 +311,7 @@ class Order(MappedClass):
             vat_for_status = DBSession.impl.db.orders.aggregate([{'$project': {'items': 1, 'status': 1}},
                                                                  {'$unwind': '$items'},
                                                                  {'$group': {'_id': '$status',
-                                                                            'vat_rates': {'$addToSet': '$items.vat'}}}])
+                                                                             'vat_rates': {'$addToSet': '$items.vat'}}}])
             return sorted(set(chain(*[v['vat_rates'] for v in vat_for_status['result']])))
         vat_cache = cache.get_cache('all_the_vats')
         cachedvalue = vat_cache.get_value(
