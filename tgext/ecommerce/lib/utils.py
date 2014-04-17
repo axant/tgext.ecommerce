@@ -26,7 +26,10 @@ def slugify(value, type, models):
 
 
 def short_lang(languages_list):
-    return languages_list[0].split("_")[0]
+    try:
+        return languages_list[0].split("_")[0]
+    except (IndexError, TypeError):
+        return tg.config.lang
 
 
 def internationalise(value):
