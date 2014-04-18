@@ -53,27 +53,29 @@
         <div class="col-md-16">
             <div class="panel panel-default">
                 <div class="panel-heading">${date}</div>
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th>ORDER ID</th>
-                        <th>USER</th>
-                        <th>TOTAL</th>
-                        <th py:for="vat in all_the_vats">VAT ${int(vat*100)}%</th>
-                        <th>SHIPPING</th>
-                        <th>WEIGHT</th>
-                        <th>STATUS</th>
-                        <th>PAYMENT METHOD</th>
-                        <th>NOTES</th>
-                        <th>BILL REQUESTED</th>
-                        <th>BILLED</th>
-                        <th>&nbsp;</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr py:for="order in g_orders">${order_row(order)}</tr>
-                    </tbody>
-                </table>
+                <div style="overflow-x: scroll; width: 100%">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>ORDER ID</th>
+                            <th>USER</th>
+                            <th>TOTAL</th>
+                            <th py:for="vat in all_the_vats">VAT ${int(vat*100)}%</th>
+                            <th>SHIPPING</th>
+                            <th>WEIGHT</th>
+                            <th>STATUS</th>
+                            <th>PAYMENT METHOD</th>
+                            <th>NOTES</th>
+                            <th>BILL REQUESTED</th>
+                            <th>BILLED</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr py:for="order in g_orders">${order_row(order)}</tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
         </div>
