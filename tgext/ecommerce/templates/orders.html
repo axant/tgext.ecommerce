@@ -9,6 +9,7 @@
             href="${'/order/detail?order_id=%s' %str(order._id)}">${str(order._id)}</a>
     </td>
     <td>${order.user}</td>
+    <td>${h.format_date(order.creation_date)}</td>
     <td>${"%0.2f" % (order.total+order.applied_discount)}</td>
     <td py:for="vat in all_the_vats">
         ${'%.2f' % order.net_per_vat_rate.get(vat, 0)}€<br/>
@@ -59,6 +60,7 @@
                         <tr>
                             <th>ORDER ID</th>
                             <th>USER</th>
+                            <th>CREATION DATE</th>
                             <th>TOTAL</th>
                             <th py:for="vat in all_the_vats">VAT ${int(vat*100)}%</th>
                             <th>SHIPPING</th>
