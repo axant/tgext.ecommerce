@@ -50,6 +50,7 @@ class Product(MappedClass):
     slug = FieldProperty(s.String, required=True)
     details = FieldProperty(s.Anything, if_missing={})
     active = FieldProperty(s.Bool, if_missing=True)
+    published = FieldProperty(s.Bool, if_missing=True)
     valid_from = FieldProperty(s.DateTime)
     valid_to = FieldProperty(s.DateTime)
     sort_weight = FieldProperty(s.Int, if_missing=0)

@@ -12,7 +12,7 @@ class OrderManager(object):
         if payer_info is None:
             payer_info = {}
 
-        cart_items = [v for k, v in cart.items.iteritems()]
+        cart_items = cart.items.values()
         items = [dict(name=cart_item.get('name'), variety=cart_item.get('variety'), qty=cart_item.get('qty'),
                       sku=cart_item.get('sku'), net_price=cart_item.get('price'), vat=cart_item.get('vat'),
                       gross_price=cart_item.get('price') * (1+cart_item.get('vat')), base_vat=cart_item.get('base_vat'),

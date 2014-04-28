@@ -36,6 +36,7 @@ class ProductManager(object):
                                  slug=slug,
                                  details=details,
                                  active=active,
+                                 published=False,
                                  valid_from=valid_from,
                                  valid_to=valid_to,
                                  configurations=[{'sku': sku,
@@ -65,7 +66,7 @@ class ProductManager(object):
                                        'details': configuration_details})
 
     @classmethod
-    def get(cls, sku=None, _id=None, slug=None):  #get_product
+    def get(cls, sku=None, _id=None, slug=None):  # get_product
         if _id is not None:
             return models.Product.query.get(_id=ObjectId(_id))
         elif sku is not None:
@@ -76,9 +77,10 @@ class ProductManager(object):
             return None
 
     @classmethod
-    def get_many(cls, type=None, query=None, fields=None):  #get_products
+    def get_many(cls, type=None, query=None, fields=None):  # get_products
         if not query:
             query = dict()
+        query.setdefault('published', {'$ne': False})  # backward compatibility
         filter = {}
         if type:
             filter['type'] = type
@@ -143,8 +145,12 @@ class ProductManager(object):
             setattr(product.configurations[configuration_index].details, k, v)
 
     @classmethod
-    def delete(cls, product):  #delete_product
+    def delete(cls, product):  # delete_product
         product.active = False
+
+    @classmethod
+    def publish(cls, product, published=True):
+        product.published = published
 
     @classmethod
     def sort_up(cls, product):
