@@ -1,11 +1,12 @@
 # coding=utf-8
 from __future__ import unicode_literals
 from collections import Counter
+import re
 from bson import ObjectId
 import datetime
 from tgext.ecommerce.lib.exceptions import AlreadyExistingSkuException, AlreadyExistingSlugException, \
     InactiveProductException
-from tgext.ecommerce.lib.utils import slugify, internationalise as i_, NoDefault
+from tgext.ecommerce.lib.utils import slugify, internationalise as i_, NoDefault, preferred_language
 from tgext.ecommerce.model import models
 from ming.odm import mapper
 
@@ -263,3 +264,13 @@ class ProductManager(object):
         else:
             product_dump['qty'] = qty
             cart.items[sku] = product_dump
+
+    @classmethod
+    def search(cls, text, fields=('name', 'description'), language=None):
+        language = language or preferred_language()
+        filters = []
+        for field in fields:
+            field = '%s.%s' % (field, language)
+            filters.append({field: re.compile(text, re.I)})
+        products = models.Product.query.find({'$or': filters})
+        return products

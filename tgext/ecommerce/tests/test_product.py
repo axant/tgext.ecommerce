@@ -178,3 +178,18 @@ class TestShop(RootTest):
         pr = sm.product.get('12345')
         self.assertEqual(pr.configurations[0]['qty'], 18)
 
+    def test_search_product(self):
+        from tgext.ecommerce.lib.shop import ShopManager
+        from tgext.ecommerce.model import models
+
+        sm = ShopManager()
+        self._create_product(sm, '12345')
+        models.DBSession.flush_all()
+        models.DBSession.close_all()
+
+        products = sm.product.search('product', language='it').count()
+        self.assertEqual(products, 1)
+        models.DBSession.close_all()
+
+        products = sm.product.search('lorem', language='it').count()
+        self.assertEqual(products, 1)
