@@ -14,8 +14,7 @@ from ming.odm import mapper
 class ProductManager(object):
     @classmethod
     def create(cls, type, sku, name, category_id=None, description='', price=1.0,  #create_product
-               vat=0.0, qty=0, initial_quantity=0,
-               variety=None, active=True, valid_from=None, valid_to=None,
+               vat=0.0, qty=0, initial_quantity=0, variety=None, active=True, published=False, valid_from=None, valid_to=None,
                configuration_details=None, **details):
         if variety is None:
             variety = name
@@ -37,7 +36,7 @@ class ProductManager(object):
                                  slug=slug,
                                  details=details,
                                  active=active,
-                                 published=False,
+                                 published=published,
                                  valid_from=valid_from,
                                  valid_to=valid_to,
                                  configurations=[{'sku': sku,
