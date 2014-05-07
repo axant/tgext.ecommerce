@@ -271,5 +271,5 @@ class ProductManager(object):
         for field in fields:
             field = '%s.%s' % (field, language)
             filters.append({field: re.compile(text, re.I)})
-        products = models.Product.query.find({'$or': filters})
+        products = models.Product.query.find({'$or': filters, 'published': True})
         return products
