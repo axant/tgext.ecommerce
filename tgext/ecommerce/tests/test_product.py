@@ -26,7 +26,7 @@ class TestShop(RootTest):
     def setUp(self):
         super(TestShop, self).setUp()
 
-    def _create_product(self, shop, sku):
+    def _create_product(self, shop, sku, published=False):
         cat = shop.category.create('ham')
         return shop.product.create(type='product',
                                    sku=sku,
@@ -40,7 +40,8 @@ class TestShop(RootTest):
                                    variety='test variety',
                                    active=True,
                                    valid_from=datetime.datetime.utcnow(),
-                                   valid_to=datetime.datetime.utcnow())
+                                   valid_to=datetime.datetime.utcnow(),
+                                   published=published)
 
     def test_create_product(self):
         from tgext.ecommerce.lib.shop import ShopManager
@@ -183,7 +184,7 @@ class TestShop(RootTest):
         from tgext.ecommerce.model import models
 
         sm = ShopManager()
-        self._create_product(sm, '12345')
+        self._create_product(sm, '12345', published=True)
         models.DBSession.flush_all()
         models.DBSession.close_all()
 
