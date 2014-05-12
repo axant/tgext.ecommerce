@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from bson import ObjectId
 import datetime
-from tgext.ecommerce.model import models
+from tgext.ecommerce.model import models, Product
 
 
 class OrderManager(object):
@@ -12,12 +12,14 @@ class OrderManager(object):
         if payer_info is None:
             payer_info = {}
 
-        cart_items = cart.items.values()
-        items = [dict(name=cart_item.get('name'), variety=cart_item.get('variety'), qty=cart_item.get('qty'),
-                      sku=cart_item.get('sku'), net_price=cart_item.get('price'), vat=cart_item.get('vat'),
-                      gross_price=cart_item.get('price') * (1+cart_item.get('vat')), base_vat=cart_item.get('base_vat'),
-                      details=dict(cart_item.get('product_details').items() + cart_item.get('details').items()))
-                 for cart_item in cart_items]
+        items = []
+        for cart_item in cart.items.values():
+            items.append(dict(name=cart_item.get('name'), variety=cart_item.get('variety'), qty=cart_item.get('qty'),
+                              sku=cart_item.get('sku'), net_price=cart_item.get('price'), vat=cart_item.get('vat'),
+                              gross_price=cart_item.get('price') * (1+cart_item.get('vat')),
+                              base_vat=cart_item.get('base_vat'),
+                              details=dict(cart_item.get('product_details').items()+cart_item.get('details').items())))
+            Product.increase_sold(cart_item.get('sku'), qty=cart_item.get('qty'))
 
         order = models.Order(_id=cart._id,
                              user_id=cart.user_id,

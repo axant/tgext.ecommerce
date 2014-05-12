@@ -4,11 +4,13 @@ from collections import Counter
 import re
 from bson import ObjectId
 import datetime
+from ming import DESCENDING
 from tgext.ecommerce.lib.exceptions import AlreadyExistingSkuException, AlreadyExistingSlugException, \
     InactiveProductException
 from tgext.ecommerce.lib.utils import slugify, internationalise as i_, NoDefault, preferred_language
 from tgext.ecommerce.model import models
 from ming.odm import mapper
+from tg import cache
 
 
 class ProductManager(object):
@@ -90,6 +92,20 @@ class ProductManager(object):
             q_kwargs['fields'] = fields
         q = models.Product.query.find(filter, **q_kwargs)
         return q
+
+    @classmethod
+    def get_bestsellers(cls):
+        def _fetch_bestsellers():
+            skus = []
+            for product in cls.get_many('product', {'active': True}).sort([('sold', DESCENDING)]).limit(12).all():
+                skus.append(product.configurations[0].sku)
+            return skus
+
+        bestselling_cache = cache.get_cache('bestselling_products')
+        bestseller = bestselling_cache.get_value(key='bestseller',
+                                                 expiretime=24 * 3600,
+                                                 createfunc=_fetch_bestsellers)
+        return bestseller
 
     @classmethod
     def edit(cls, product, type=NoDefault, name=NoDefault, category_id=NoDefault,  #edit_product

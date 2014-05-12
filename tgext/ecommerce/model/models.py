@@ -39,7 +39,8 @@ class Product(MappedClass):
                    ('type', 'category_id', 'active'),
                    ('type', 'active' 'name'),
                    ('type', 'active', ('sort_weight', -1)),
-                   ('type', 'active', 'sort_weight')]
+                   ('type', 'active', 'sort_weight'),
+                   ('type', 'published', 'active', ('sold', -1))]
 
     _id = FieldProperty(s.ObjectId)
     name = FieldProperty(s.Anything, required=True)
@@ -54,6 +55,7 @@ class Product(MappedClass):
     valid_from = FieldProperty(s.DateTime)
     valid_to = FieldProperty(s.DateTime)
     sort_weight = FieldProperty(s.Int, if_missing=0)
+    sold = FieldProperty(s.Int, if_missing=0)
     configurations = FieldProperty([{
         'variety': s.Anything(required=True),
         'qty': s.Int(required=True),
@@ -103,6 +105,10 @@ class Product(MappedClass):
     def subsequent(cls, product):
         return cls.query.find({'sort_weight': {'$gt': product.sort_weight}}).\
                          sort([('sort_weight', ASCENDING)]).limit(2).all()
+
+    @classmethod
+    def increase_sold(cls, sku, qty):
+        DBSession.update(cls, {'configurations.sku': sku}, {'$inc': {'sold': qty}})
 
 class CartTtlExt(MapperExtension):
 
