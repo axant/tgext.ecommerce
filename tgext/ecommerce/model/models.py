@@ -10,9 +10,10 @@ from tg import cache
 from tg.caching import cached_property
 from tg.util import Bunch
 from tgext.pluggable import app_model
-from tgext.ecommerce.lib.utils import short_lang, preferred_language
+from tgext.ecommerce.lib.utils import short_lang, preferred_language, apply_vat
 from tgext.ecommerce.model import DBSession
 import operator
+
 
 
 class Category(MappedClass):
@@ -172,23 +173,35 @@ class Cart(MappedClass):
 
     @property
     def item_count(self):
-        return sum([item['qty'] for item in self.items.values()])
+        return sum([item['qty'] for item in self.items.itervalues()])
 
     @property
     def subtotal(self):
-        return sum([item['price']*item['qty'] for item in self.items.values()])
+        return sum([item['price']*item['qty'] for item in self.items.itervalues()])
 
     @property
     def tax(self):
-        return sum([item['price']*item['qty']*item['vat'] for item in self.items.values()])
+        vat_groups = {}
+        for item in self.items.itervalues():
+            vat_groups[item['vat']] = vat_groups.get(item['vat'], 0) + item['price']*item['qty']
+        return sum(apply_vat(total_price, vat) for vat, total_price in vat_groups.iteritems())
 
     @property
     def total(self):
-        return sum([item['price']*item['qty']*(1+item['vat']) for item in self.items.values()])
+        return self.subtotal + self.tax
+
+    @classmethod
+    def items_total(cls, item):
+        return apply_vat(item['price']*item['qty'], 1+item['vat'])
+
+    @classmethod
+    def items_vat(self, item):
+        return apply_vat(item['price']*item['qty'], 1+item['vat'])
 
     @classmethod
     def expired_carts(cls):
         return cls.query.find({'expires_at': {'$lte': datetime.utcnow()}})
+
 
 
 class OrderStatusExt(MapperExtension):

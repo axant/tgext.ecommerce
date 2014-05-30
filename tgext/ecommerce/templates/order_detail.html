@@ -14,7 +14,7 @@
             <ul>
                 <li>ORDER <b>${order._id}</b></li>
                 <li>DATE <b>${h.format_date(order.creation_date)}</b></li>
-                <li>TOTAL <b>€ ${"%0.2f" % (order.total+order.applied_discount)}</b></li>
+                <li>TOTAL <b>€ ${h.format_price(order.total+order.applied_discount)}</b></li>
                 <li>PAYMENT METHOD <b>PAYPAL</b></li>
             </ul>
         </div>
@@ -30,7 +30,7 @@
                 <td>${h.i_entity_value(item, 'name')}<br/>${item.details.producer_name}</td>
                 <td>${h.i_entity_value(item, 'variety')}</td>
                 <td>${item.qty}</td>
-                <td>€ ${"%0.2f" % (item.net_price*item.qty)}<br/>(VAT € ${"%0.2f" % (item.net_price*item.base_vat*item.qty)})</td>
+                <td>€ ${h.format_price(item.net_price*item.qty)}<br/>(VAT € ${h.format_price(h.apply_vat(item.net_price*item.qty, item.base_vat))})</td>
             </tr>
         </table>
         <br/>
@@ -66,8 +66,8 @@
                 </div>
                 <div class="col-md-2 col-md-offset-1 col-sm-2 col-sm-offset-1 col-xs-3 col-xs-offset-1 item-price">
                     <div class="name-container">
-                        <span>€ ${"%0.2f" % (item.net_price*item.qty)}</span><br/>
-                        <span class="vat">(${'%d%%' % (item.base_vat*100)} VAT € ${"%0.2f" % (item.net_price*item.base_vat*item.qty)})</span>
+                        <span>€ ${h.format_price(item.net_price*item.qty)}</span><br/>
+                        <span class="vat">(${'%d%%' % (item.base_vat*100)} VAT € ${h.format_price(h.apply_vat(item.net_price * item.qty, item.base_vat))})</span>
                     </div>
                 </div>
             </div>
@@ -79,12 +79,12 @@
             <span class="total-order-label">ORDER TOTAL </span>
         </div>
         <div class="col-md-2 col-md-offset-1 col-sm-2 col-sm-offset-1 col-xs-3 col-xs-offset-1 item-price">
-            <b>€ ${"%0.2f" % (order.gross_total)}</b>
+            <b>€ ${h.format_price(order.gross_total)}</b>
         </div>
     </div>
     <div class="row">
         <div class="col-md-8 col-md-offset-7 col-sm-8 col-sm-offset-7 col-xs-8 col-xs-offset-7 item-price">
-            (include € ${"%0.2f" % order.tax} VAT)
+            (include € ${h.format_price(order.tax)} VAT)
         </div>
     </div>
     <div class="row">
@@ -92,7 +92,7 @@
             <span class="total-order-label">SHIPPING CHARGES AND HANDLING </span>
         </div>
         <div class="col-md-2 col-md-offset-1 col-sm-2 col-sm-offset-1 col-xs-3 col-xs-offset-1 item-price">
-            <b>€ ${"%0.2f" % order.shipping_charges}</b>
+            <b>€ ${h.format_price(order.shipping_charges)}</b>
         </div>
     </div>
     <div class="row">
@@ -100,7 +100,7 @@
             <span class="total-order-label">TOTAL </span>
         </div>
         <div class="col-md-2 col-md-offset-1 col-sm-2 col-sm-offset-1 col-xs-3 col-xs-offset-1 item-price">
-            <b>€ ${"%0.2f" % (order.total)}</b>
+            <b>€ ${h.format_price(order.total)}</b>
         </div>
     </div>
     <py:if test="order.applied_discount">
@@ -109,7 +109,7 @@
             <span class="total-order-label">DISCOUNT </span>
         </div>
         <div class="col-md-2 col-md-offset-1 col-sm-2 col-sm-offset-1 col-xs-3 col-xs-offset-1 item-price">
-            <b>€ ${"%0.2f" % (-order.applied_discount)}</b>
+            <b>€ ${h.format_price(-order.applied_discount)}</b>
         </div>
       </div>
       <div class="row">
@@ -117,7 +117,7 @@
             <span class="total-order-label">PAYED </span>
         </div>
         <div class="col-md-2 col-md-offset-1 col-sm-2 col-sm-offset-1 col-xs-3 col-xs-offset-1 item-price">
-            <b>€ ${"%0.2f" % (order.total+order.applied_discount)}</b>
+            <b>€ ${h.format_price(order.total+order.applied_discount)}</b>
         </div>
       </div>
     </py:if>

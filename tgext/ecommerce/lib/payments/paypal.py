@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 import tg
 import paypalrestsdk
 import datetime
+import math
+from tgext.ecommerce.lib.utils import apply_percentage_discount, get_percentage_discount
 
 
 def configure_paypal(mode, client_id, client_secret):
@@ -17,7 +19,7 @@ def pay(cart, redirection_url, cancel_url):
     total_discount = 0
     for discount in cart.order_info.get('discounts', []):
         if isinstance(discount, dict) and discount['type'] == 'percentage':
-            qty = -(discount['qty'] / 100.0) * cart.total
+            qty = - get_percentage_discount(cart.total, discount['qty'])
         elif isinstance(discount, dict) and discount['type'] == 'fixed':
             qty = -discount['qty']
         else:
