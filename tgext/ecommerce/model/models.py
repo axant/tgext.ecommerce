@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from itertools import groupby, imap, chain
 from bson import ObjectId
+import math
 from ming.odm.property import ORMProperty
 from ming.odm import FieldProperty, ForeignIdProperty, RelationProperty, MapperExtension
 from ming.odm.declarative import MappedClass
@@ -13,8 +14,6 @@ from tgext.pluggable import app_model
 from tgext.ecommerce.lib.utils import short_lang, preferred_language, apply_vat
 from tgext.ecommerce.model import DBSession
 import operator
-
-
 
 class Category(MappedClass):
     class __mongometa__:
@@ -316,6 +315,7 @@ class Order(MappedClass):
         for k, g in groupby(sorted_items, key=lambda i: i['vat']):
             mapping[k] = sum(imap(lambda i: (i.gross_price+self.discount_per_item(i))*i.qty, g))
 
+        mapping[sorted_items[-1]['vat']] += self.gross_total + self.applied_discount - sum(mapping.itervalues())
         return mapping
 
     @property

@@ -10,9 +10,9 @@
     </td>
     <td>${order.user}</td>
     <td>${h.format_date(order.status_changes[-1].changed_at)}</td>
-    <td>${"%0.2f" % (order.total+order.applied_discount)}</td>
+    <td>${h.format_price(order.total+order.applied_discount)}</td>
     <td py:for="vat in all_the_vats">
-        ${'%.2f' % order.net_per_vat_rate.get(vat, 0)}€<br/>
+        ${h.format_price(order.net_per_vat_rate.get(vat, 0))}€<br/>
     </td>
     <td>${"%0.2f" % order.shipping_charges}€ <br/>
         <span py:if="order.bill_country == 'IT'">(vat 22%)</span>
