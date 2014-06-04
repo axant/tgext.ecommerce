@@ -16,19 +16,6 @@ def configure_paypal(mode, client_id, client_secret):
 
 
 def pay(cart, redirection_url, cancel_url):
-    total_discount = 0
-    for discount in cart.order_info.get('discounts', []):
-        if isinstance(discount, dict) and discount['type'] == 'percentage':
-            qty = - get_percentage_discount(cart.total, discount['qty'])
-        elif isinstance(discount, dict) and discount['type'] == 'fixed':
-            qty = -discount['qty']
-        else:
-            qty = 0
-        total_discount += qty
-
-    cart.order_info.setdefault('discounts', [])
-    cart.order_info['applied_discount'] = total_discount
-
     payment = paypalrestsdk.Payment({
         "intent": "sale",
         "payer": {
@@ -39,13 +26,12 @@ def pay(cart, redirection_url, cancel_url):
             "cancel_url": cancel_url
         },
         "transactions": [{"item_list": {"items": [{"name": "Order %s" % str(cart._id),
-                                                   "price": '%0.2f' % (cart.total + cart.order_info.shipping_charges +
-                                                                       total_discount),
+                                                   "price": cart.order_due,
                                                    "sku": str(cart._id),
                                                    "currency": "EUR",
                                                    "quantity": 1}]},
                           "amount": {
-                              "total": "%0.2f" % (cart.total + cart.order_info.shipping_charges + total_discount),
+                              "total": cart.order_due,
                               "currency": "EUR",
                           }}]
     })

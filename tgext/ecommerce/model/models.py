@@ -11,9 +11,10 @@ from tg import cache
 from tg.caching import cached_property
 from tg.util import Bunch
 from tgext.pluggable import app_model
-from tgext.ecommerce.lib.utils import short_lang, preferred_language, apply_vat
+from tgext.ecommerce.lib.utils import short_lang, preferred_language, apply_vat, with_currency
 from tgext.ecommerce.model import DBSession
 import operator
+
 
 class Category(MappedClass):
     class __mongometa__:
@@ -149,7 +150,14 @@ class Cart(MappedClass):
             'country': s.String(),
             'details': s.Anything(if_missing={})
         },
+        'currencies': {
+            'due': s.Int,
+            'shipping_charges': s.Int,
+            'applied_discount': s.Int,
+        },
         'shipping_charges': s.Float(if_missing=0.0),
+        'applied_discount': s.Float(if_missing=0.0),
+        'due': s.Float(if_missing=0.0),
         'bill': s.Bool(if_missing=False),
         'bill_info': {
             'company': s.String(),
@@ -165,10 +173,14 @@ class Cart(MappedClass):
             'details': s.Anything(if_missing={})
         },
         'discounts': s.Anything(if_missing=[]),
-        'applied_discount': s.Float(if_missing=0),
         'notes': s.String(),
         'details': s.Anything(if_missing={})
     })
+
+    @property
+    def order_due(self):
+        currency_due = '%s' % self.order_info.currencies.due
+        return '%s.%s' % (currency_due[:-2], currency_due[-2:])
 
     @property
     def item_count(self):
@@ -292,11 +304,17 @@ class Order(MappedClass):
         'gross_price': s.Float(required=True),
         'details': s.Anything(if_missing={})
     }])
+    currencies = FieldProperty({
+        'due': s.Int,
+        'shipping_charges': s.Int,
+        'applied_discount': s.Int,
+    })
     net_total = FieldProperty(s.Float, required=True)
     tax = FieldProperty(s.Float, required=True)
     gross_total = FieldProperty(s.Float, required=True)
     shipping_charges = FieldProperty(s.Float, required=True)
     total = FieldProperty(s.Float, required=True)
+    due = FieldProperty(s.Float, if_missing=0.0)
     discounts = FieldProperty(s.Anything, if_missing=[])
     applied_discount = FieldProperty(s.Float, if_missing=0)
     status = FieldProperty(s.String, required=True)
@@ -304,18 +322,39 @@ class Order(MappedClass):
     details = FieldProperty(s.Anything, if_missing={})
     status_changes = FieldProperty(s.Anything, if_missing=[])
 
-    def discount_per_item(self, item):
-        discount_chunk = self.applied_discount / self.gross_total
-        return item.gross_price * discount_chunk
+    @property
+    def formatted_currencies(self):
+        currencies = Bunch()
+        for name, value in self.currencies.items():
+            str_value = str(value)
+            currencies[name] = '%s.%s' % (str_value[:-2], str_value[-2:])
+        return currencies
 
     @property
     def net_per_vat_rate(self):
+        def _item_discount_fraction(item, total):
+            discount_chunk = self.applied_discount / total
+            return int(item.gross_price * discount_chunk * 100)
+
         mapping = {}
+
         sorted_items = sorted(self.items, key=lambda i: i['vat'])
         for k, g in groupby(sorted_items, key=lambda i: i['vat']):
-            mapping[k] = sum(imap(lambda i: (i.gross_price+self.discount_per_item(i))*i.qty, g))
+            mapping[k] = sum(imap(lambda i: (with_currency.float2cur(i.gross_price) + _item_discount_fraction(i, self.gross_total)) * i.qty, g))
 
-        mapping[sorted_items[-1]['vat']] += self.gross_total + self.applied_discount - sum(mapping.itervalues())
+
+        if self.currencies.due:
+            # If we have currency values available, fix the rounding error
+            current_total = sum(mapping.itervalues())
+            expected_total = self.currencies.due - self.currencies.shipping_charges
+            delta = expected_total - current_total
+            mapping[sorted_items[-1]['vat']] += delta
+
+
+        # Convert everything back to floats for visualization
+        for k, g in mapping.iteritems():
+            mapping[k] = with_currency.cur2float(g)
+
         return mapping
 
     @property

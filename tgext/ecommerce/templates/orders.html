@@ -10,7 +10,7 @@
     </td>
     <td>${order.user}</td>
     <td>${h.format_date(order.status_changes[-1].changed_at)}</td>
-    <td>${h.format_price(order.total+order.applied_discount)}</td>
+    <td>${order.formatted_currencies.due}</td>
     <td py:for="vat in all_the_vats">
         ${h.format_price(order.net_per_vat_rate.get(vat, 0))}€<br/>
     </td>

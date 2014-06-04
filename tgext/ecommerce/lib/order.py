@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from bson import ObjectId
 import datetime
 from tgext.ecommerce.model import models, Product
-from tgext.ecommerce.lib.utils import apply_vat
+from tgext.ecommerce.lib.utils import apply_vat, with_currency
 
 
 class OrderManager(object):
@@ -36,11 +36,13 @@ class OrderManager(object):
                              gross_total=cart.total,
                              shipping_charges=cart.order_info.shipping_charges,
                              total=cart.total+cart.order_info.shipping_charges,
+                             due=cart.order_info.due,
                              discounts=cart.order_info.discounts,
-                             applied_discount=cart.order_info.applied_discount,
+                             applied_discount= - cart.order_info.applied_discount,
                              status=status,
                              notes=cart.order_info.notes,
-                             details=details)
+                             details=details,
+                             currencies=cart.order_info.currencies)
         cart.delete()
         models.DBSession.flush()
         return order

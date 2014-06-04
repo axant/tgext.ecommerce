@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from functools import wraps
 from tgext.ecommerce.lib.exceptions import CartLockedException, CartException
 from tgext.ecommerce.lib.product import ProductManager
-from tgext.ecommerce.lib.utils import NoDefault
+from tgext.ecommerce.lib.utils import NoDefault, with_currency
 from tgext.ecommerce.model import models, Setting
 
 
@@ -53,18 +53,19 @@ class CartManager(object):
 
     @classmethod
     @check_cart_lock
-    def update_order_info(cls, cart, payment=NoDefault, shipment_info=NoDefault, shipping_charges=NoDefault,
+    def update_order_info(cls, cart, due, shipping_charges=0.0, applied_discount=0.0,
+                          shipment_info=NoDefault,
                           bill=NoDefault, bill_info=NoDefault, notes=NoDefault, **details):
 
-        if payment is not NoDefault:
-            for k, v in payment.iteritems():
-                setattr(cart.order_info.payment, k, v)
+        cart.order_info.due = due
+        cart.order_info.shipping_charges = shipping_charges
+        cart.order_info.applied_discount = applied_discount
+        cart.order_info.currencies = {'due': with_currency.float2cur(due),
+                                      'shipping_charges': with_currency.float2cur(shipping_charges),
+                                      'applied_discount': with_currency.float2cur(applied_discount)}
 
         if shipment_info is not NoDefault:
             cart.order_info.shipment_info.update(shipment_info)
-
-        if shipping_charges is not NoDefault:
-            cart.order_info.shipping_charges = shipping_charges
 
         if bill is not NoDefault:
             cart.order_info.bill = bill
