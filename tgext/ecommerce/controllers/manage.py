@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from datetime import date, datetime
 from itertools import groupby
 from bson import ObjectId
-from tg import TGController, expose, validate, lurl, redirect, request, tmpl_context, config, flash
+from tg import TGController, expose, validate, lurl, redirect, request, tmpl_context, config, flash, predicates
 from tg.i18n import lazy_ugettext as l_
 import tw2.core as twc
 import tw2.forms as twf
@@ -69,7 +69,7 @@ class OrderFilterForm(twf.Form):
 
 
 class ManageController(TGController):
-
+    allow_only = predicates.in_group('managers')
     def _before(self, *args, **kw):
         tmpl_context.manage_pages = True
 

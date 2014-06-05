@@ -12,7 +12,8 @@
     <td>${h.format_date(order.status_changes[-1].changed_at)}</td>
     <td>${order.formatted_currencies.due}</td>
     <td py:for="vat in all_the_vats">
-        ${h.format_price(order.net_per_vat_rate.get(vat, 0))}€<br/>
+        <py:if test="order.currencies.due">${h.format_price(order.net_per_vat_rate.get(vat, 0))}€<br/></py:if>
+        <py:if test="not order.currencies.due">---<br/></py:if>
     </td>
     <td>${"%0.2f" % order.shipping_charges}€ <br/>
         <span py:if="order.bill_country == 'IT'">(vat 22%)</span>
@@ -20,42 +21,42 @@
     </td>
     <td>${sum([item.details.get('weight', 0) * item.qty for item in order.items])} g</td>
     <td><button class="btn btn-primary btn-group" data-toggle="modal" data-target="#myModal${order._id}" style="padding: 2px 10px 2px 10px">
-                ${order.status.upper()}
-            </button>
+        ${order.status.upper()}
+    </button>
 
-            <!-- Modal -->
-            <div class="modal fade" id="myModal${order._id}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                            <h4 class="modal-title" id="myModalLabel${order._id}">Tracciamento Spedizioni</h4>
-                            <p py:if="order.details.get('tracking_number')">Tracking Code: ${order.details.get('tracking_number')}</p>
-                            <p py:if="order.details.get('tracking_number')">Corriere: <a href="http://www.dhl.com/en/express/tracking.html">DHL</a></p>
-                        </div>
+        <!-- Modal -->
+        <div class="modal fade" id="myModal${order._id}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel${order._id}">Tracciamento Spedizioni</h4>
+                        <p py:if="order.details.get('tracking_number')">Tracking Code: ${order.details.get('tracking_number')}</p>
+                        <p py:if="order.details.get('tracking_number')">Corriere: <a href="http://www.dhl.com/en/express/tracking.html">DHL</a></p>
+                    </div>
 
-                        <div class="modal-body" py:if="order.details.get('tracking_info')">
-                            <h4>Spedizioni Secondarie</h4>
-                            <table class="table">
-                                <tr>
-                                    <th>Prodotto Fresco</th>
-                                    <th>Data</th>
-                                    <th>Corriere</th>
-                                    <th>Tracking Code</th>
-                                </tr>
-                                <tr py:for="tracking in order.details.tracking_info.values()">
-                                    <py:if test="tracking.product_name is not None">
-                                        <td>${h.i_entity_value(tracking, 'product_name')}</td>
-                                        <td>${h.format_date(tracking.date)}</td>
-                                        <td><a href="${tracking.courier_website}" target="_blank">${tracking.courier}</a></td>
-                                        <td>${tracking.tracking_number}</td>
-                                    </py:if>
-                                </tr>
-                            </table>
-                        </div>
+                    <div class="modal-body" py:if="order.details.get('tracking_info')">
+                        <h4>Spedizioni Secondarie</h4>
+                        <table class="table">
+                            <tr>
+                                <th>Prodotto Fresco</th>
+                                <th>Data</th>
+                                <th>Corriere</th>
+                                <th>Tracking Code</th>
+                            </tr>
+                            <tr py:for="tracking in order.details.tracking_info.values()">
+                                <py:if test="tracking.product_name is not None">
+                                    <td>${h.i_entity_value(tracking, 'product_name')}</td>
+                                    <td>${h.format_date(tracking.date)}</td>
+                                    <td><a href="${tracking.courier_website}" target="_blank">${tracking.courier}</a></td>
+                                    <td>${tracking.tracking_number}</td>
+                                </py:if>
+                            </tr>
+                        </table>
                     </div>
                 </div>
             </div>
+        </div>
         <div py:if="order.user != order.status_changes[-1].changed_by"> - edited by ${order.status_changes[-1].changed_by}</div>
     </td>
     <td>PAYPAL</td>
