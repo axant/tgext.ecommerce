@@ -7,7 +7,7 @@ import datetime
 from ming import DESCENDING
 from tgext.ecommerce.lib.exceptions import AlreadyExistingSkuException, AlreadyExistingSlugException, \
     InactiveProductException
-from tgext.ecommerce.lib.utils import slugify, internationalise as i_, NoDefault, preferred_language
+from tgext.ecommerce.lib.utils import slugify, internationalise as i_, NoDefault, preferred_language, apply_vat
 from tgext.ecommerce.model import models
 from ming.odm import mapper
 from tg import cache
@@ -15,8 +15,9 @@ from tg import cache
 
 class ProductManager(object):
     @classmethod
-    def create(cls, type, sku, name, category_id=None, description='', price=1.0,  #create_product
-               vat=0.0, qty=0, initial_quantity=0, variety=None, active=True, published=False, valid_from=None, valid_to=None,
+    def create(cls, type, sku, name, category_id=None, description='', price=1.0, rate=0.0,  #create_product
+               vat=None, qty=0, initial_quantity=0, variety=None, active=True, published=False, valid_from=None,
+               valid_to=None,
                configuration_details=None, **details):
         if variety is None:
             variety = name
@@ -31,6 +32,9 @@ class ProductManager(object):
         if models.Product.query.find({'configurations.sku': sku}).first():
             raise AlreadyExistingSkuException('Already exist a Configuration with sku: %s' % sku)
 
+        if vat is None:
+            vat = apply_vat(price, rate)
+
         product = models.Product(type=type,
                                  name=i_(name),
                                  category_id=ObjectId(category_id) if category_id else None,
@@ -44,6 +48,7 @@ class ProductManager(object):
                                  configurations=[{'sku': sku,
                                                   'variety': i_(variety),
                                                   'price': price,
+                                                  'rate': rate,
                                                   'vat': vat,
                                                   'qty': qty,
                                                   'initial_quantity': initial_quantity,
@@ -52,16 +57,20 @@ class ProductManager(object):
         return product
 
     @classmethod
-    def create_configuration(cls, product, sku, price=1.0, vat=0.0,  #create_product_configuration
+    def create_configuration(cls, product, sku, price=1.0, rate=0.0, vat=None,
                              qty=0, initial_quantity=0, variety=None,
                              **configuration_details):
 
         if models.Product.query.find({'configurations.sku': sku}).first():
             raise AlreadyExistingSkuException('Already exist a Configuration with sku: %s' % sku)
 
+        if vat is None:
+            vat = apply_vat(price, rate)
+
         product.configurations.append({'sku': sku,
                                        'variety': i_(variety),
                                        'price': price,
+                                       'rate': rate,
                                        'vat': vat,
                                        'qty': qty,
                                        'initial_quantity': initial_quantity,
@@ -140,8 +149,7 @@ class ProductManager(object):
 
     @classmethod
     def edit_configuration(cls, product, configuration_index, sku=NoDefault, variety=NoDefault,
-                           #edit_product_configuration
-                           price=NoDefault, vat=NoDefault, qty=NoDefault,
+                           price=NoDefault, rate =NoDefault, vat=NoDefault, qty=NoDefault,
                            initial_quantity=NoDefault, configuration_details=NoDefault):
 
         if sku is not NoDefault:
@@ -151,6 +159,8 @@ class ProductManager(object):
                 setattr(product.configurations[configuration_index].variety, k, v)
         if price is not NoDefault:
             product.configurations[configuration_index].price = price
+        if rate is not NoDefault:
+            product.configurations[configuration_index].rate = rate
         if vat is not NoDefault:
             product.configurations[configuration_index].vat = vat
         if qty is not NoDefault:

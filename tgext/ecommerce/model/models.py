@@ -63,6 +63,7 @@ class Product(MappedClass):
         'initial_quantity': s.Int(required=True),
         'sku': s.String(required=True),
         'price': s.Float(required=True),
+        'rate': s.Float(if_missing=0.0),
         'vat': s.Float(required=True),
         'details': s.Anything(if_missing={}),
     }])
