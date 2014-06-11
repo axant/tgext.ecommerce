@@ -75,7 +75,7 @@ class Product(MappedClass):
             min_qty_getter = lambda c: min_qty_getter
 
         configurations_by_price = sorted(filter(lambda conf: conf[2]['qty'] >= min_qty_getter(conf[2]),
-                                                map(lambda conf: (conf[0], conf[1]['price'] * (1+conf[1]['vat']), conf[1]),
+                                                map(lambda conf: (conf[0], conf[1]['price'] + conf[1]['vat'], conf[1]),
                                                     enumerate(self.configurations))),
                                          key=lambda x: x[1])
         if not configurations_by_price:
@@ -196,22 +196,23 @@ class Cart(MappedClass):
 
     @property
     def tax(self):
-        vat_groups = {}
-        for item in self.items.itervalues():
-            vat_groups[item['vat']] = vat_groups.get(item['vat'], 0) + item['price']*item['qty']
-        return sum(apply_vat(total_price, vat) for vat, total_price in vat_groups.iteritems())
+        return sum([item['vat'] * item['qty'] for item in self.items.itervalues()])
 
     @property
     def total(self):
         return self.subtotal + self.tax
 
     @classmethod
-    def items_total(cls, item):
-        return apply_vat(item['price']*item['qty'], 1+item['vat'])
+    def items_subtotal(cls, item):
+        return item['price'] * item['qty']
 
     @classmethod
-    def items_vat(self, item):
-        return apply_vat(item['price']*item['qty'], 1+item['vat'])
+    def items_vat(cls, item):
+        return item['vat'] * item['qty']
+
+    @classmethod
+    def items_total(cls, item):
+        return (item['price'] + item['vat']) * item['qty']
 
     @classmethod
     def expired_carts(cls):
