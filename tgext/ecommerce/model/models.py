@@ -98,6 +98,9 @@ class Product(MappedClass):
     def i18n_configuration_variety(self, configuration):
         return configuration.variety.get(preferred_language(), configuration.variety.get(tg.config.lang))
 
+    def configuration_gross_price(self, configuration):
+        return configuration.price + configuration.vat
+
     @classmethod
     def previous(cls, product):
         return cls.query.find({'sort_weight': {'$lt': product.sort_weight}}).\
