@@ -304,6 +304,7 @@ class Order(MappedClass):
         'qty': s.Int(required=True),
         'sku': s.String(required=True),
         'net_price': s.Float(required=True),
+        'rate': s.Float(),
         'vat': s.Float(required=True),
         'base_vat': s.Float(required=True),
         'gross_price': s.Float(required=True),

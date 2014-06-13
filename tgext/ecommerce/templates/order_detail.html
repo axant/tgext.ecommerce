@@ -66,8 +66,7 @@
                 </div>
                 <div class="col-md-2 col-md-offset-1 col-sm-2 col-sm-offset-1 col-xs-3 col-xs-offset-1 item-price">
                     <div class="name-container">
-                        <span>€ ${h.format_price(item.net_price*item.qty)}</span><br/>
-                        <span class="vat">(${'%d%%' % (item.base_vat*100)} VAT € ${h.format_price(h.apply_vat(item.net_price * item.qty, item.base_vat))})</span>
+                        <span>€ ${h.format_price(item.gross_price*item.qty)}</span><br/>
                     </div>
                 </div>
             </div>
