@@ -344,8 +344,8 @@ class Order(MappedClass):
 
         mapping = {}
 
-        sorted_items = sorted(self.items, key=lambda i: i['vat'])
-        for k, g in groupby(sorted_items, key=lambda i: i['vat']):
+        sorted_items = sorted(self.items, key=lambda i: i['rate'])
+        for k, g in groupby(sorted_items, key=lambda i: i['rate']):
             mapping[k] = sum(imap(lambda i: (with_currency.float2cur(i.gross_price) + _item_discount_fraction(i, self.gross_total)) * i.qty, g))
 
 
@@ -354,7 +354,7 @@ class Order(MappedClass):
             current_total = sum(mapping.itervalues())
             expected_total = self.currencies.due - self.currencies.shipping_charges
             delta = expected_total - current_total
-            mapping[sorted_items[-1]['vat']] += delta
+            mapping[sorted_items[-1]['rate']] += delta
 
 
         # Convert everything back to floats for visualization
@@ -382,7 +382,7 @@ class Order(MappedClass):
             vat_for_status = DBSession.impl.db.orders.aggregate([{'$project': {'items': 1, 'status': 1}},
                                                                  {'$unwind': '$items'},
                                                                  {'$group': {'_id': '$status',
-                                                                             'vat_rates': {'$addToSet': '$items.vat'}}}])
+                                                                             'vat_rates': {'$addToSet': '$items.rate'}}}])
             return sorted(set(chain(*[v['vat_rates'] for v in vat_for_status['result']])))
         vat_cache = cache.get_cache('all_the_vats')
         cachedvalue = vat_cache.get_value(
