@@ -306,6 +306,7 @@ class Order(MappedClass):
         'net_price': s.Float(required=True),
         'rate': s.Float(),
         'vat': s.Float(required=True),
+        'base_rate': s.Float(),
         'base_vat': s.Float(required=True),
         'gross_price': s.Float(required=True),
         'details': s.Anything(if_missing={})

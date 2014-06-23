@@ -276,7 +276,8 @@ class ProductManager(object):
             name=product.name,
             description=product.description,
             product_details=product.details,
-            base_vat=config.get('vat', 0),
+            base_vat=config.get('vat', 0.0),
+            base_rate=config.get('rate', 0.0),
             **config
         )
 

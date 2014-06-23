@@ -30,7 +30,7 @@
                 <td>${h.i_entity_value(item, 'name')}<br/>${item.details.producer_name}</td>
                 <td>${h.i_entity_value(item, 'variety')}</td>
                 <td>${item.qty}</td>
-                <td>€ ${h.format_price(item.net_price*item.qty)}<br/>(VAT € ${h.format_price(h.apply_vat(item.net_price*item.qty, item.base_vat))})</td>
+                <td>€ ${h.format_price(item.net_price*item.qty)}<br/>(VAT € ${h.format_price(item.vat*item.qty)})</td>
             </tr>
         </table>
         <br/>
