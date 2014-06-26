@@ -63,6 +63,7 @@ class Product(MappedClass):
         'initial_quantity': s.Int(required=True),
         'sku': s.String(required=True),
         'price': s.Float(required=True),
+        'rate': s.Float(if_missing=0.0),
         'vat': s.Float(required=True),
         'details': s.Anything(if_missing={}),
     }])
@@ -74,7 +75,7 @@ class Product(MappedClass):
             min_qty_getter = lambda c: min_qty_getter
 
         configurations_by_price = sorted(filter(lambda conf: conf[2]['qty'] >= min_qty_getter(conf[2]),
-                                                map(lambda conf: (conf[0], conf[1]['price'] * (1+conf[1]['vat']), conf[1]),
+                                                map(lambda conf: (conf[0], conf[1]['price'] + conf[1]['vat'], conf[1]),
                                                     enumerate(self.configurations))),
                                          key=lambda x: x[1])
         if not configurations_by_price:
@@ -96,6 +97,9 @@ class Product(MappedClass):
 
     def i18n_configuration_variety(self, configuration):
         return configuration.variety.get(preferred_language(), configuration.variety.get(tg.config.lang))
+
+    def configuration_gross_price(self, configuration):
+        return configuration.price + configuration.vat
 
     @classmethod
     def previous(cls, product):
@@ -192,22 +196,23 @@ class Cart(MappedClass):
 
     @property
     def tax(self):
-        vat_groups = {}
-        for item in self.items.itervalues():
-            vat_groups[item['vat']] = vat_groups.get(item['vat'], 0) + item['price']*item['qty']
-        return sum(apply_vat(total_price, vat) for vat, total_price in vat_groups.iteritems())
+        return sum([item['vat'] * item['qty'] for item in self.items.itervalues()])
 
     @property
     def total(self):
         return self.subtotal + self.tax
 
     @classmethod
-    def items_total(cls, item):
-        return apply_vat(item['price']*item['qty'], 1+item['vat'])
+    def items_subtotal(cls, item):
+        return item['price'] * item['qty']
 
     @classmethod
-    def items_vat(self, item):
-        return apply_vat(item['price']*item['qty'], 1+item['vat'])
+    def items_vat(cls, item):
+        return item['vat'] * item['qty']
+
+    @classmethod
+    def items_total(cls, item):
+        return (item['price'] + item['vat']) * item['qty']
 
     @classmethod
     def expired_carts(cls):
@@ -299,7 +304,9 @@ class Order(MappedClass):
         'qty': s.Int(required=True),
         'sku': s.String(required=True),
         'net_price': s.Float(required=True),
+        'rate': s.Float(),
         'vat': s.Float(required=True),
+        'base_rate': s.Float(),
         'base_vat': s.Float(required=True),
         'gross_price': s.Float(required=True),
         'details': s.Anything(if_missing={})
@@ -338,8 +345,8 @@ class Order(MappedClass):
 
         mapping = {}
 
-        sorted_items = sorted(self.items, key=lambda i: i['vat'])
-        for k, g in groupby(sorted_items, key=lambda i: i['vat']):
+        sorted_items = sorted(self.items, key=lambda i: i['rate'])
+        for k, g in groupby(sorted_items, key=lambda i: i['rate']):
             mapping[k] = sum(imap(lambda i: (with_currency.float2cur(i.gross_price) + _item_discount_fraction(i, self.gross_total)) * i.qty, g))
 
 
@@ -348,7 +355,7 @@ class Order(MappedClass):
             current_total = sum(mapping.itervalues())
             expected_total = self.currencies.due - self.currencies.shipping_charges
             delta = expected_total - current_total
-            mapping[sorted_items[-1]['vat']] += delta
+            mapping[sorted_items[-1]['rate']] += delta
 
 
         # Convert everything back to floats for visualization
@@ -376,7 +383,7 @@ class Order(MappedClass):
             vat_for_status = DBSession.impl.db.orders.aggregate([{'$project': {'items': 1, 'status': 1}},
                                                                  {'$unwind': '$items'},
                                                                  {'$group': {'_id': '$status',
-                                                                             'vat_rates': {'$addToSet': '$items.vat'}}}])
+                                                                             'vat_rates': {'$addToSet': '$items.rate'}}}])
             return sorted(set(chain(*[v['vat_rates'] for v in vat_for_status['result']])))
         vat_cache = cache.get_cache('all_the_vats')
         cachedvalue = vat_cache.get_value(
