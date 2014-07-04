@@ -300,6 +300,7 @@ class Order(MappedClass):
     })
     items = FieldProperty([{
         'name': s.Anything(required=True),
+        'category_name': s.Anything(if_missing={}),
         'variety': s.Anything(required=True),
         'qty': s.Int(required=True),
         'sku': s.String(required=True),

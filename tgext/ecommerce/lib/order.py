@@ -15,7 +15,8 @@ class OrderManager(object):
 
         items = []
         for cart_item in cart.items.values():
-            items.append(dict(name=cart_item.get('name'), variety=cart_item.get('variety'), qty=cart_item.get('qty'),
+            items.append(dict(name=cart_item.get('name'), variety=cart_item.get('variety'),
+                              category_name=cart_item.get('category_name', {}), qty=cart_item.get('qty'),
                               sku=cart_item.get('sku'), net_price=cart_item.get('price'), vat=cart_item.get('vat'),
                               rate=cart_item.get('rate'), gross_price=cart_item.get('price') + cart_item.get('vat'),
                               base_vat=cart_item.get('base_vat'), base_rate=cart_item.base_rate,

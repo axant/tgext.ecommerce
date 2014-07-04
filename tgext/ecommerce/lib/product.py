@@ -274,6 +274,7 @@ class ProductManager(object):
 
         return dict(
             name=product.name,
+            category_name=product.category.name,
             description=product.description,
             product_details=product.details,
             base_vat=config.get('vat', 0.0),
