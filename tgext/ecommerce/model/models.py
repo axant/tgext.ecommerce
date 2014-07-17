@@ -23,6 +23,13 @@ class Category(MappedClass):
 
     _id = FieldProperty(s.ObjectId)
     name = FieldProperty(s.Anything, required=True)
+    slug = FieldProperty(s.String)
+    parent = FieldProperty(s.ObjectId)
+    ancestors = FieldProperty([{
+        '_id': s.ObjectId(),
+        'name': s.Anything(),
+        'slug': s.String()
+    }])
 
     @property
     def i18n_name(self):

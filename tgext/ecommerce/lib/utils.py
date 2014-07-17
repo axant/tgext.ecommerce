@@ -27,6 +27,22 @@ def slugify(value, type, models):
     return value
 
 
+def slugify_category(value, models):
+    if isinstance(value, dict):
+        for k, v in value.iteritems():
+            key = k
+            value = v
+        counter = models.Category.query.find({'name.%s' % key: value}).count()
+    else:
+        counter = models.Category.query.find({'name.%s' % tg.config.lang: value}).count()
+
+    value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
+    value = re.sub('[^\w\s-]', '', value).strip().lower()
+    value = re.sub('[-\s]+', '-', value)
+    value = value + '-' + str(counter)
+    return value
+
+
 def short_lang(languages_list):
     try:
         return languages_list[0].split("_")[0]

@@ -3,15 +3,22 @@ from __future__ import unicode_literals
 from bson import ObjectId
 import tg
 from tgext.ecommerce.lib.exceptions import CategoryAssignedToProductException
-from tgext.ecommerce.lib.utils import slugify, internationalise as i_, NoDefault
+from tgext.ecommerce.lib.utils import slugify, internationalise as i_, NoDefault, slugify_category
 from tgext.ecommerce.model import models
 
 
 class CategoryManager(object):
 
     @classmethod
-    def create(cls, name): #create_category
-        category = models.Category(name=i_(name))
+    def create(cls, name, parent=NoDefault): #create_category
+        slug = slugify_category(name, models)
+        ancestors = []
+        parent_id = None
+        if parent is not NoDefault:
+            ancestors = parent.ancestors
+            ancestors.append(dict(_id=parent._id, name=parent.name, slug=parent.slug))
+            parent_id = parent._id
+        category = models.Category(name=i_(name), slug=slug, parent=parent_id, ancestors=ancestors)
         models.DBSession.flush()
         return category
 
