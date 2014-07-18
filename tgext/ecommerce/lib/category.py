@@ -10,12 +10,12 @@ from tgext.ecommerce.model import models
 class CategoryManager(object):
 
     @classmethod
-    def create(cls, name, parent=NoDefault): #create_category
+    def create(cls, name, parent=None): #create_category
         slug = slugify_category(name, models)
         ancestors = []
         parent_id = None
-        if parent is not NoDefault:
-            ancestors = parent.ancestors
+        if parent is not None:
+            ancestors = [ancestor for ancestor in parent.ancestors]
             ancestors.append(dict(_id=parent._id, name=parent.name, slug=parent.slug))
             parent_id = parent._id
         category = models.Category(name=i_(name), slug=slug, parent=parent_id, ancestors=ancestors)
@@ -32,6 +32,25 @@ class CategoryManager(object):
     @classmethod
     def get_all(cls): #get_categories
         return models.Category.query.find()
+
+    @classmethod
+    def edit(cls, _id, name, parent):
+        slug = slugify_category(name, models)
+        ancestors = []
+        parent_id = None
+        if parent is not None:
+            ancestors = [ancestor for ancestor in parent.ancestors]
+            ancestors.append(dict(_id=parent._id, name=parent.name, slug=parent.slug))
+            parent_id = parent._id
+        models.Category.query.update({'_id': ObjectId(_id)},
+                                     {'$set': {'name': i_(name),
+                                               'slug': slug,
+                                               'parent': parent_id,
+                                               'ancestors': ancestors}})
+
+        models.Category.query.update({'ancestors._id': ObjectId(_id)},
+                                     {'$set': {'ancestors.$.name': i_(name), 'ancestors.$.slug': slug}}, multi=True)
+
 
     @classmethod
     def delete(cls, _id): #delete_category

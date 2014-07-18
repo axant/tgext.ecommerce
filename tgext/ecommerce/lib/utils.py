@@ -28,6 +28,7 @@ def slugify(value, type, models):
 
 
 def slugify_category(value, models):
+    print value
     if isinstance(value, dict):
         for k, v in value.iteritems():
             key = k

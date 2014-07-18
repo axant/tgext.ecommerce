@@ -55,6 +55,8 @@ class Product(MappedClass):
     type = FieldProperty(s.String, required=True)
     category_id = ForeignIdProperty(Category)
     category = RelationProperty(Category)
+    categories_ids = ForeignIdProperty(Category, uselist=True)
+    categories = RelationProperty(Category)
     description = FieldProperty(s.Anything, if_missing='')
     slug = FieldProperty(s.String, required=True)
     details = FieldProperty(s.Anything, if_missing={})
