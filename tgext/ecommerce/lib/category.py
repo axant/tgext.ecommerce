@@ -48,8 +48,11 @@ class CategoryManager(object):
                                                'parent': parent_id,
                                                'ancestors': ancestors}})
 
-        models.Category.query.update({'ancestors._id': ObjectId(_id)},
-                                     {'$set': {'ancestors.$.name': i_(name), 'ancestors.$.slug': slug}}, multi=True)
+        for cat in models.Category.query.find({'ancestors._id': ObjectId(_id)}):
+            parent = models.Category.query.find({'_id': cat.parent}).first()
+            ancestors = [ancestor for ancestor in parent.ancestors]
+            ancestors.append(dict(_id=parent._id, name=parent.name, slug=parent.slug))
+            models.Category.query.update({'_id':cat._id}, {'$set': {'ancestors': ancestors}})
 
 
     @classmethod
