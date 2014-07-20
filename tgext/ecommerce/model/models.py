@@ -35,6 +35,12 @@ class Category(MappedClass):
     def i18n_name(self):
         return self.name.get(preferred_language(), self.name.get(tg.config.lang))
 
+    @property
+    def name_with_ancestors(self):
+        if not self.ancestors:
+            return self.name[tg.config.lang]
+        return "%s -> %s" % (" -> ".join([ancestor.name[tg.config.lang] for ancestor in self.ancestors]),
+                             self.name[tg.config.lang])
 
 class Product(MappedClass):
     class __mongometa__:

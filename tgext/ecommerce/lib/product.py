@@ -15,7 +15,7 @@ from tg import cache
 
 class ProductManager(object):
     @classmethod
-    def create(cls, type, sku, name, category_id=None, description='', price=1.0, rate=0.0,  #create_product
+    def create(cls, type, sku, name, category_id=None, categories_ids=None, description='', price=1.0, rate=0.0,  #create_product
                vat=None, qty=0, initial_quantity=0, variety=None, active=True, published=False, valid_from=None,
                valid_to=None,
                configuration_details=None, **details):
@@ -24,6 +24,9 @@ class ProductManager(object):
 
         if configuration_details is None:
             configuration_details = {}
+
+        if categories_ids is None:
+            categories_ids = []
 
         slug = slugify(name, type, models)
         if models.Product.query.find({'slug': slug}).first():
@@ -38,6 +41,7 @@ class ProductManager(object):
         product = models.Product(type=type,
                                  name=i_(name),
                                  category_id=ObjectId(category_id) if category_id else None,
+                                 categories_ids=categories_ids,
                                  description=i_(description),
                                  slug=slug,
                                  details=details,
@@ -117,7 +121,7 @@ class ProductManager(object):
         return bestseller
 
     @classmethod
-    def edit(cls, product, type=NoDefault, name=NoDefault, category_id=NoDefault,  #edit_product
+    def edit(cls, product, type=NoDefault, name=NoDefault, category_id=NoDefault, categories_ids=NoDefault,
              description=NoDefault, valid_from=NoDefault, valid_to=NoDefault, **details):
 
         if product.active == False:
@@ -132,6 +136,9 @@ class ProductManager(object):
 
         if category_id is not NoDefault:
             product.category_id = ObjectId(category_id)
+
+        if categories_ids is not NoDefault:
+            product.categories_ids = categories_ids
 
         if description is not NoDefault:
             for k, v in i_(description).iteritems():
@@ -149,7 +156,7 @@ class ProductManager(object):
 
     @classmethod
     def edit_configuration(cls, product, configuration_index, sku=NoDefault, variety=NoDefault,
-                           price=NoDefault, rate =NoDefault, vat=NoDefault, qty=NoDefault,
+                           price=NoDefault, rate=NoDefault, vat=NoDefault, qty=NoDefault,
                            initial_quantity=NoDefault, configuration_details=NoDefault):
 
         if sku is not NoDefault:
@@ -167,8 +174,9 @@ class ProductManager(object):
             product.configurations[configuration_index].qty = qty
         if initial_quantity is not NoDefault:
             product.configurations[configuration_index].initial_quantity = initial_quantity
-        for k, v in configuration_details.iteritems():
-            setattr(product.configurations[configuration_index].details, k, v)
+        if configuration_details is not NoDefault:
+            for k, v in configuration_details.iteritems():
+                setattr(product.configurations[configuration_index].details, k, v)
 
     @classmethod
     def delete(cls, product):  # delete_product
