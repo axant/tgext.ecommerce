@@ -33,6 +33,10 @@ class CartManager(object):
         return models.Cart.query.find({'user_id': user_id}).first()
 
     @classmethod
+    def get_all(cls):
+        return models.Cart.query.find()
+
+    @classmethod
     @check_cart_lock
     def update_item_qty(cls, cart, sku, qty): #update_cart_item_qty
         if cart is None:
