@@ -59,7 +59,8 @@
         </div>
         <div py:if="order.user != order.status_changes[-1].changed_by"> - edited by ${order.status_changes[-1].changed_by}</div>
     </td>
-    <td>PAYPAL</td>
+    <td py:if="not order.payment_type">PAYPAL</td>
+    <td py:if="order.payment_type">${order.payment_type}</td>
     <td py:if="order.notes"><a href="${notes % order._id}" target="_blank">show</a></td>
     <td py:if="not order.notes">&nbsp;
     </td>

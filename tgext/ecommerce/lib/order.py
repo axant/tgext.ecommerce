@@ -8,10 +8,13 @@ from tgext.ecommerce.lib.utils import apply_vat, with_currency
 
 class OrderManager(object):
     @classmethod
-    def create(cls, cart, payment_date=None, payer_info=None, status='created', **details): #create_order
+    def create(cls, cart, payment_date=None, payer_info=None, status='created', payment_type=None, **details): #create_order
 
         if payer_info is None:
             payer_info = {}
+
+        if not payment_type:
+            payment_type = ''
 
         items = []
         for cart_item in cart.items.values():
@@ -32,6 +35,7 @@ class OrderManager(object):
                              bill_info=cart.order_info.bill_info or {},
                              payer_info=payer_info,
                              items=items,
+                             payment_type=payment_type,
                              net_total=cart.subtotal,
                              tax=cart.tax,
                              gross_total=cart.total,
