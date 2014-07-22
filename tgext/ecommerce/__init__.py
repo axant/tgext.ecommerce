@@ -14,7 +14,7 @@ def plugme(app_config, options):
     hooks.register('after_config', init_paypal)
 
 
-    return dict(appid='shop', global_helpers=False, plug_bootstrap=False)
+    return dict(appid='shop', global_helpers=True, plug_bootstrap=False)
 
 
 def setup_global_objects(app):
