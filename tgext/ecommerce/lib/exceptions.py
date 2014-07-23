@@ -14,7 +14,11 @@ class AlreadyExistingSkuException(ProductException):
     pass
 
 
-class CategoryAssignedToProductException(ProductException):
+class CategoryAssignedToProductException(EcommerceException):
+    pass
+
+
+class CategoryAcestorExistingException(EcommerceException):
     pass
 
 

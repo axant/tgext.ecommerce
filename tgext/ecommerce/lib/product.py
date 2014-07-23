@@ -81,13 +81,18 @@ class ProductManager(object):
                                        'details': configuration_details})
 
     @classmethod
-    def get(cls, sku=None, _id=None, slug=None):  # get_product
+    def get(cls, sku=None, _id=None, slug=None, query=None):  # get_product
+        if query is None:
+            query = {}
         if _id is not None:
-            return models.Product.query.get(_id=ObjectId(_id))
-        elif sku is not None:
-            return models.Product.query.find({'configurations.sku': sku}).first()
-        elif slug is not None:
-            return models.Product.query.find({'slug': slug}).first()
+            query.update({'_id': ObjectId(_id)})
+            return models.Product.query.find(query).first()
+        if sku is not None:
+            query.update({'configurations.sku': sku})
+            return models.Product.query.find(query).first()
+        if slug is not None:
+            query.update({'slug': slug})
+            return models.Product.query.find(query).first()
         else:
             return None
 
