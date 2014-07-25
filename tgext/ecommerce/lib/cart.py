@@ -57,6 +57,13 @@ class CartManager(object):
 
     @classmethod
     @check_cart_lock
+    def drop(cls, cart):
+        items = list(cart.items)
+        for item in items:
+            cls.update_item_qty(cart, item, 0)
+
+    @classmethod
+    @check_cart_lock
     def update_order_info(cls, cart, due, shipping_charges=0.0, applied_discount=0.0,
                           shipment_info=NoDefault,
                           bill=NoDefault, bill_info=NoDefault, notes=NoDefault, **details):

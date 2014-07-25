@@ -254,7 +254,8 @@ class OrderStatusExt(MapperExtension):
             identity = tg.request.identity['user']
         except:
             identity = Bunch(name='Automatic', surname='Change')
-        changed_by = '%s %s' % (identity.name, identity.surname) if identity else None
+        changed_by = '%s %s' % (getattr(identity, 'name', identity.email_address), getattr(identity, 'surname', ''))\
+            if identity else None
         instance.status_changes.append({'status': status, 'changed_by': changed_by, 'changed_at': datetime.utcnow()})
 
     def _prev_status(self, instance):
@@ -263,7 +264,7 @@ class OrderStatusExt(MapperExtension):
     def _store_user_name(self, instance):
         user_id = instance.user_id
         user_obj = app_model.User.query.get(_id=ObjectId(user_id))
-        user = '%s %s' % (user_obj.name, user_obj.surname)
+        user = '%s %s' % (getattr(user_obj, 'name', user_obj.email_address), getattr(user_obj, 'surname', ''))
         instance.user = user
 
 
