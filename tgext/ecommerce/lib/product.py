@@ -207,6 +207,21 @@ class ProductManager(object):
         product.sort_weight = little_weight + (big_weight-little_weight)/2
 
     @classmethod
+    def sort_up_in_category(cls, product):
+        subsequent = models.Product.subsequent_in_category(product)
+        try:
+            little_weight = subsequent[0].sort_category_weight
+        except:
+            little_weight = 0
+
+        try:
+            big_weight = subsequent[1].sort_category_weight
+        except:
+            big_weight = little_weight + 20000
+
+        product.sort_category_weight = little_weight + (big_weight-little_weight)/2
+
+    @classmethod
     def sort_down(cls, product):
         previous = models.Product.previous(product)
         try:
@@ -222,6 +237,21 @@ class ProductManager(object):
         product.sort_weight = little_weight + (big_weight-little_weight)/2
 
     @classmethod
+    def sort_down_in_category(cls, product):
+        previous = models.Product.previous_in_category(product)
+        try:
+            big_weight = previous[0].sort_category_weight
+        except:
+            big_weight = 0
+
+        try:
+            little_weight = previous[1].sort_category_weight
+        except:
+            little_weight = big_weight - 20000
+
+        product.sort_category_weight = little_weight + (big_weight-little_weight)/2
+
+    @classmethod
     def sort_before_other(cls, product_to_sort, other_product):
         subsequent = models.Product.subsequent(other_product)
         little_weight = other_product.sort_weight
@@ -231,6 +261,17 @@ class ProductManager(object):
             big_weight = little_weight + 20000
 
         product_to_sort.sort_weight = little_weight + (big_weight-little_weight)/2
+
+    @classmethod
+    def sort_before_other_in_category(cls, product_to_sort, other_product):
+        subsequent = models.Product.subsequent_in_category(other_product)
+        little_weight = other_product.sort_category_weight
+        try:
+            big_weight = subsequent[0].sort_category_weight
+        except:
+            big_weight = little_weight + 20000
+
+        product_to_sort.sort_category_weight = little_weight + (big_weight-little_weight)/2
 
     @classmethod
     def buy(cls, cart, product, configuration_index, amount):  #buy_product

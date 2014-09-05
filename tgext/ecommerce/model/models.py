@@ -58,6 +58,8 @@ class Product(MappedClass):
                    ('type', 'active' 'name'),
                    ('type', 'active', ('sort_weight', -1)),
                    ('type', 'active', 'sort_weight'),
+                   ('type', 'active', ('sort_category_weight', -1)),
+                   ('type', 'active', 'sort_category_weight'),
                    ('type', 'published', 'active', ('sold', -1))]
 
     _id = FieldProperty(s.ObjectId)
@@ -75,6 +77,7 @@ class Product(MappedClass):
     valid_from = FieldProperty(s.DateTime)
     valid_to = FieldProperty(s.DateTime)
     sort_weight = FieldProperty(s.Int, if_missing=0)
+    sort_category_weight = FieldProperty(s.Int, if_missing=0)
     sold = FieldProperty(s.Int, if_missing=0)
     configurations = FieldProperty([{
         'variety': s.Anything(required=True),
@@ -126,9 +129,19 @@ class Product(MappedClass):
                          sort([('sort_weight', DESCENDING)]).limit(2).all()
 
     @classmethod
+    def previous_in_category(cls, product):
+        return cls.query.find({'sort_category_weight': {'$lt': product.sort_category_weight}}).\
+                         sort([('sort_category_weight', DESCENDING)]).limit(2).all()
+
+    @classmethod
     def subsequent(cls, product):
         return cls.query.find({'sort_weight': {'$gt': product.sort_weight}}).\
                          sort([('sort_weight', ASCENDING)]).limit(2).all()
+
+    @classmethod
+    def subsequent_in_category(cls, product):
+        return cls.query.find({'sort_category_weight': {'$gt': product.sort_category_weight}}).\
+                         sort([('sort_category_weight', ASCENDING)]).limit(2).all()
 
     @classmethod
     def increase_sold(cls, sku, qty):
