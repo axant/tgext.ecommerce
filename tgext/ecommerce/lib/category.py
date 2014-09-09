@@ -65,3 +65,48 @@ class CategoryManager(object):
         models.Category.query.get(_id=ObjectId(_id)).delete()
         models.Product.query.update({'category_id': ObjectId(_id), 'active': False},
                                     {'$set': {'category_id': None}})
+
+
+    @classmethod
+    def sort_up(cls, category):
+        subsequent = models.Category.subsequent(category)
+        try:
+            little_weight = subsequent[0].sort_weight
+        except:
+            little_weight = 0
+
+        try:
+            big_weight = subsequent[1].sort_weight
+        except:
+            big_weight = little_weight + 20000
+
+        category = models.Category.query.get(_id=ObjectId(category))
+        category.sort_weight = little_weight + (big_weight-little_weight)/2
+
+    @classmethod
+    def sort_down(cls, category):
+        previous = models.Category.previous(category)
+        try:
+            big_weight = previous[0].sort_weight
+        except:
+            big_weight = 0
+
+        try:
+            little_weight = previous[1].sort_weight
+        except:
+            little_weight = big_weight - 20000
+
+        category = models.Category.query.get(_id=ObjectId(category))
+        category.sort_weight = little_weight + (big_weight-little_weight)/2
+
+    @classmethod
+    def sort_before_other(cls, category_to_sort, other_category):
+        subsequent = models.Category.subsequent(other_category._id)
+        little_weight = other_category.sort_weight
+        try:
+            big_weight = subsequent[0].sort_weight
+        except:
+            big_weight = little_weight + 20000
+
+        category_to_sort = models.Category.query.get(_id=ObjectId(category_to_sort._id))
+        category_to_sort.sort_weight = little_weight + (big_weight-little_weight)/2
