@@ -25,6 +25,7 @@ class Category(MappedClass):
     name = FieldProperty(s.Anything, required=True)
     slug = FieldProperty(s.String)
     parent = FieldProperty(s.ObjectId)
+    sort_weight = FieldProperty(s.Int, if_missing=0)
     ancestors = FieldProperty([{
         '_id': s.ObjectId(),
         'name': s.Anything(),
@@ -45,6 +46,18 @@ class Category(MappedClass):
     @classmethod
     def i18n_ancestor_name(cls, ancestor):
         return ancestor.name.get(preferred_language(), ancestor.name.get(tg.config.lang))
+
+    @classmethod
+    def previous(cls, category):
+        category = cls.query.get(_id=ObjectId(category))
+        return cls.query.find({'sort_weight': {'$gt': category.sort_weight}})\
+            .sort([('sort_weight', DESCENDING)]).limit(2).all()
+
+    @classmethod
+    def subsequent(cls, category):
+        category = cls.query.get(_id=ObjectId(category))
+        return cls.query.find({'sort_weight': {'$gt': category.sort_weight}})\
+            .sort([('sort_weight', ASCENDING)]).limit(2).all()
 
 class Product(MappedClass):
     class __mongometa__:
