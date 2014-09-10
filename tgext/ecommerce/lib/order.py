@@ -46,6 +46,7 @@ class OrderManager(object):
                              applied_discount= - cart.order_info.applied_discount,
                              status=status,
                              notes=cart.order_info.notes,
+                             message=cart.order_info.message,
                              details=details,
                              currencies=cart.order_info.currencies)
         cart.delete()
