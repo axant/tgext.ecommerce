@@ -66,7 +66,7 @@ class CartManager(object):
     @check_cart_lock
     def update_order_info(cls, cart, due, shipping_charges=0.0, applied_discount=0.0,
                           shipment_info=NoDefault,
-                          bill=NoDefault, bill_info=NoDefault, notes=NoDefault, **details):
+                          bill=NoDefault, bill_info=NoDefault, notes=NoDefault, message=NoDefault, **details):
 
         cart.order_info.due = due
         cart.order_info.shipping_charges = shipping_charges
@@ -86,6 +86,9 @@ class CartManager(object):
                 setattr(cart.order_info.bill_info, k, v)
         if notes is not NoDefault:
             cart.order_info.notes = notes
+
+        if message is not NoDefault:
+            cart.order_info.message = message
 
         if details is not {}:
             for k, v in details.iteritems():

@@ -224,6 +224,7 @@ class Cart(MappedClass):
         },
         'discounts': s.Anything(if_missing=[]),
         'notes': s.String(),
+        'message':s.String(),
         'details': s.Anything(if_missing={})
     })
 
@@ -374,6 +375,7 @@ class Order(MappedClass):
     applied_discount = FieldProperty(s.Float, if_missing=0)
     status = FieldProperty(s.String, required=True)
     notes = FieldProperty(s.String, if_missing='')
+    message = FieldProperty(s.String, if_missing='')
     payment_type = FieldProperty(s.String, if_missing='')
     details = FieldProperty(s.Anything, if_missing={})
     status_changes = FieldProperty(s.Anything, if_missing=[])
