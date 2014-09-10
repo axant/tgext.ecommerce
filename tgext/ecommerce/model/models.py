@@ -50,7 +50,7 @@ class Category(MappedClass):
     @classmethod
     def previous(cls, category):
         category = cls.query.get(_id=ObjectId(category))
-        return cls.query.find({'sort_weight': {'$gt': category.sort_weight}})\
+        return cls.query.find({'sort_weight': {'$lt': category.sort_weight}})\
             .sort([('sort_weight', DESCENDING)]).limit(2).all()
 
     @classmethod
@@ -58,6 +58,7 @@ class Category(MappedClass):
         category = cls.query.get(_id=ObjectId(category))
         return cls.query.find({'sort_weight': {'$gt': category.sort_weight}})\
             .sort([('sort_weight', ASCENDING)]).limit(2).all()
+
 
 class Product(MappedClass):
     class __mongometa__:
