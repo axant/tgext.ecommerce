@@ -231,7 +231,7 @@ class Cart(MappedClass):
     @property
     def order_due(self):
         currency_due = '%s' % self.order_info.currencies.due
-        return '%s.%s' % (currency_due[:-2], currency_due[-2:])
+        return '%s.%s' % (currency_due[:-2] or 0, currency_due[-2:])
 
     @property
     def item_count(self):
