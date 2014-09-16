@@ -80,6 +80,7 @@ class ManageController(TGController):
         all_the_vats = Order.all_the_vats()
         return dict(orders=grouped_orders, form=OrderFilterForm, value=kw, action=self.mount_point+'/submit_orders',
                     bill_issue=self.mount_point+'/bill_issue/%s', notes=self.mount_point+'/notes/%s',
+                    message=self.mount_point+'/message/%s',
                     edit=self.mount_point+'/edit?order_id=%s', all_the_vats=all_the_vats)
 
     @expose('tgext.ecommerce.templates.orders')
@@ -118,6 +119,11 @@ class ManageController(TGController):
     def notes(self, order_id, **kw):
         order = Order.query.get(_id=ObjectId(order_id))
         return dict(notes=order.notes)
+
+    @expose('tgext.ecommerce.templates.message')
+    def message(self, order_id, **kw):
+        order = Order.query.get(_id=ObjectId(order_id))
+        return dict(message=order.message)
 
     @expose('tgext.ecommerce.templates.edit_order')
     def edit(self, **kw):
