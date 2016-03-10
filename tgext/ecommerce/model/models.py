@@ -131,6 +131,17 @@ class Product(MappedClass):
     def i18n_description(self):
         return self.description.get(preferred_language(), self.description.get(tg.config.lang))
 
+    @property
+    def available(self):
+        if not self.active:
+            return False
+
+        for configuration in self.configurations:
+            if configuration.qty > 0:
+                return True
+
+        return False
+
     def i18n_configuration_variety(self, configuration):
         return configuration.variety.get(preferred_language(), configuration.variety.get(tg.config.lang))
 
