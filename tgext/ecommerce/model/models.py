@@ -25,6 +25,7 @@ class Category(MappedClass):
     name = FieldProperty(s.Anything, required=True)
     slug = FieldProperty(s.String)
     parent = FieldProperty(s.ObjectId)
+    details = FieldProperty(s.Anything, if_missing={})
     sort_weight = FieldProperty(s.Int, if_missing=0)
     ancestors = FieldProperty([{
         '_id': s.ObjectId(),
