@@ -35,7 +35,8 @@ class CategoryManager(object):
             query.update({'_id': ObjectId(_id)})
             return models.Category.query.find(query).first()
         if name is not None:
-            query.update({'name': name})
+            name_lang = 'name.%s' % tg.config.lang
+            query.update({name_lang: name})
             return models.Product.query.find(query).first()
         else:
             return None
