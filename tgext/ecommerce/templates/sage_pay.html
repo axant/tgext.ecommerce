@@ -1,0 +1,53 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="master.html"/>
+
+<head>
+    <title>Sage Pay</title>
+
+    <script src="https://pi-test.sagepay.com/api/v1/js/sagepay-dropin.js"></script>
+    <style>
+        body * {
+            font-family: sans-serif;
+        }
+        h1 {
+
+        }
+        input {
+            font-size:12pt;
+        }
+        #main {
+            width: 550px;
+            margin: 0 auto;
+        }
+        #submit-container {
+            padding-top:10px;
+            float:right;
+        }
+        input[type=submit] {
+            border:none;
+            background: #000000;
+            padding:10px;
+            color:white;
+            border-radius:5px;
+        }
+    </style>
+</head>
+<body>
+<div id="main">
+    <h1>My Test Shop</h1>
+    <form action='${redirectionUrl}'>
+        <h2>Payment Details</h2>
+        <div id="sp-container"></div>
+        <div id="submit-container">
+            <input value="submit" type="submit" />
+        </div>
+    </form>
+</div>
+<script>
+    sagepayCheckout({ merchantSessionKey: '${str(merchantSessionKey)}'}).form();
+</script>
+</body>
+</html>
