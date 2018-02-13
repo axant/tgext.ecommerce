@@ -8,7 +8,7 @@ import math
 from tgext.ecommerce.lib.utils import apply_percentage_discount, get_percentage_discount
 
 import requests, json
-
+import tg
 HEADERS={
         'Authorization': str(config['sage_header']),
         'Content-type': 'application/json',
@@ -27,7 +27,7 @@ def pay(cart, redirection_url, cancel_url):
                                'id': response_obj['merchantSessionKey'],
                                'date': datetime.datetime.utcnow()}
 
-    return url('/shop/sage_pay', qualified=True, params={'redirectionUrl': str(redirection_url), 'merchantSessionKey': response_obj['merchantSessionKey'], })
+    return url('/shop/sage/sage_pay', qualified=True, params={'redirectionUrl': str(redirection_url), 'merchantSessionKey': response_obj['merchantSessionKey'], })
 
 def confirm(cart, redirection, data):
     cart.order_info.payment.card_identifier = data["card-identifier"]
@@ -69,15 +69,15 @@ def execute(cart, data):
             url = config['sage_API'] + 'transactions/' + str(cart.order_info.payment.transactionId)
             response = requests.get(url, headers=HEADERS)
             response_payer = json.loads(response.text)
-            return dict(result=response_obj, payer_info=response_payer)
+            return dict(result=response_payer, payer_info={})
 
         elif response_obj['status'] == "3DAuth":
-            redirect(url('/shop/sage_pay_payment'),
+            redirect( tg.url('/shop/sage/sage_pay_payment'),
                     params={
                         'acsUrl': response_obj['acsUrl'],
                         'paReq': response_obj["paReq"],
 
-                        'TermUrl': str(config['sage_webhook']) + 'shop/secure_3ds_handler',
+                        'TermUrl': str(config['sage_webhook']) + 'shop/sage/secure_3ds_handler',
                         'MD': str(cart._id)
                     })
 

@@ -34,6 +34,5 @@ def setup_clean_cart_scheduler(app):
 
 def init_payments(app):
     config['sage_header'] =  "Basic " + base64.b64encode(config['sage_integrationKey'] + ":" + config["sage_integrationPassword"])
-    print config['sage_header']
     configure_paypal(config['paypal_mode'], config['paypal_client_id'], config['paypal_client_secret'])
     return app
