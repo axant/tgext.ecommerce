@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """The tgext.ecommerce package"""
+import base64
+
 import tg
 from tgscheduler.scheduler import scheduler
 from lib.shop import ShopManager
@@ -11,7 +13,7 @@ def plugme(app_config, options):
     app_config['_pluggable_ecommerce_config'] = options
     hooks.register('before_config', setup_global_objects)
     hooks.register('after_config', setup_clean_cart_scheduler)
-    hooks.register('after_config', init_paypal)
+    hooks.register('after_config', init_payments)
 
 
     return dict(appid='shop', global_helpers=True, plug_bootstrap=False)
@@ -30,6 +32,8 @@ def setup_clean_cart_scheduler(app):
     return app
 
 
-def init_paypal(app):
-    configure_paypal(tg.config['paypal_mode'], tg.config['paypal_client_id'], tg.config['paypal_client_secret'])
+def init_payments(app):
+    config['sage_header'] =  "Basic " + base64.b64encode(config['sage_integrationKey'] + ":" + config["sage_integrationPassword"])
+    print config['sage_header']
+    configure_paypal(config['paypal_mode'], config['paypal_client_id'], config['paypal_client_secret'])
     return app
