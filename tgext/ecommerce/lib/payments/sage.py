@@ -16,10 +16,7 @@ HEADERS={
 
 def pay(cart, redirection_url, cancel_url):
 
-    data = {
-        "vendorName": config['sage_mode'],
-         }
-
+    data = {"vendorName": config['sage_mode']}
     response = requests.post(config['sage_API'] + 'merchant-session-keys', headers=HEADERS, data=json.dumps(data))
     response_obj = json.loads(response.text)
 
@@ -34,8 +31,7 @@ def confirm(cart, redirection, data):
     return url(redirection, qualified=True)
 
 def execute(cart, data):
-    import requests
-    data = {
+    dataReq = {
         "transactionType": "Payment",
         "paymentMethod": {
             "card": {
@@ -59,7 +55,7 @@ def execute(cart, data):
         },
         "entryMethod": "Ecommerce"
     }
-    response = requests.post(config['sage_API'] + 'transactions', headers=HEADERS, data=json.dumps(data))
+    response = requests.post(config['sage_API'] + 'transactions', headers=HEADERS, data=json.dumps(dataReq))
     response_obj = json.loads(response.text)
 
     if response_obj.get('status'):
@@ -69,7 +65,7 @@ def execute(cart, data):
             url = config['sage_API'] + 'transactions/' + str(cart.order_info.payment.transactionId)
             response = requests.get(url, headers=HEADERS)
             response_payer = json.loads(response.text)
-            return dict(result=response_payer, payer_info={})
+            return dict(response=response_payer)
 
         elif response_obj['status'] == "3DAuth":
             redirect( tg.url('/shop/sage/sage_pay_payment'),
@@ -77,9 +73,30 @@ def execute(cart, data):
                         'acsUrl': response_obj['acsUrl'],
                         'paReq': response_obj["paReq"],
 
-                        'TermUrl': str(config['sage_webhook']) + 'shop/sage/secure_3ds_handler',
+                        'TermUrl': str(config['sage_webhook']) + data['redirect_url'],
                         'MD': str(cart._id)
                     })
 
-    return dict(error=response_obj,payer_info={})
+    if response_obj.get('code'):
+        return dict(error=str(response_obj['code']) + " " + str(response_obj['description']))
+    else:
+        return dict(error="Unknown Reason")
+
+def secure_3d(cart, data):
+
+    url = config['sage_API'] + 'transactions/' + str(cart.order_info.payment.transactionId) + '/3d-secure'
+    response = requests.post(url, headers=HEADERS, data=json.dumps(dict(paRes=data['PaRes'])))
+    response_obj = json.loads(response.text)
+
+    if response_obj.get('status'):
+        if response_obj['status'] == "Authenticated":
+            url = config['sage_API'] + 'transactions/' + str(cart.order_info.payment.transactionId)
+            response = requests.get(url, headers=HEADERS)
+            response_obj = json.loads(response.text)
+
+        return dict(response=response_obj)
+    elif response_obj.get('code'):
+        return dict(error=str(response_obj['code']) + " " + str(response_obj['description']))
+    else:
+        return dict(error="Unknown Reason")
 

@@ -18,6 +18,11 @@ class ShopManager(object):
     def confirm(self, cart, redirection, data, paymentService=paypal):
         return paymentService.confirm(cart, redirection, data)
 
+    #@param data has to be composed by the first name, last name and redirect url in case of 3D Secure
     def execute(self, cart, data, paymentService=paypal):
         return paymentService.execute(cart, data)
+
+    def secure_3ds_handler(self, cart, data, paymentService=null_payment):
+        return paymentService.secure_3d(cart, data)
+
 

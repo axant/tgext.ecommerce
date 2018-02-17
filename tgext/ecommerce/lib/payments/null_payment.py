@@ -22,3 +22,6 @@ def confirm(cart, redirection, data):
 def execute(cart, data):
     return dict(result=dict({'result': 'payed'}), payer_info={})
 
+def secure_3d(cart, data):
+    return dict(response=dict({'result': 'success'}))
+

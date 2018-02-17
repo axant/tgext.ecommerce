@@ -33,6 +33,8 @@ def setup_clean_cart_scheduler(app):
 
 
 def init_payments(app):
-    config['sage_header'] =  "Basic " + base64.b64encode(config['sage_integrationKey'] + ":" + config["sage_integrationPassword"])
-    configure_paypal(config['paypal_mode'], config['paypal_client_id'], config['paypal_client_secret'])
+    if config['sage_integrationKey'] is not None:
+        config['sage_header'] =  "Basic " + base64.b64encode(config['sage_integrationKey'] + ":" + config["sage_integrationPassword"])
+    if config['paypal_mode'] is not None:
+        configure_paypal(config['paypal_mode'], config['paypal_client_id'], config['paypal_client_secret'])
     return app

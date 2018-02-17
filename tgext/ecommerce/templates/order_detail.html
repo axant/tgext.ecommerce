@@ -15,7 +15,7 @@
                 <li>ORDER <b>${order._id}</b></li>
                 <li>DATE <b>${h.format_date(order.creation_date)}</b></li>
                 <li>TOTAL <b>€ ${h.format_price(order.total+order.applied_discount)}</b></li>
-                <li>PAYMENT METHOD <b py:if="not order.payment_type">PAYPAL</b><b py:if="order.payment_type">ADMIN</b></li>
+                <li>PAYMENT METHOD <b >${order.payment_type}</b></li>
             </ul>
         </div>
         <div class="col-md-4 col-md-offset-1">
