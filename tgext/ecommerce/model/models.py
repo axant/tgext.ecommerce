@@ -447,7 +447,7 @@ class Order(MappedClass):
                                                                  {'$unwind': '$items'},
                                                                  {'$group': {'_id': '$status',
                                                                              'vat_rates': {'$addToSet': '$items.rate'}}}])
-            return sorted(set(chain(*[v['vat_rates'] for v in vat_for_status['result']])))
+            return sorted(set(chain(*[v['vat_rates'] for v in vat_for_status])))
         vat_cache = cache.get_cache('all_the_vats')
         cachedvalue = vat_cache.get_value(
             key='42',
