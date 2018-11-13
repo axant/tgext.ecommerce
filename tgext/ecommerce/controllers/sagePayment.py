@@ -9,11 +9,21 @@ class SagePaymentController(TGController):
     #Default page to request for the Card Info
     @expose('tgext.ecommerce.templates.sage_pay')
     def sage_pay(self, **kw):
-        return dict(merchantSessionKey=kw['merchantSessionKey'], redirectionUrl=kw['redirectionUrl'])
+        return dict(
+            merchantSessionKey=kw['merchantSessionKey'],
+            redirectionUrl=kw['redirectionUrl'],
+            sage_API=congig.get('sage_API'),
+        )
 
 
     #Bridge page
     @expose('tgext.ecommerce.templates.sage_payment_card')
     def sage_pay_payment(self, **kw):
-        return dict(acsUrl=kw['acsUrl'], paReq=kw['paReq'], TermUrl=kw['TermUrl'], MD=kw['MD'])
+        return dict(
+            acsUrl=kw['acsUrl'],
+            paReq=kw['paReq'],
+            TermUrl=kw['TermUrl'],
+            MD=kw['MD'],
+            sage_API=config.get('sage_API'),
+        )
 
