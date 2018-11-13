@@ -12,7 +12,7 @@ class SagePaymentController(TGController):
         return dict(
             merchantSessionKey=kw['merchantSessionKey'],
             redirectionUrl=kw['redirectionUrl'],
-            sage_API=congig.get('sage_API'),
+            sage_API=config.get('sage_API'),
         )
 
 
