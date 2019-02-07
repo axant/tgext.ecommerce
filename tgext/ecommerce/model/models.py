@@ -61,27 +61,6 @@ class Category(MappedClass):
             .sort([('sort_weight', ASCENDING)]).limit(2).all()
 
 
-class CheckDuplicateImages(MapperExtension):
-    def _check(self, instance, state, sess):
-        photo_uuid = instance.details['product_photos'][0]['uuid']
-        return Product.query.find({'details.product_photos.0.uuid': photo_uuid}).count()
-
-    def before_insert(self, instance, state, sess):
-        photo_uuid = instance.details['product_photos'][0]['uuid']
-        times = self._check(instance, state, sess)
-        if times != 0:
-            raise Exception('error inserting: product photo %s is duplicated.' % photo_uuid)
-
-    def before_update(self, instance, state, sess):
-        photo_uuid = instance.details['product_photos'][0]['uuid']
-        times = self._check(instance, state, sess)
-        previous_uuid = state.original_document.details['product_photos'][0]['uuid']
-        if times not in [0, 1] and photo_uuid == previous_uuid:
-            raise Exception('error updating: product photo %s not changed but duplicated.' % photo_uuid)
-        elif times != 0 and photo_uuid != previous_uuid:
-            raise Exception('error updating: product photo %s changed but duplicated.' % photo_uuid)
-
-
 class Product(MappedClass):
     class __mongometa__:
         session = DBSession
@@ -97,7 +76,6 @@ class Product(MappedClass):
                    ('type', 'active', ('sort_category_weight', -1)),
                    ('type', 'active', 'sort_category_weight'),
                    ('type', 'published', 'active', ('sold', -1))]
-        extensions = [CheckDuplicateImages]
 
     _id = FieldProperty(s.ObjectId)
     name = FieldProperty(s.Anything, required=True)

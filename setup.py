@@ -24,7 +24,7 @@ except IOError:
 
 setup(
     name='tgext.ecommerce',
-    version='0.1.4a',
+    version='0.1.4',
     description='',
     long_description=README,
     author='',
