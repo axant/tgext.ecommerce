@@ -10,8 +10,11 @@ from tgext.ecommerce.model import models
 class CategoryManager(object):
 
     @classmethod
-    def create(cls, name, parent=None, **details): #create_category
-        slug = slugify_category(name, models)
+    def create(cls, name, parent=None, **details):  # create_category
+        if 'slug' not in details or details['slug'] == '':
+            slug = slugify_category(name, models)
+        else:
+            slug = slugify_category(details['slug'], models)
         ancestors = []
         parent_id = None
         if parent is not None:
@@ -28,7 +31,7 @@ class CategoryManager(object):
         return category
 
     @classmethod
-    def get(cls, _id=None, name=None, query=None):  # get_category
+    def get(cls, _id=None, name=None, slug=None, query=None):  # get_category
         if query is None:
             query = {}
         if _id is not None:
@@ -38,8 +41,10 @@ class CategoryManager(object):
             name_lang = 'name.%s' % tg.config.lang
             query.update({name_lang: name})
             return models.Product.query.find(query).first()
-        else:
-            return None
+        if slug is not None:
+            query.update({'slug': slug})
+            return models.Category.query.find(query).first()
+        return None
 
     @classmethod
     def get_many(cls, query):  # get_categories

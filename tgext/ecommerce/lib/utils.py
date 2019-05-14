@@ -39,7 +39,8 @@ def slugify_category(value, models):
     value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
     value = re.sub('[^\w\s-]', '', value).strip().lower()
     value = re.sub('[-\s]+', '-', value)
-    value = value + '-' + str(counter)
+    if counter != 0:
+        value += '-' + str(counter)
     return value
 
 
