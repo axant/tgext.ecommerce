@@ -9,7 +9,7 @@ except ImportError:
     from setuptools import setup, find_packages
 
 install_requires=[
-    "TurboGears2 >= 2.3.2",
+    "TurboGears2 >= 2.3.8",
     "tgext.pluggable",
     "formencode",
     "tgscheduler",
@@ -24,7 +24,7 @@ except IOError:
 
 setup(
     name='tgext.ecommerce',
-    version='0.1.5',
+    version='0.1.6',
     description='',
     long_description=README,
     author='',
