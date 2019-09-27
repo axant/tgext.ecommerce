@@ -1,5 +1,9 @@
 from datetime import datetime, timedelta
-from itertools import groupby, imap, chain
+from itertools import groupby, chain
+try:
+    import itertools.imap as map
+except ImportError:
+    pass
 from bson import ObjectId
 import math
 from ming.odm.property import ORMProperty
@@ -410,7 +414,7 @@ class Order(MappedClass):
 
         sorted_items = sorted(self.items, key=lambda i: i['rate'])
         for k, g in groupby(sorted_items, key=lambda i: i['rate']):
-            mapping[k] = sum(imap(lambda i: (with_currency.float2cur(i.gross_price) + _item_discount_fraction(i, self.gross_total)) * i.qty, g))
+            mapping[k] = sum(list(map(lambda i: (with_currency.float2cur(i.gross_price) + _item_discount_fraction(i, self.gross_total)) * i.qty, g)))
 
 
         if self.currencies.due:

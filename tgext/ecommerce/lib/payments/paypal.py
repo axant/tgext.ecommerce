@@ -45,7 +45,7 @@ def pay(cart, redirection_url, cancel_url):
             if link.rel == "approval_url":
                 return link.href
     else:
-        print payment.error
+        print(payment.error)
         return cancel_url
 
 

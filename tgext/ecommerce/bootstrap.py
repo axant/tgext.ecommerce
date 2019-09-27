@@ -5,7 +5,7 @@ from tgext.ecommerce import model
 from tgext.pluggable import app_model
 
 def bootstrap(command, conf, vars):
-    print 'Bootstrapping tgext.ecommerce...'
+    print('Bootstrapping tgext.ecommerce...')
 
     s1 = model.Sample()
     s1.name = 'Test Sample'
