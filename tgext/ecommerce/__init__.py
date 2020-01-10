@@ -13,15 +13,17 @@ def plugme(app_config, options):
     try:
         # TG 2.3
         app_config['_pluggable_ecommerce_config'] = options
+        hooks.register('before_config', setup_global_objects)
+        hooks.register('after_config', setup_clean_cart_scheduler)
+        hooks.register('after_config', init_payments)
     except TypeError:
         # TG 2.4
         app_config.update_blueprint({
             '_pluggable_ecommerce_config': options
         })
-
-    hooks.register('before_config', setup_global_objects)
-    hooks.register('after_config', setup_clean_cart_scheduler)
-    hooks.register('after_config', init_payments)
+        hooks.register('before_wsgi_middlewares', setup_global_objects)
+        hooks.register('after_wsgi_middlewares', setup_clean_cart_scheduler)
+        hooks.register('after_wsgi_middlewares', init_payments)
 
     return dict(appid='shop', global_helpers=True, plug_bootstrap=False)
 
