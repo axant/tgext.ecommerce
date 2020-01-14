@@ -3,20 +3,15 @@ from __future__ import unicode_literals
 from bson import ObjectId
 import tg
 from tgext.ecommerce.lib.exceptions import CategoryAssignedToProductException, CategoryAcestorExistingException
-from tgext.ecommerce.lib.utils import slugify, internationalise as i_, NoDefault, slugify_category
+from tgext.ecommerce.lib.utils import internationalise as i_, slugify_category
 from tgext.ecommerce.model import models
 
 
 class CategoryManager(object):
 
     @classmethod
-    def create(cls, name, parent=None, **details):  # create_category
-        if 'slug' not in details or details['slug'] == '':
-            slug = slugify_category(name, models)
-        else:
-            slug = slugify_category(details['slug'], models)
+    def get_ancestors_for_ops(cls, parent=None):
         ancestors = []
-        parent_id = None
         if parent is not None:
             ancestors = [ancestor for ancestor in parent.ancestors]
             ancestors.append(
@@ -26,11 +21,19 @@ class CategoryManager(object):
                     slug=parent.slug
                 )
             )
-            parent_id = parent._id
+        return ancestors
+
+    @classmethod
+    def create(cls, name, parent=None, **details):  # create_category
+        if 'slug' not in details or details['slug'] == '':
+            slug = slugify_category(name, models)
+        else:
+            slug = slugify_category(details['slug'], models)
+        ancestors = CategoryManager.get_ancestors_for_ops(parent)
         category = models.Category(
             name=i_(name),
             slug=slug,
-            parent=parent_id,
+            parent=parent._id if parent else None,
             details=details,
             ancestors=ancestors)
         models.DBSession.flush()
@@ -40,7 +43,7 @@ class CategoryManager(object):
     def get(cls, _id=None, name=None, slug=None, query=None):  # get_category
         if query is None:
             query = {}
-        if _id is not None:
+        if _id is not None and len(_id) == 24:
             query.update({'_id': ObjectId(_id)})
             return models.Category.query.find(query).first()
         if name is not None:
@@ -56,7 +59,6 @@ class CategoryManager(object):
     def get_many(cls, query):  # get_categories
         return models.Category.query.find(query)
 
-
     @classmethod
     def get_all(cls): #get_categories
         return models.Category.query.find()
@@ -64,26 +66,25 @@ class CategoryManager(object):
     @classmethod
     def edit(cls, _id, name, parent, **details):
         slug = slugify_category(name, models)
-        ancestors = []
-        parent_id = None
-        if parent is not None:
-            ancestors = [ancestor for ancestor in parent.ancestors]
-            ancestors.append(dict(_id=parent._id, details=parent.details, name=parent.name, slug=parent.slug))
-            parent_id = parent._id
-        models.Category.query.update({'_id': ObjectId(_id)},
-                                     {'$set': {'name': i_(name),
-                                               'slug': slug,
-                                               'parent': parent_id,
-                                               'details': details,
-                                               'ancestors': ancestors}})
+        ancestors = CategoryManager.get_ancestors_for_ops(parent)
+        models.Category.query.update(
+            {'_id': ObjectId(_id)},
+            {'$set': {
+                'name': i_(name),
+                'slug': slug,
+                'parent': parent._id if parent else None,
+                'details': details,
+                'ancestors': ancestors
+            }})
 
         for cat in models.Category.query.find({'ancestors._id': ObjectId(_id)}):
             parent = models.Category.query.find({'_id': cat.parent}).first()
             if parent:
-                ancestors = [ancestor for ancestor in parent.ancestors]
-                ancestors.append(dict(_id=parent._id,details=parent.details, name=parent.name, slug=parent.slug))
-                models.Category.query.update({'_id':cat._id}, {'$set': {'ancestors': ancestors}})
-
+                ancestors = CategoryManager.get_ancestors_for_ops(parent)
+                models.Category.query.update(
+                    {'_id':cat._id},
+                    {'$set': {'ancestors': ancestors}}
+                )
 
     @classmethod
     def delete(cls, _id): #delete_category
@@ -94,7 +95,6 @@ class CategoryManager(object):
         models.Category.query.get(_id=ObjectId(_id)).delete()
         models.Product.query.update({'category_id': ObjectId(_id), 'active': False},
                                     {'$set': {'category_id': None}})
-
 
     @classmethod
     def sort_up(cls, category):

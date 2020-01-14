@@ -15,10 +15,13 @@ from tg import cache
 
 class ProductManager(object):
     @classmethod
-    def create(cls, type, sku, name, category_id=None, categories_ids=None, description='', price=1.0, rate=0.0,  #create_product
-               vat=None, qty=0, initial_quantity=0, variety=None, active=True, published=False, valid_from=None,
-               valid_to=None,
-               configuration_details=None, **details):
+    def create(
+        cls, type, sku, name, category_id=None,
+        categories_ids=None, description='', price=1.0, rate=0.0,
+        vat=None, qty=0, initial_quantity=0, variety=None, active=True,
+        published=False, valid_from=None, valid_to=None,
+        configuration_details=None, **details
+    ):
         if variety is None:
             variety = name
 
@@ -30,40 +33,50 @@ class ProductManager(object):
 
         slug = slugify(name, type, models)
         if models.Product.query.find({'slug': slug}).first():
-            raise AlreadyExistingSlugException('Already exist a Product with slug: %s' % slug)
+            raise AlreadyExistingSlugException(
+                'Already exist a Product with slug: %s' % slug
+            )
 
         if models.Product.query.find({'configurations.sku': sku}).first():
-            raise AlreadyExistingSkuException('Already exist a Configuration with sku: %s' % sku)
+            raise AlreadyExistingSkuException(
+                'Already exist a Configuration with sku: %s' % sku
+            )
 
         if vat is None:
             vat = apply_vat(price, rate)
 
-        product = models.Product(type=type,
-                                 name=i_(name),
-                                 category_id=ObjectId(category_id) if category_id else None,
-                                 categories_ids=categories_ids,
-                                 description=i_(description),
-                                 slug=slug,
-                                 details=details,
-                                 active=active,
-                                 published=published,
-                                 valid_from=valid_from,
-                                 valid_to=valid_to,
-                                 configurations=[{'sku': sku,
-                                                  'variety': i_(variety),
-                                                  'price': price,
-                                                  'rate': rate,
-                                                  'vat': vat,
-                                                  'qty': qty,
-                                                  'initial_quantity': initial_quantity,
-                                                  'details': configuration_details}])
+        product = models.Product(
+            type=type,
+            name=i_(name),
+            category_id=ObjectId(category_id) if category_id else None,
+            categories_ids=categories_ids,
+            description=i_(description),
+            slug=slug,
+            details=details,
+            active=active,
+            published=published,
+            valid_from=valid_from,
+            valid_to=valid_to,
+            configurations=[{
+                'sku': sku,
+                'variety': i_(variety),
+                'price': price,
+                'rate': rate,
+                'vat': vat,
+                'qty': qty,
+                'initial_quantity': initial_quantity,
+                'details': configuration_details
+            }]
+        )
         models.DBSession.flush()
         return product
 
     @classmethod
-    def create_configuration(cls, product, sku, price=1.0, rate=0.0, vat=None,
-                             qty=0, initial_quantity=0, variety=None,
-                             **configuration_details):
+    def create_configuration(
+        cls, product, sku, price=1.0, rate=0.0, vat=None,
+        qty=0, initial_quantity=0, variety=None,
+        **configuration_details
+    ):
 
         if models.Product.query.find({'configurations.sku': sku}).first():
             raise AlreadyExistingSkuException('Already exist a Configuration with sku: %s' % sku)
@@ -84,7 +97,7 @@ class ProductManager(object):
     def get(cls, sku=None, _id=None, slug=None, query=None):  # get_product
         if query is None:
             query = {}
-        if _id is not None:
+        if _id is not None and len(_id) == 24:
             query.update({'_id': ObjectId(_id)})
             return models.Product.query.find(query).first()
         if sku is not None:
