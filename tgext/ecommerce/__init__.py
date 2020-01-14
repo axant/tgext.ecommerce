@@ -34,7 +34,7 @@ def setup_global_objects(app):
 
 
 def setup_clean_cart_scheduler(app):
-    from lib.async_jobs import clean_expired_carts
+    from .lib.async_jobs import clean_expired_carts
     if scheduler._scheduler_instance is None:
         scheduler.start_scheduler()
     scheduler.add_interval_task(clean_expired_carts, 60)
@@ -44,8 +44,9 @@ def setup_clean_cart_scheduler(app):
 def init_payments(app):
     if config['sage_integrationKey'] is not None:
         config['sage_header'] = "Basic " \
-                                + base64.b64encode(config['sage_integrationKey']
-                                + ":" + config["sage_integrationPassword"])
+            + str(base64.b64encode(
+                bytes(config['sage_integrationKey'] + ":" + config["sage_integrationPassword"], 'utf-8')
+            ))
     if config['paypal_mode'] is not None:
         configure_paypal(config['paypal_mode'], config['paypal_client_id'], config['paypal_client_secret'])
     return app

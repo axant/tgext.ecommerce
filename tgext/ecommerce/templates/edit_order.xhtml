@@ -1,0 +1,16 @@
+<html py:extends="master.xhtml" py:strip="True">
+
+    <head py:block="head" py:strip="True">
+        <title>Edit Order</title>
+        <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/admin.scss')}" />
+    </head>
+
+    <body py:block="body" py:strip="True">
+        <div class="row">
+            <div class="col-md-offset-4 col-md-8">
+                ${form.display(value=value, action=tg.url('/shop/manage/save'))}
+            </div>
+        </div>
+    </body>
+
+</html>

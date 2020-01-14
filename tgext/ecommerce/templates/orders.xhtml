@@ -1,0 +1,134 @@
+<html py:extends="master.xhtml" py:strip="True">
+
+    <div py:def="order_row(order)">
+        <td><a href="${'/order/detail?order_id=%s' %str(order._id)}">${str(order._id)}</a>
+        </td>
+        <td>${order.user}</td>
+        <td>${h.format_date(order.status_changes[-1].changed_at)}</td>
+        <td>${order.formatted_currencies.due}</td>
+        <td py:for="vat in all_the_vats">
+            <py:if test="order.currencies.due">${h.format_price(order.net_per_vat_rate.get(vat, 0))}€<br /></py:if>
+            <py:if test="not order.currencies.due">---<br /></py:if>
+        </td>
+        <td>${"%0.2f" % order.shipping_charges}€ <br />
+            <span py:if="order.bill_country == 'IT'">(vat 22%)</span>
+            <span py:if="order.bill_country != 'IT'">(vat 0%)</span>
+        </td>
+        <td>${sum([item.details.get('weight', 0) * item.qty for item in order.items])} g</td>
+        <td><button class="btn btn-primary btn-group" data-toggle="modal" data-target="#myModal${order._id}"
+                style="padding: 2px 10px 2px 10px">
+                ${order.status.upper()}
+            </button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="myModal${order._id}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title" id="myModalLabel${order._id}">Tracciamento Spedizioni</h4>
+                            <p py:if="order.details.get('tracking_number')">Tracking Code:
+                                ${order.details.get('tracking_number')}</p>
+                            <p py:if="order.details.get('tracking_number')">Corriere: <a
+                                    href="http://www.dhl.com/en/express/tracking.html">DHL</a></p>
+                        </div>
+
+                        <div class="modal-body" py:if="order.details.get('tracking_info')">
+                            <h4>Spedizioni Secondarie</h4>
+                            <table class="table">
+                                <tr>
+                                    <th>Prodotto Fresco</th>
+                                    <th>Data</th>
+                                    <th>Corriere</th>
+                                    <th>Tracking Code</th>
+                                </tr>
+                                <tr py:for="tracking in order.details.tracking_info.values()">
+                                    <py:if test="tracking.product_name is not None">
+                                        <td>${h.i_entity_value(tracking, 'product_name')}</td>
+                                        <td>${h.format_date(tracking.date)}</td>
+                                        <td><a href="${tracking.courier_website}" target="_blank">${tracking.courier}</a>
+                                        </td>
+                                        <td>${tracking.tracking_number}</td>
+                                    </py:if>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div py:if="order.user != order.status_changes[-1].changed_by"> - edited by
+                ${order.status_changes[-1].changed_by}</div>
+        </td>
+        <td py:if="not order.payment_type">PAYPAL</td>
+        <td py:if="order.payment_type">${order.payment_type}</td>
+        <td py:if="order.notes"><a href="${notes % order._id}" target="_blank">show</a></td>
+        <td py:if="order.message"><a href="${message % order._id}" target="_blank">show</a></td>
+        <td py:if="not order.notes">&nbsp;
+        </td>
+        <td>${order.bill}</td>
+        <td py:if="not order.billed">${order.billed}</td>
+        <td py:if="order.billed">${order.billed_date.strftime('%d/%m/%Y') + '\n' + order.billed_by_name}</td>
+        <td py:if="not order.billed and order.bill"><a href="${bill_issue % order._id}">Mark as billed</a></td>
+        <th py:if="not order.bill">&nbsp;</th>
+        <td py:if="order.status != 'shipped'">
+            <a href="${edit % order._id}" class="glyphicon glyphicon-edit edit-order-link"></a></td>
+    </div>
+
+    <head py:block="head" py:strip="True">
+        <title>Orders Management</title>
+        <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/cart.scss')}" />
+        <style>
+            .form-inline .form-group {
+                vertical-align: bottom;
+            }
+        </style>
+    </head>
+
+    <body py:block="body" py:strip="True">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-16">${form.display(value=value, action=action)}</div>
+            </div>
+            <div py:for="date, g_orders in orders" class="row">
+                <div class="col-md-16">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">CREATION DATE ${date}</div>
+                        <div style="overflow-x: scroll; width: 100%">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ORDER ID</th>
+                                        <th>USER</th>
+                                        <th>EDIT DATE</th>
+                                        <th>TOTAL</th>
+                                        <th py:for="rate in all_the_vats">VAT ${int(rate*100)}%</th>
+                                        <th>SHIPPING</th>
+                                        <th>WEIGHT</th>
+                                        <th>STATUS</th>
+                                        <th>PAYMENT METHOD</th>
+                                        <th>NOTES</th>
+                                        <th>MESSAGE</th>
+                                        <th>BILL REQUESTED</th>
+                                        <th>BILLED</th>
+                                        <th>&nbsp;</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr py:for="order in g_orders">${order_row(order)}</tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+            var resetClick = function (el) {
+                var jQEl = jQuery(el);
+                window.location.href = jQEl.data('url');
+            }
+        </script>
+    </body>
+</html>

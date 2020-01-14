@@ -19,7 +19,13 @@ class CategoryManager(object):
         parent_id = None
         if parent is not None:
             ancestors = [ancestor for ancestor in parent.ancestors]
-            ancestors.append(dict(_id=parent._id, details=parent.details, name=parent.name, slug=parent.slug))
+            ancestors.append(
+                dict(
+                    _id=parent._id,
+                    name=parent.name,
+                    slug=parent.slug
+                )
+            )
             parent_id = parent._id
         category = models.Category(
             name=i_(name),

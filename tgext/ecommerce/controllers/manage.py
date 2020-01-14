@@ -39,9 +39,9 @@ class OrderFilterForm(twf.Form):
     css_class = 'form-inline'
 
     class child(BaseLayout):
-        inline_engine_name = 'genshi'
-        template = """
-<div xmlns:py="http://genshi.edgewall.org/" style="display: inline-block">
+        inline_engine_name = 'kajiki'
+        template = '''
+<div style="display: inline-block">
     <py:for each="c in w.children_hidden">
         ${c.display()}
     </py:for>
@@ -57,8 +57,7 @@ class OrderFilterForm(twf.Form):
         ${w.submit.display()}
     </div>
     <div class="error"><span class="error"><py:for each="error in w.rollup_errors"><p>${error}</p></py:for></span></div>
-</div>
-"""
+</div>'''
         field = twf.SingleSelectField(label=None,
                                       validator=twc.OneOfValidator(values=[f[0] for f in FILTER_FIELDS], required=True),
                                       options=FILTER_FIELDS, css_class="form-control")
@@ -76,7 +75,7 @@ class ManageController(TGController):
     @expose('tgext.ecommerce.templates.orders')
     def orders(self, **kw):
         orders = Order.query.find().sort('creation_date', -1).limit(250)
-        grouped_orders = groupby(orders, lambda o: o.creation_date.strftime('%d/%m/%Y'))
+        grouped_orders = groupby(orders, key=lambda o: o.creation_date.strftime('%d/%m/%Y'))
         all_the_vats = Order.all_the_vats()
         return dict(orders=grouped_orders, form=OrderFilterForm, value=kw, action=self.mount_point+'/submit_orders',
                     bill_issue=self.mount_point+'/bill_issue/%s', notes=self.mount_point+'/notes/%s',

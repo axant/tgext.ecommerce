@@ -1,0 +1,178 @@
+<html py:extends="master.xhtml" py:strip="True">
+
+    <head py:block="head" py:strip="True">
+        <title>Order detail</title>
+    </head>
+
+    <body py:block="body" py:strip="True">
+        <div class="container">
+            <hr />
+            <div class="row">
+                <div class="col-md-10 customer-info">
+                    <ul>
+                        <li>ORDER <b>${order._id}</b></li>
+                        <li>DATE <b>${h.format_date(order.creation_date)}</b></li>
+                        <li>TOTAL <b>€ ${h.format_price(order.total+order.applied_discount)}</b></li>
+                        <li>PAYMENT METHOD <b>${order.payment_type}</b></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 col-md-offset-1">
+                    <button class="btn btn-default btn-block" onClick="window.print()">PRINT</button>
+                </div>
+            </div>
+            <div id="print-order-detail">
+                <table>
+                    <p>ORDER DETAIL</p>
+                    <tr>
+                        <th>PRODUCT</th>
+                        <th>TYPE</th>
+                        <th>QUANTITY</th>
+                        <th>TOTAL</th>
+                    </tr>
+                    <tr py:for="item in order.items">
+                        <td>${h.i_entity_value(item, 'name')}<br />${item.details.producer_name}</td>
+                        <td>${h.i_entity_value(item, 'variety')}</td>
+                        <td>${item.qty}</td>
+                        <td>€ ${h.format_price(item.net_price*item.qty)}<br />(VAT € ${h.format_price(item.vat*item.qty)})
+                        </td>
+                    </tr>
+                </table>
+                <br />
+            </div>
+            <div class="row purchase-title">
+                <div class="col-md-14 col-md-offset-1 col-sm-14 col-sm-offset-1 col-xs-14 col-xs-offset-1">
+                    <h1 class="text-center order-title">ORDER DETAILS</h1>
+                    <div class="col-md-3 col-sm-3 col-xs-3">PRODUCT</div>
+                    <div class="col-md-3 col-md-offset-2 col-sm-3 col-sm-offset-2 hidden-xs">TYPE</div>
+                    <div class="col-md-3 col-md-offset-2 col-sm-3 col-sm-offset-2 hidden-xs">QUANTITY</div>
+                    <div class="col-md-2 col-md-offset-1 col-sm-2 col-sm-offset-1 hidden-xs item-price">TOTAL</div>
+                    <div class="visible-xs col-xs-3 col-xs-offset-7">QTY</div>
+                    <div class="col-xs-2 col-xs-offset-1 visible-xs item-price">TOT.</div>
+                </div>
+            </div>
+
+            <div id="order-items">
+                <div class="col-md-14 col-md-offset-1 col-sm-14 col-sm-offset-1 col-xs-14 col-xs-offset-1">
+                    <div class="row order-item" py:for="item in order.items">
+                        <div class="col-md-3 col-sm-3 col-xs-4 item-name">
+                            <div class="name-container">
+                                <span class="bold">${h.i_entity_value(item, 'name')}</span><br />
+                                ${item.details.producer_name}
+                            </div>
+                        </div>
+                        <div
+                            class="col-md-3 col-md-offset-2 col-sm-3 col-sm-offset-2 col-xs-4 col-xs-offset-1 item-variety">
+                            <div class="name-container">
+                                ${h.i_entity_value(item, 'variety')}
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-md-offset-2 col-sm-3 col-sm-offset-2 col-xs-2 col-xs-offset-1">
+                            ${item.qty}
+                        </div>
+                        <div class="col-md-2 col-md-offset-1 col-sm-2 col-sm-offset-1 col-xs-3 col-xs-offset-1 item-price">
+                            <div class="name-container">
+                                <span>€ ${h.format_price(item.gross_price*item.qty)}</span><br />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-11 col-md-offset-1 col-sm-11 col-sm-offset-1 col-xs-10 col-xs-offset-1 item-price">
+                    <span class="total-order-label">ORDER TOTAL </span>
+                </div>
+                <div class="col-md-2 col-md-offset-1 col-sm-2 col-sm-offset-1 col-xs-3 col-xs-offset-1 item-price">
+                    <b>€ ${h.format_price(order.gross_total)}</b>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8 col-md-offset-7 col-sm-8 col-sm-offset-7 col-xs-8 col-xs-offset-7 item-price">
+                    (include € ${h.format_price(order.tax)} VAT)
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-11 col-md-offset-1 col-sm-11 col-sm-offset-1 col-xs-10 col-xs-offset-1 item-price">
+                    <span class="total-order-label">SHIPPING CHARGES AND HANDLING </span>
+                </div>
+                <div class="col-md-2 col-md-offset-1 col-sm-2 col-sm-offset-1 col-xs-3 col-xs-offset-1 item-price">
+                    <b>€ ${h.format_price(order.shipping_charges)}</b>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-11 col-md-offset-1 col-sm-11 col-sm-offset-1 col-xs-10 col-xs-offset-1 item-price">
+                    <span class="total-order-label">TOTAL </span>
+                </div>
+                <div class="col-md-2 col-md-offset-1 col-sm-2 col-sm-offset-1 col-xs-3 col-xs-offset-1 item-price">
+                    <b>€ ${h.format_price(order.total)}</b>
+                </div>
+            </div>
+            <py:if test="order.applied_discount">
+                <div class="row">
+                    <div class="col-md-11 col-md-offset-1 col-sm-11 col-sm-offset-1 col-xs-10 col-xs-offset-1 item-price">
+                        <span class="total-order-label">DISCOUNT </span>
+                    </div>
+                    <div class="col-md-2 col-md-offset-1 col-sm-2 col-sm-offset-1 col-xs-3 col-xs-offset-1 item-price">
+                        <b>€ ${h.format_price(-order.applied_discount)}</b>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-11 col-md-offset-1 col-sm-11 col-sm-offset-1 col-xs-10 col-xs-offset-1 item-price">
+                        <span class="total-order-label">PAYED </span>
+                    </div>
+                    <div class="col-md-2 col-md-offset-1 col-sm-2 col-sm-offset-1 col-xs-3 col-xs-offset-1 item-price">
+                        <b>€ ${h.format_price(order.total+order.applied_discount)}</b>
+                    </div>
+                </div>
+            </py:if>
+
+
+            <div class="row purchase-title">
+                <div class="col-md-14 col-md-offset-1 col-sm-14 col-sm-offset-1 col-xs-14 col-xs-offset-1">
+                    <h1 class="text-center order-title">CUSTOMER DETAIL</h1>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div py:if="order.bill" class="col-md-4 col-md-offset-1 col-xs-14 col-xs-offset-1 customer-info">
+                    <p class="customer-info-subtitle">BILLING ADDRESS</p>
+                    <ul>
+                        <li>${order.bill_info.company}</li>
+                        <li>${order.bill_info.vat}</li>
+                        <li py:if="order.bill_info.fiscal_code">${order.bill_info.fiscal_code}</li>
+                        <li>${order.bill_info.address}</li>
+                        <li>${order.bill_info.zip_code} ${order.bill_info.city} ${order.bill_info.province}</li>
+                        <li>${order.bill_info.country}</li>
+                    </ul>
+                </div>
+                <div class="col-md-4 col-md-offset-1 col-xs-14 col-xs-offset-1 customer-info">
+                    <p class="customer-info-subtitle">SHIPPING ADDRESS</p>
+                    <ul>
+                        <li>${order.shipment_info.receiver}</li>
+                        <li>${order.shipment_info.address}</li>
+                        <li>${order.shipment_info.zip_code} ${order.shipment_info.city} ${order.shipment_info.province}</li>
+                        <li>${order.shipment_info.country}</li>
+                    </ul>
+                    <br />
+                </div>
+                <div class="col-md-5 col-md-offset-1 col-xs-14 col-xs-offset-1 customer-info">
+                    <p class="customer-info-subtitle">USER DATA</p>
+                    <ul>
+                        <li>Email <b>${order.details.email}</b></li>
+                        <li>Phone <b>${order.details.phone}</b></li>
+                    </ul>
+                    <p py:if="order.notes" class="customer-info-subtitle">NOTES</p>
+                    <ul py:if="order.notes">
+                        <li>${order.notes}</li>
+                    </ul>
+                    <p py:if="order.message" class="customer-info-subtitle">MESSAGE</p>
+                    <ul py:if="order.message">
+                        <li>${order.message}</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </body>
+
+</html>
