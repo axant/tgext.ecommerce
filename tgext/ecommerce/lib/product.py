@@ -22,6 +22,7 @@ class ProductManager(object):
         published=False, valid_from=None, valid_to=None,
         configuration_details=None, **details
     ):
+
         if variety is None:
             variety = name
 
@@ -69,6 +70,9 @@ class ProductManager(object):
             }]
         )
         models.DBSession.flush()
+        print('#' * 60)
+        print('#' * 60)
+        print('#' * 60)
         return product
 
     @classmethod

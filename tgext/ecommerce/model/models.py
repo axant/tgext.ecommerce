@@ -5,17 +5,14 @@ try:
 except ImportError:
     pass
 from bson import ObjectId
-import math
-from ming.odm.property import ORMProperty
 from ming.odm import FieldProperty, ForeignIdProperty, RelationProperty, MapperExtension
 from ming.odm.declarative import MappedClass
 from ming import schema as s, DESCENDING, ASCENDING
 import tg
 from tg import cache
-from tg.caching import cached_property
 from tg.util import Bunch
 from tgext.pluggable import app_model
-from tgext.ecommerce.lib.utils import short_lang, preferred_language, apply_vat, with_currency
+from tgext.ecommerce.lib.utils import preferred_language, with_currency
 from tgext.ecommerce.model import DBSession
 import operator
 
