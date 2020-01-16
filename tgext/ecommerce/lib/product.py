@@ -31,18 +31,18 @@ class ProductManager(object):
 
         if categories_ids is None:
             categories_ids = []
-
+        print('@' * 60)
         slug = slugify(name, type, models)
         if models.Product.query.find({'slug': slug}).first():
             raise AlreadyExistingSlugException(
                 'Already exist a Product with slug: %s' % slug
             )
-
+        print('A' * 60)
         if models.Product.query.find({'configurations.sku': sku}).first():
             raise AlreadyExistingSkuException(
                 'Already exist a Configuration with sku: %s' % sku
             )
-
+        print('B' * 60)
         if vat is None:
             vat = apply_vat(price, rate)
 
@@ -69,6 +69,7 @@ class ProductManager(object):
                 'details': configuration_details
             }]
         )
+        print('C' * 60)
         models.DBSession.flush()
         print('#' * 60)
         print('#' * 60)
