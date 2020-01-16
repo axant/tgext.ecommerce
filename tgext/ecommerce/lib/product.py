@@ -31,18 +31,18 @@ class ProductManager(object):
 
         if categories_ids is None:
             categories_ids = []
-        print('@' * 60)
+
         slug = slugify(name, type, models)
         if models.Product.query.find({'slug': slug}).first():
             raise AlreadyExistingSlugException(
                 'Already exist a Product with slug: %s' % slug
             )
-        print('A' * 60)
+
         if models.Product.query.find({'configurations.sku': sku}).first():
             raise AlreadyExistingSkuException(
                 'Already exist a Configuration with sku: %s' % sku
             )
-        print('B' * 60)
+
         if vat is None:
             vat = apply_vat(price, rate)
 
@@ -69,11 +69,8 @@ class ProductManager(object):
                 'details': configuration_details
             }]
         )
-        print('C' * 60)
+
         models.DBSession.flush()
-        print('#' * 60)
-        print('#' * 60)
-        print('#' * 60)
         return product
 
     @classmethod
@@ -154,8 +151,12 @@ class ProductManager(object):
             product.type = type
 
         if name is not NoDefault:
-            for k, v in i_(name).iteritems():
-                setattr(product.name, k, v)
+            try:
+                for k, v in i_(name).iteritems():
+                    setattr(product.name, k, v)
+            except AttributeError as ex:
+                for k, v in i_(name).items():
+                    setattr(product.name, k, v)
 
         if category_id is not NoDefault:
             product.category_id = ObjectId(category_id)
@@ -164,12 +165,21 @@ class ProductManager(object):
             product.categories_ids = categories_ids
 
         if description is not NoDefault:
-            for k, v in i_(description).iteritems():
-                setattr(product.description, k, v)
+            try:
+                for k, v in i_(description).iteritems():
+                    setattr(product.description, k, v)
+            except AttributeError as ex:
+                for k, v in i_(description).items():
+                    setattr(product.description, k, v)
 
         if details is not {}:
-            for k, v in details.iteritems():
-                setattr(product.details, k, v)
+            try:
+                for k, v in details.iteritems():
+                    setattr(product.details, k, v)
+            except AttributeError as ex:
+                for k, v in details.items():
+                    setattr(product.details, k, v)
+
 
         if valid_from is not NoDefault:
             product.valid_from = valid_from
