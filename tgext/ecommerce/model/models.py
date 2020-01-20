@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from itertools import groupby, chain
+
 try:
     import itertools.imap as map
 except ImportError:
@@ -43,7 +44,7 @@ class Category(MappedClass):
         if not self.ancestors:
             return self.name[tg.config.lang]
         return "%s > %s" % (" > ".join([ancestor.name[tg.config.lang] for ancestor in self.ancestors]),
-                             self.name[tg.config.lang])
+                            self.name[tg.config.lang])
 
     @classmethod
     def i18n_ancestor_name(cls, ancestor):
@@ -52,13 +53,13 @@ class Category(MappedClass):
     @classmethod
     def previous(cls, category):
         category = cls.query.get(_id=ObjectId(category))
-        return cls.query.find({'sort_weight': {'$lt': category.sort_weight}})\
+        return cls.query.find({'sort_weight': {'$lt': category.sort_weight}}) \
             .sort([('sort_weight', DESCENDING)]).limit(2).all()
 
     @classmethod
     def subsequent(cls, category):
         category = cls.query.get(_id=ObjectId(category))
-        return cls.query.find({'sort_weight': {'$gt': category.sort_weight}})\
+        return cls.query.find({'sort_weight': {'$gt': category.sort_weight}}) \
             .sort([('sort_weight', ASCENDING)]).limit(2).all()
 
 
@@ -112,10 +113,16 @@ class Product(MappedClass):
         else:
             min_qty_getter = lambda c: min_qty_getter
 
-        configurations_by_price = sorted(filter(lambda conf: conf[2]['qty'] >= min_qty_getter(conf[2]),
-                                                map(lambda conf: (conf[0], conf[1]['price'] + conf[1]['vat'], conf[1]),
-                                                    enumerate(self.configurations))),
-                                         key=lambda x: x[1])
+        configurations_by_price = sorted(
+            filter(
+                lambda conf: conf[2]['qty'] >= min_qty_getter(conf[2]),
+                map(
+                    lambda conf: (conf[0], conf[1]['price'] + conf[1]['vat'], conf[1]),
+                    enumerate(self.configurations)
+                )
+            ),
+            key=lambda x: x[1]
+        )
         if not configurations_by_price:
             return None, None
 
@@ -123,7 +130,10 @@ class Product(MappedClass):
 
     @property
     def thumbnail(self):
-        return tg.url(self.details['product_photos'][0]['url']) if self.details['product_photos'] else '//placehold.it/300x300'
+        return tg.url(
+            self.details['product_photos'][0]['url']) \
+            if 'product_photos' in self.details.keys() and len(self.details['product_photos']) > 0 \
+            else '//placehold.it/300x300'
 
     @property
     def i18n_name(self):
@@ -152,36 +162,36 @@ class Product(MappedClass):
 
     @classmethod
     def previous(cls, product):
-        return cls.query.find({'sort_weight': {'$lt': product.sort_weight}}).\
-                         sort([('sort_weight', DESCENDING)]).limit(2).all()
+        return cls.query.find({'sort_weight': {'$lt': product.sort_weight}}). \
+            sort([('sort_weight', DESCENDING)]).limit(2).all()
 
     @classmethod
     def previous_in_category(cls, product):
-        return cls.query.find({'sort_category_weight': {'$lt': product.sort_category_weight}}).\
-                         sort([('sort_category_weight', DESCENDING)]).limit(2).all()
+        return cls.query.find({'sort_category_weight': {'$lt': product.sort_category_weight}}). \
+            sort([('sort_category_weight', DESCENDING)]).limit(2).all()
 
     @classmethod
     def subsequent(cls, product):
-        return cls.query.find({'sort_weight': {'$gt': product.sort_weight}}).\
-                         sort([('sort_weight', ASCENDING)]).limit(2).all()
+        return cls.query.find({'sort_weight': {'$gt': product.sort_weight}}). \
+            sort([('sort_weight', ASCENDING)]).limit(2).all()
 
     @classmethod
     def subsequent_in_category(cls, product):
-        return cls.query.find({'sort_category_weight': {'$gt': product.sort_category_weight}}).\
-                         sort([('sort_category_weight', ASCENDING)]).limit(2).all()
+        return cls.query.find({'sort_category_weight': {'$gt': product.sort_category_weight}}). \
+            sort([('sort_category_weight', ASCENDING)]).limit(2).all()
 
     @classmethod
     def increase_sold(cls, sku, qty):
         DBSession.update(cls, {'configurations.sku': sku}, {'$inc': {'sold': qty}})
 
-class CartTtlExt(MapperExtension):
 
+class CartTtlExt(MapperExtension):
     _cart_ttl = None
 
     @classmethod
     def cart_expiration(cls):
         if cls._cart_ttl is None:
-            cls._cart_ttl = int(tg.config.get('cart.ttl', 30*60))
+            cls._cart_ttl = int(tg.config.get('cart.ttl', 30 * 60))
         return datetime.utcnow() + timedelta(seconds=cls._cart_ttl)
 
     def before_update(self, instance, state, sess):
@@ -192,8 +202,8 @@ class Cart(MappedClass):
     class __mongometa__:
         session = DBSession
         name = 'carts'
-        unique_indexes = [('user_id', )]
-        indexes = [('expires_at', )]
+        unique_indexes = [('user_id',)]
+        indexes = [('expires_at',)]
         extensions = [CartTtlExt]
 
     _id = FieldProperty(s.ObjectId)
@@ -237,7 +247,7 @@ class Cart(MappedClass):
         },
         'discounts': s.Anything(if_missing=[]),
         'notes': s.String(),
-        'message':s.String(),
+        'message': s.String(),
         'details': s.Anything(if_missing={})
     })
 
@@ -252,7 +262,7 @@ class Cart(MappedClass):
 
     @property
     def subtotal(self):
-        return sum([item['price']*item['qty'] for item in self.items.itervalues()])
+        return sum([item['price'] * item['qty'] for item in self.items.itervalues()])
 
     @property
     def tax(self):
@@ -279,7 +289,6 @@ class Cart(MappedClass):
         return cls.query.find({'expires_at': {'$lte': datetime.utcnow()}})
 
 
-
 class OrderStatusExt(MapperExtension):
     def before_insert(self, instance, state, sess):
         status = instance.status or 'created'
@@ -295,7 +304,7 @@ class OrderStatusExt(MapperExtension):
             identity = tg.request.identity['user']
         except:
             identity = Bunch(name='Automatic', surname='Change', email_address='')
-        changed_by = '%s %s' % (getattr(identity, 'name', identity.email_address), getattr(identity, 'surname', ''))\
+        changed_by = '%s %s' % (getattr(identity, 'name', identity.email_address), getattr(identity, 'surname', '')) \
             if identity else (None, None)
         instance.status_changes.append({'status': status, 'changed_by': changed_by, 'changed_at': datetime.utcnow()})
 
@@ -313,11 +322,11 @@ class Order(MappedClass):
     class __mongometa__:
         session = DBSession
         name = 'orders'
-        indexes = [('user_id', ),
-                   ('status_changes.changed_at', ),
-                   (('user', ), ('status_changes.changed_at', )),
-                   (('status', ), ('status_changes.changed_at', )),
-                   ('creation_date', )
+        indexes = [('user_id',),
+                   ('status_changes.changed_at',),
+                   (('user',), ('status_changes.changed_at',)),
+                   (('status',), ('status_changes.changed_at',)),
+                   ('creation_date',)
                    ]
         extensions = [OrderStatusExt]
 
@@ -411,8 +420,9 @@ class Order(MappedClass):
 
         sorted_items = sorted(self.items, key=lambda i: i['rate'])
         for k, g in groupby(sorted_items, key=lambda i: i['rate']):
-            mapping[k] = sum(list(map(lambda i: (with_currency.float2cur(i.gross_price) + _item_discount_fraction(i, self.gross_total)) * i.qty, g)))
-
+            mapping[k] = sum(list(map(lambda i: (with_currency.float2cur(i.gross_price) + _item_discount_fraction(i,
+                                                                                                                  self.gross_total)) * i.qty,
+                                      g)))
 
         if self.currencies.due:
             # If we have currency values available, fix the rounding error
@@ -420,7 +430,6 @@ class Order(MappedClass):
             expected_total = self.currencies.due - self.currencies.shipping_charges
             delta = expected_total - current_total
             mapping[sorted_items[-1]['rate']] += delta
-
 
         # Convert everything back to floats for visualization
         for k, g in mapping.iteritems():
@@ -447,13 +456,15 @@ class Order(MappedClass):
             vat_for_status = DBSession.impl.db.orders.aggregate([{'$project': {'items': 1, 'status': 1}},
                                                                  {'$unwind': '$items'},
                                                                  {'$group': {'_id': '$status',
-                                                                             'vat_rates': {'$addToSet': '$items.rate'}}}])
+                                                                             'vat_rates': {
+                                                                                 '$addToSet': '$items.rate'}}}])
             return sorted(set(chain(*[v['vat_rates'] for v in vat_for_status])))
+
         vat_cache = cache.get_cache('all_the_vats')
         cachedvalue = vat_cache.get_value(
             key='42',
             createfunc=aggregate_vats,
-            expiretime=3600*24*30  # one month
+            expiretime=3600 * 24 * 30  # one month
         )
         return cachedvalue
 
@@ -462,9 +473,8 @@ class Setting(MappedClass):
     class __mongometa__:
         session = DBSession
         name = 'ecommerce_settings'
-        unique_indexes = [('setting', )]
+        unique_indexes = [('setting',)]
 
     _id = FieldProperty(s.ObjectId)
     setting = FieldProperty(s.String)
     value = FieldProperty(s.Anything)
-
