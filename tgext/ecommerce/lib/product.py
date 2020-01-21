@@ -22,7 +22,6 @@ class ProductManager(object):
         published=False, valid_from=None, valid_to=None,
         configuration_details=None, **details
     ):
-
         if variety is None:
             variety = name
 

@@ -130,9 +130,11 @@ class Product(MappedClass):
 
     @property
     def thumbnail(self):
-        return tg.url(
-            self.details['product_photos'][0]['url']) \
-            if 'product_photos' in self.details.keys() and len(self.details['product_photos']) > 0 \
+        return app_model.BucketProductImage.query.find(
+            {'_id': self.details['photos'][0]}
+        ).first().image.url \
+            if 'photos' in self.details.keys() \
+            and len(self.details['photos']) > 0 \
             else '//placehold.it/300x300'
 
     @property
